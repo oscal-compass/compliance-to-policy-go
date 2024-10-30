@@ -1,0 +1,31 @@
+---
+name: CI
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  project:
+    name: Project Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v4
+        with:
+          go-version: v1.22
+      - name: Linting and formatting
+        run: |
+          go mod tidy
+          go mod verify
+          make fmt
+          make vet
+          git diff --exit-code
+      - name: Build
+        run: make build
+      - name: Run unit tests
+        run: make test
