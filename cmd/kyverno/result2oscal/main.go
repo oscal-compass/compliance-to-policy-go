@@ -19,7 +19,7 @@ package main
 import (
 	"os"
 
-	"github.com/oscal-compass/compliance-to-policy/go/cmd/kyverno/result2oscal/cmd"
+	"github.com/oscal-compass/compliance-to-policy-go/cmd/kyverno/result2oscal/cmd"
 )
 
 func main() {

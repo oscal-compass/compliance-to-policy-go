@@ -20,7 +20,7 @@ import (
 	"flag"
 	"os"
 
-	"github.com/oscal-compass/compliance-to-policy/go/pkg/parser"
+	"github.com/oscal-compass/compliance-to-policy-go/pkg/parser"
 )
 
 var TARGETS = []string{

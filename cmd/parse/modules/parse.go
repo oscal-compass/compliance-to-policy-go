@@ -24,10 +24,10 @@ import (
 	"go.uber.org/zap"
 	"gopkg.in/yaml.v3"
 
-	"github.com/oscal-compass/compliance-to-policy/go/pkg"
-	"github.com/oscal-compass/compliance-to-policy/go/pkg/parser"
-	"github.com/oscal-compass/compliance-to-policy/go/pkg/tables/resources"
-	"github.com/oscal-compass/compliance-to-policy/go/pkg/types/policycomposition"
+	"github.com/oscal-compass/compliance-to-policy-go/pkg"
+	"github.com/oscal-compass/compliance-to-policy-go/pkg/parser"
+	"github.com/oscal-compass/compliance-to-policy-go/pkg/tables/resources"
+	"github.com/oscal-compass/compliance-to-policy-go/pkg/types/policycomposition"
 )
 
 var TARGETS = []string{

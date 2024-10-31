@@ -17,7 +17,7 @@ limitations under the License.
 package oscal
 
 import (
-	. "github.com/oscal-compass/compliance-to-policy/go/pkg/types/oscal/componentdefinition"
+	. "github.com/oscal-compass/compliance-to-policy-go/pkg/types/oscal/componentdefinition"
 )
 
 type RuleObject struct {

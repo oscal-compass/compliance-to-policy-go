@@ -38,8 +38,8 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	compliancetopolicycontrollerv1alpha1 "github.com/oscal-compass/compliance-to-policy/go/api/v1alpha1"
-	"github.com/oscal-compass/compliance-to-policy/go/pkg"
+	compliancetopolicycontrollerv1alpha1 "github.com/oscal-compass/compliance-to-policy-go/api/v1alpha1"
+	"github.com/oscal-compass/compliance-to-policy-go/pkg"
 	//+kubebuilder:scaffold:imports
 )
 

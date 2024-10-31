@@ -19,8 +19,8 @@ package kyverno
 import (
 	"fmt"
 
-	"github.com/oscal-compass/compliance-to-policy/go/pkg"
-	typec2pcr "github.com/oscal-compass/compliance-to-policy/go/pkg/types/c2pcr"
+	"github.com/oscal-compass/compliance-to-policy-go/pkg"
+	typec2pcr "github.com/oscal-compass/compliance-to-policy-go/pkg/types/c2pcr"
 	cp "github.com/otiai10/copy"
 	"go.uber.org/zap"
 )

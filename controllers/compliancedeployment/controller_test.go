@@ -25,9 +25,9 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	ctrlv1alpha1 "github.com/oscal-compass/compliance-to-policy/go/api/v1alpha1"
-	"github.com/oscal-compass/compliance-to-policy/go/controllers/utils/ocmk8sclients"
-	"github.com/oscal-compass/compliance-to-policy/go/pkg"
+	ctrlv1alpha1 "github.com/oscal-compass/compliance-to-policy-go/api/v1alpha1"
+	"github.com/oscal-compass/compliance-to-policy-go/controllers/utils/ocmk8sclients"
+	"github.com/oscal-compass/compliance-to-policy-go/pkg"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -37,8 +37,8 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	ctrlrefocm "github.com/oscal-compass/compliance-to-policy/go/controllers/controlreference/ocm"
-	"github.com/oscal-compass/compliance-to-policy/go/controllers/testsetting"
+	ctrlrefocm "github.com/oscal-compass/compliance-to-policy-go/controllers/controlreference/ocm"
+	"github.com/oscal-compass/compliance-to-policy-go/controllers/testsetting"
 )
 
 var testSetting *testsetting.TestSetting

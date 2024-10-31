@@ -17,7 +17,7 @@ limitations under the License.
 package policygenerator
 
 import (
-	"github.com/oscal-compass/compliance-to-policy/go/pkg/types/policygenerator"
+	"github.com/oscal-compass/compliance-to-policy-go/pkg/types/policygenerator"
 	"sigs.k8s.io/kustomize/api/krusty"
 	"sigs.k8s.io/kustomize/api/resmap"
 	kustomizetypes "sigs.k8s.io/kustomize/api/types"

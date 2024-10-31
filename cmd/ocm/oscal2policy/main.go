@@ -19,7 +19,7 @@ package main
 import (
 	"os"
 
-	"github.com/oscal-compass/compliance-to-policy/go/cmd/ocm/oscal2policy/cmd"
+	"github.com/oscal-compass/compliance-to-policy-go/cmd/ocm/oscal2policy/cmd"
 )
 
 func main() {

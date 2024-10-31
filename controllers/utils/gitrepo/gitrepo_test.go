@@ -20,7 +20,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/oscal-compass/compliance-to-policy/go/pkg"
+	"github.com/oscal-compass/compliance-to-policy-go/pkg"
 )
 
 func TestGitRepo(t *testing.T) {

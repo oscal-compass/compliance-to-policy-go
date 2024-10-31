@@ -17,7 +17,7 @@ limitations under the License.
 package v1alpha1
 
 import (
-	wgpolicyk8sv1alpha2 "github.com/oscal-compass/compliance-to-policy/go/controllers/wgpolicyk8s.io/v1alpha2"
+	wgpolicyk8sv1alpha2 "github.com/oscal-compass/compliance-to-policy-go/controllers/wgpolicyk8s.io/v1alpha2"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 

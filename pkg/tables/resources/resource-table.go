@@ -23,7 +23,7 @@ import (
 	"strings"
 
 	"github.com/olekukonko/tablewriter"
-	"github.com/oscal-compass/compliance-to-policy/go/pkg"
+	"github.com/oscal-compass/compliance-to-policy-go/pkg"
 	"go.uber.org/zap"
 )
 

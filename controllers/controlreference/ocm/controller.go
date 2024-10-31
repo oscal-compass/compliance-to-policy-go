@@ -29,13 +29,13 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	"github.com/go-logr/logr"
-	compliancetopolicycontrollerv1alpha1 "github.com/oscal-compass/compliance-to-policy/go/api/v1alpha1"
-	"github.com/oscal-compass/compliance-to-policy/go/controllers/composer"
-	"github.com/oscal-compass/compliance-to-policy/go/controllers/utils"
-	"github.com/oscal-compass/compliance-to-policy/go/controllers/utils/ocmk8sclients"
-	"github.com/oscal-compass/compliance-to-policy/go/pkg/types/internalcompliance"
-	typesplacement "github.com/oscal-compass/compliance-to-policy/go/pkg/types/placements"
-	typespolicy "github.com/oscal-compass/compliance-to-policy/go/pkg/types/policy"
+	compliancetopolicycontrollerv1alpha1 "github.com/oscal-compass/compliance-to-policy-go/api/v1alpha1"
+	"github.com/oscal-compass/compliance-to-policy-go/controllers/composer"
+	"github.com/oscal-compass/compliance-to-policy-go/controllers/utils"
+	"github.com/oscal-compass/compliance-to-policy-go/controllers/utils/ocmk8sclients"
+	"github.com/oscal-compass/compliance-to-policy-go/pkg/types/internalcompliance"
+	typesplacement "github.com/oscal-compass/compliance-to-policy-go/pkg/types/placements"
+	typespolicy "github.com/oscal-compass/compliance-to-policy-go/pkg/types/policy"
 	utilyaml "k8s.io/apimachinery/pkg/util/yaml"
 )
 

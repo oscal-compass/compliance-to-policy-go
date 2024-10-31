@@ -19,8 +19,8 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/oscal-compass/compliance-to-policy/go/cmd/c2pcli/options"
-	"github.com/oscal-compass/compliance-to-policy/go/cmd/c2pcli/subcommands"
+	"github.com/oscal-compass/compliance-to-policy-go/cmd/c2pcli/options"
+	"github.com/oscal-compass/compliance-to-policy-go/cmd/c2pcli/subcommands"
 )
 
 func New() *cobra.Command {

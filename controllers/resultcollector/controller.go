@@ -23,8 +23,8 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
-	c2pv1alpha1 "github.com/oscal-compass/compliance-to-policy/go/api/v1alpha1"
-	"github.com/oscal-compass/compliance-to-policy/go/controllers/utils"
+	c2pv1alpha1 "github.com/oscal-compass/compliance-to-policy-go/api/v1alpha1"
+	"github.com/oscal-compass/compliance-to-policy-go/controllers/utils"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/client-go/rest"

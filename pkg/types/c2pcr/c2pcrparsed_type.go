@@ -17,9 +17,9 @@ limitations under the License.
 package c2pcr
 
 import (
-	"github.com/oscal-compass/compliance-to-policy/go/pkg/oscal"
-	typesoscal "github.com/oscal-compass/compliance-to-policy/go/pkg/types/oscal"
-	typecd "github.com/oscal-compass/compliance-to-policy/go/pkg/types/oscal/componentdefinition"
+	"github.com/oscal-compass/compliance-to-policy-go/pkg/oscal"
+	typesoscal "github.com/oscal-compass/compliance-to-policy-go/pkg/types/oscal"
+	typecd "github.com/oscal-compass/compliance-to-policy-go/pkg/types/oscal/componentdefinition"
 )
 
 type C2PCRParsed struct {

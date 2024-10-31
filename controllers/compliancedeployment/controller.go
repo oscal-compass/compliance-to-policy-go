@@ -29,8 +29,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	c2pv1alpha1 "github.com/oscal-compass/compliance-to-policy/go/api/v1alpha1"
-	"github.com/oscal-compass/compliance-to-policy/go/controllers/utils"
+	c2pv1alpha1 "github.com/oscal-compass/compliance-to-policy-go/api/v1alpha1"
+	"github.com/oscal-compass/compliance-to-policy-go/controllers/utils"
 )
 
 // ComplianceDeploymentReconciler reconciles a ComplianceDeployment object

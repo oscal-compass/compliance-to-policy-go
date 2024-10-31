@@ -23,11 +23,11 @@ import (
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 
-	"github.com/oscal-compass/compliance-to-policy/go/cmd/pvpcommon/oscal2posture/options"
-	"github.com/oscal-compass/compliance-to-policy/go/pkg"
-	"github.com/oscal-compass/compliance-to-policy/go/pkg/kyverno"
-	"github.com/oscal-compass/compliance-to-policy/go/pkg/pvpcommon"
-	typec2pcr "github.com/oscal-compass/compliance-to-policy/go/pkg/types/c2pcr"
+	"github.com/oscal-compass/compliance-to-policy-go/cmd/pvpcommon/oscal2posture/options"
+	"github.com/oscal-compass/compliance-to-policy-go/pkg"
+	"github.com/oscal-compass/compliance-to-policy-go/pkg/kyverno"
+	"github.com/oscal-compass/compliance-to-policy-go/pkg/pvpcommon"
+	typec2pcr "github.com/oscal-compass/compliance-to-policy-go/pkg/types/c2pcr"
 )
 
 func New(logger *zap.Logger) *cobra.Command {

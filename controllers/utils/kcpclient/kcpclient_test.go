@@ -24,8 +24,8 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.com/oscal-compass/compliance-to-policy/go/controllers/testsetting"
-	"github.com/oscal-compass/compliance-to-policy/go/pkg"
+	"github.com/oscal-compass/compliance-to-policy-go/controllers/testsetting"
+	"github.com/oscal-compass/compliance-to-policy-go/pkg"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"

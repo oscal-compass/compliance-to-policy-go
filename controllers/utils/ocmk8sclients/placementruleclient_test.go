@@ -17,8 +17,8 @@ limitations under the License.
 package ocmk8sclients
 
 import (
-	"github.com/oscal-compass/compliance-to-policy/go/pkg"
-	typesplacement "github.com/oscal-compass/compliance-to-policy/go/pkg/types/placements"
+	"github.com/oscal-compass/compliance-to-policy-go/pkg"
+	typesplacement "github.com/oscal-compass/compliance-to-policy-go/pkg/types/placements"
 	"k8s.io/client-go/dynamic"
 
 	. "github.com/onsi/ginkgo/v2"

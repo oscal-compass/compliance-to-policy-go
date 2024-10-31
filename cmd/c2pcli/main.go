@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/oscal-compass/compliance-to-policy/go/cmd/c2pcli/cmd"
+	"github.com/oscal-compass/compliance-to-policy-go/cmd/c2pcli/cmd"
 	"github.com/spf13/cobra"
 )
 

@@ -20,11 +20,11 @@ import (
 	"flag"
 	"os"
 
-	compliancetopolicycontrollerv1alpha1 "github.com/oscal-compass/compliance-to-policy/go/api/v1alpha1"
-	"github.com/oscal-compass/compliance-to-policy/go/controllers/composer"
-	"github.com/oscal-compass/compliance-to-policy/go/controllers/utils/gitrepo"
-	"github.com/oscal-compass/compliance-to-policy/go/controllers/utils/publisher"
-	"github.com/oscal-compass/compliance-to-policy/go/pkg"
+	compliancetopolicycontrollerv1alpha1 "github.com/oscal-compass/compliance-to-policy-go/api/v1alpha1"
+	"github.com/oscal-compass/compliance-to-policy-go/controllers/composer"
+	"github.com/oscal-compass/compliance-to-policy-go/controllers/utils/gitrepo"
+	"github.com/oscal-compass/compliance-to-policy-go/controllers/utils/publisher"
+	"github.com/oscal-compass/compliance-to-policy-go/pkg"
 )
 
 func main() {

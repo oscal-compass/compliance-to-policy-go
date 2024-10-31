@@ -17,8 +17,8 @@ limitations under the License.
 package ocm
 
 import (
-	typeconfigpolicy "github.com/oscal-compass/compliance-to-policy/go/pkg/types/configurationpolicy"
-	typepolicy "github.com/oscal-compass/compliance-to-policy/go/pkg/types/policy"
+	typeconfigpolicy "github.com/oscal-compass/compliance-to-policy-go/pkg/types/configurationpolicy"
+	typepolicy "github.com/oscal-compass/compliance-to-policy-go/pkg/types/policy"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	typepolr "sigs.k8s.io/wg-policy-prototypes/policy-report/pkg/api/wgpolicyk8s.io/v1beta1"
 )

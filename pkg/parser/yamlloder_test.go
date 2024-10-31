@@ -19,8 +19,8 @@ package parser
 import (
 	"testing"
 
-	"github.com/oscal-compass/compliance-to-policy/go/pkg/types/placements"
-	"github.com/oscal-compass/compliance-to-policy/go/pkg/types/policy"
+	"github.com/oscal-compass/compliance-to-policy-go/pkg/types/placements"
+	"github.com/oscal-compass/compliance-to-policy-go/pkg/types/policy"
 	"gopkg.in/yaml.v3"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	k8syaml "k8s.io/apimachinery/pkg/runtime/serializer/yaml"

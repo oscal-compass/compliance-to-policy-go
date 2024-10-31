@@ -19,10 +19,10 @@ package subcommands
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/oscal-compass/compliance-to-policy/go/cmd/c2pcli/options"
-	oscal2policycmd "github.com/oscal-compass/compliance-to-policy/go/cmd/ocm/oscal2policy/cmd"
-	result2oscalcmd "github.com/oscal-compass/compliance-to-policy/go/cmd/ocm/result2oscal/cmd"
-	toolscmd "github.com/oscal-compass/compliance-to-policy/go/cmd/ocm/tools/cmd"
+	"github.com/oscal-compass/compliance-to-policy-go/cmd/c2pcli/options"
+	oscal2policycmd "github.com/oscal-compass/compliance-to-policy-go/cmd/ocm/oscal2policy/cmd"
+	result2oscalcmd "github.com/oscal-compass/compliance-to-policy-go/cmd/ocm/result2oscal/cmd"
+	toolscmd "github.com/oscal-compass/compliance-to-policy-go/cmd/ocm/tools/cmd"
 )
 
 func NewOcmSubCommand() *cobra.Command {
