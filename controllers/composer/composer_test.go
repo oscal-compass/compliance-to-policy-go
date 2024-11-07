@@ -23,6 +23,7 @@ import (
 
 	"github.com/oscal-compass/compliance-to-policy-go/pkg"
 	"github.com/oscal-compass/compliance-to-policy-go/pkg/types/configurationpolicy"
+	. "github.com/oscal-compass/compliance-to-policy-go/pkg/types/internalcompliance"
 	"github.com/oscal-compass/compliance-to-policy-go/pkg/types/placements"
 	typepolicy "github.com/oscal-compass/compliance-to-policy-go/pkg/types/policy"
 	"github.com/stretchr/testify/assert"

@@ -22,6 +22,7 @@ import (
 	"strings"
 
 	policygenerator "github.com/oscal-compass/compliance-to-policy-go/pkg/policygenerator"
+	. "github.com/oscal-compass/compliance-to-policy-go/pkg/types/internalcompliance"
 	pgtype "github.com/oscal-compass/compliance-to-policy-go/pkg/types/policygenerator"
 	cp "github.com/otiai10/copy"
 	typekustomize "sigs.k8s.io/kustomize/api/types"

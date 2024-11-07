@@ -24,6 +24,7 @@ import (
 
 	"github.com/oscal-compass/compliance-to-policy-go/pkg"
 	"github.com/oscal-compass/compliance-to-policy-go/pkg/types/configurationpolicy"
+	. "github.com/oscal-compass/compliance-to-policy-go/pkg/types/internalcompliance"
 	typespolicy "github.com/oscal-compass/compliance-to-policy-go/pkg/types/policy"
 	pgtype "github.com/oscal-compass/compliance-to-policy-go/pkg/types/policygenerator"
 	cp "github.com/otiai10/copy"
