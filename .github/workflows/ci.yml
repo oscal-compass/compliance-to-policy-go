@@ -25,6 +25,11 @@ jobs:
           make fmt
           make vet
           git diff --exit-code
+      - name: Install Prerequisites
+        run: |
+          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
+          GOBIN=${HOME}/.config/kustomize/plugin/policy.open-cluster-management.io/v1/policygenerator \
+          go install open-cluster-management.io/policy-generator-plugin/cmd/PolicyGenerator@latest
       - name: Build
         run: make build
       - name: Run unit tests

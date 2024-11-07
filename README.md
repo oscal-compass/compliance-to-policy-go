@@ -36,6 +36,10 @@ Provide seamless integration with compliance frameworks and existing policy engi
 - [Open Cluster Management Policy Framework](https://open-cluster-management.io/) (for Kubernetes resources)
     - OCM is a multi-cluster management platform that provides governance of Kubernetes policies. [Its policy framework](https://open-cluster-management.io/concepts/policy/) allows for the validation and enforcement of policies across multiple clusters.
 
+## Prerequisite
+- Install [Kustomize](https://kubectl.docs.kubernetes.io/installation/kustomize/binaries/)
+- Install [policy-generator plugin](https://github.com/open-cluster-management-io/policy-generator-plugin?tab=readme-ov-file)
+
 ## Usage of C2P CLI
 ```
 $ c2pcli -h        
