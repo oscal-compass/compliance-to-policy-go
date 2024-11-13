@@ -1,0 +1,36 @@
+---
+name: CI
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  project:
+    name: Project Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v4
+        with:
+          go-version: v1.22
+      - name: Linting and formatting
+        run: |
+          go mod tidy
+          go mod verify
+          make fmt
+          make vet
+          git diff --exit-code
+      - name: Install Prerequisites
+        run: |
+          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
+          GOBIN=${HOME}/.config/kustomize/plugin/policy.open-cluster-management.io/v1/policygenerator \
+          go install open-cluster-management.io/policy-generator-plugin/cmd/PolicyGenerator@latest
+      - name: Build
+        run: make build
+      - name: Run unit tests
+        run: make test
