@@ -18,6 +18,12 @@ It generates policies in native format of PVP from OSCAL Component Definitions a
     - The plugin is responsible for implementing a function that takes the results of the policy engine and returns verdicts (pass/fail/error), reason, and/or resource name for each respective policy by its names/IDs.
 7. C2P produces Compliance Assessment Results, for example OSCAL Assessment Results that represents the assessment results of each control
 
+## Versions
+
+### v1: stable
+
+All `v1.*` releases are based upon this branch.
+
 ## Goals
 Provide seamless integration with compliance frameworks and existing policy engines, and enable to use heterogeneous policy engines in compliance check operation
 - Flexibility in choice of policy engines and compliance frameworks
