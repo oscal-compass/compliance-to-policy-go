@@ -18,6 +18,21 @@ It generates policies in native format of PVP from OSCAL Component Definitions a
     - The plugin is responsible for implementing a function that takes the results of the policy engine and returns verdicts (pass/fail/error), reason, and/or resource name for each respective policy by its names/IDs.
 7. C2P produces Compliance Assessment Results, for example OSCAL Assessment Results that represents the assessment results of each control
 
+## Versions
+
+C2P Go follows [Semantic Versioning](https://semver.org/). All backward-incompatible changes are reserved for 
+the next major release (2).
+
+### v1: stable
+All v1.* releases are based upon the `v1` branch.
+
+### v2: experimental
+The `main` branch is where all `v2` module development occurs.
+
+Note that this version is under initial development and the API may change incompatibly from one commit to another on the `main` branch until the `v2` module is released as stable. If importing, you should use the main branch (or a specific commit hash) for this module in your project's `go.mod`.
+
+If you are seeking stability over new features, you are highly encouraged to use releases with major version 1.
+
 ## Goals
 Provide seamless integration with compliance frameworks and existing policy engines, and enable to use heterogeneous policy engines in compliance check operation
 - Flexibility in choice of policy engines and compliance frameworks
