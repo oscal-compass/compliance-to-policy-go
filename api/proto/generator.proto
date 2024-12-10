@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package protocols;
+
+option go_package = "github.com/oscal-compass/compliance-to-policy-go/api/proto/";
+
+import "api/proto/messages.proto";
+
+// generate PVP policy 
+service GenerationEngine {
+  rpc Generate(GenerateRequest) returns (GenerateResponse);
+}
