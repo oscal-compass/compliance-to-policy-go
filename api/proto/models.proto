@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package protocols;
 
-option go_package = "github.com/oscal-compass/compliance-to-policy-go/api/proto/";
+option go_package = "github.com/oscal-compass/compliance-to-policy-go/v2/api/proto/";
 
 import "google/protobuf/timestamp.proto";
 
