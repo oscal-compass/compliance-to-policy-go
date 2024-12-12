@@ -8,7 +8,6 @@ package proto
 
 import (
 	context "context"
-	proto "github.com/oscal-compass/compliance-to-policy-go/v2/api/proto"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -20,6 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	PolicyEngine_Genererate_FullMethodName = "/protocols.PolicyEngine/Genererate"
 	PolicyEngine_GetResults_FullMethodName = "/protocols.PolicyEngine/GetResults"
 )
 
@@ -29,7 +29,8 @@ const (
 //
 // get policy results from PVP
 type PolicyEngineClient interface {
-	GetResults(ctx context.Context, in *proto.Empty, opts ...grpc.CallOption) (*proto.ResultsResponse, error)
+	Genererate(ctx context.Context, in *PolicyRequest, opts ...grpc.CallOption) (*GenerateResponse, error)
+	GetResults(ctx context.Context, in *PolicyRequest, opts ...grpc.CallOption) (*ResultsResponse, error)
 }
 
 type policyEngineClient struct {
@@ -40,9 +41,19 @@ func NewPolicyEngineClient(cc grpc.ClientConnInterface) PolicyEngineClient {
 	return &policyEngineClient{cc}
 }
 
-func (c *policyEngineClient) GetResults(ctx context.Context, in *proto.Empty, opts ...grpc.CallOption) (*proto.ResultsResponse, error) {
+func (c *policyEngineClient) Genererate(ctx context.Context, in *PolicyRequest, opts ...grpc.CallOption) (*GenerateResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(proto.ResultsResponse)
+	out := new(GenerateResponse)
+	err := c.cc.Invoke(ctx, PolicyEngine_Genererate_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *policyEngineClient) GetResults(ctx context.Context, in *PolicyRequest, opts ...grpc.CallOption) (*ResultsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ResultsResponse)
 	err := c.cc.Invoke(ctx, PolicyEngine_GetResults_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -56,7 +67,8 @@ func (c *policyEngineClient) GetResults(ctx context.Context, in *proto.Empty, op
 //
 // get policy results from PVP
 type PolicyEngineServer interface {
-	GetResults(context.Context, *proto.Empty) (*proto.ResultsResponse, error)
+	Genererate(context.Context, *PolicyRequest) (*GenerateResponse, error)
+	GetResults(context.Context, *PolicyRequest) (*ResultsResponse, error)
 	mustEmbedUnimplementedPolicyEngineServer()
 }
 
@@ -67,7 +79,10 @@ type PolicyEngineServer interface {
 // pointer dereference when methods are called.
 type UnimplementedPolicyEngineServer struct{}
 
-func (UnimplementedPolicyEngineServer) GetResults(context.Context, *proto.Empty) (*proto.ResultsResponse, error) {
+func (UnimplementedPolicyEngineServer) Genererate(context.Context, *PolicyRequest) (*GenerateResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Genererate not implemented")
+}
+func (UnimplementedPolicyEngineServer) GetResults(context.Context, *PolicyRequest) (*ResultsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetResults not implemented")
 }
 func (UnimplementedPolicyEngineServer) mustEmbedUnimplementedPolicyEngineServer() {}
@@ -91,8 +106,26 @@ func RegisterPolicyEngineServer(s grpc.ServiceRegistrar, srv PolicyEngineServer)
 	s.RegisterService(&PolicyEngine_ServiceDesc, srv)
 }
 
+func _PolicyEngine_Genererate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PolicyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PolicyEngineServer).Genererate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PolicyEngine_Genererate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PolicyEngineServer).Genererate(ctx, req.(*PolicyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _PolicyEngine_GetResults_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(proto.Empty)
+	in := new(PolicyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -104,7 +137,7 @@ func _PolicyEngine_GetResults_Handler(srv interface{}, ctx context.Context, dec 
 		FullMethod: PolicyEngine_GetResults_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PolicyEngineServer).GetResults(ctx, req.(*proto.Empty))
+		return srv.(PolicyEngineServer).GetResults(ctx, req.(*PolicyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -116,6 +149,10 @@ var PolicyEngine_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "protocols.PolicyEngine",
 	HandlerType: (*PolicyEngineServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Genererate",
+			Handler:    _PolicyEngine_Genererate_Handler,
+		},
 		{
 			MethodName: "GetResults",
 			Handler:    _PolicyEngine_GetResults_Handler,
