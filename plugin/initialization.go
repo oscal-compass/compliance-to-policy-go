@@ -11,6 +11,8 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-plugin"
+
+	"github.com/oscal-compass/compliance-to-policy-go/v2/policy"
 )
 
 // Register a set of implemented plugins.
@@ -52,4 +54,24 @@ func ClientFactory(logger hclog.Logger) ClientFactoryFunc {
 		client := plugin.NewClient(config)
 		return client, nil
 	}
+}
+
+// NewPolicyPlugin dispenses a new instance of a policy plugin.
+func NewPolicyPlugin(pluginManifest Manifest, createClient ClientFactoryFunc) (policy.Provider, error) {
+	client, err := createClient(pluginManifest)
+	if err != nil {
+		return nil, err
+	}
+	rpcClient, err := client.Client()
+	if err != nil {
+		return nil, err
+	}
+
+	raw, err := rpcClient.Dispense(PVPPluginName)
+	if err != nil {
+		return nil, err
+	}
+
+	p := raw.(policy.Provider)
+	return p, nil
 }
