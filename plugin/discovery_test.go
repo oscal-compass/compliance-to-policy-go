@@ -6,6 +6,7 @@
 package plugin
 
 import (
+	"sort"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -103,6 +104,10 @@ func TestFindPlugins(t *testing.T) {
 				for _, m := range manifests {
 					foundMeta = append(foundMeta, m.Metadata)
 				}
+				// Eliminate flakiness with sorting
+				sort.SliceStable(foundMeta, func(i, j int) bool {
+					return foundMeta[i].ID < foundMeta[j].ID
+				})
 				require.Equal(t, c.wantMeta, foundMeta)
 			}
 		})
