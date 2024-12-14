@@ -5,6 +5,7 @@ go 1.22.7
 toolchain go1.22.9
 
 require (
+	github.com/defenseunicorns/go-oscal v0.6.0
 	github.com/hashicorp/go-hclog v1.6.3
 	github.com/hashicorp/go-plugin v1.6.2
 	github.com/oscal-compass/oscal-sdk-go v0.0.0-20241209195345-3e8abe96267d
