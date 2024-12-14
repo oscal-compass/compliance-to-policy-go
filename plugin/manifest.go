@@ -33,5 +33,11 @@ type Metadata struct {
 	Types []string `json:"types"`
 }
 
+// ValidateID ensure the plugin id is valid based on the
+// plugin IdentifierPattern.
+func (m Metadata) ValidateID() bool {
+	return IdentifierPattern.MatchString(m.ID)
+}
+
 // ManifestSet defines the Manifest by plugin id.
 type ManifestSet map[string]Manifest

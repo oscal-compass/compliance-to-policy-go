@@ -70,6 +70,22 @@ func TestFindPlugins(t *testing.T) {
 			},
 		},
 		{
+			name:         "InValid/PluginNameInvalid",
+			testDataPath: "testdata/invalid-plugins",
+			options: []FindOption{
+				WithProviderIds([]string{"INVALID"}),
+			},
+			wantError: "invalid plugin id \"INVALID\" in manifest c2p-INVALID-manifest.json",
+		},
+		{
+			name:         "InValid/PluginNameMismatch",
+			testDataPath: "testdata/invalid-plugins",
+			options: []FindOption{
+				WithProviderIds([]string{"testplugin"}),
+			},
+			wantError: "invalid plugin id \"testplugin2\" in manifest c2p-testplugin-manifest.json",
+		},
+		{
 			name:         "Failure/NoPlugins",
 			testDataPath: "testdata/",
 			wantError:    "no plugins found in testdata/",

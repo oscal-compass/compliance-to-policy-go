@@ -25,6 +25,9 @@ func Register(plugins map[string]plugin.Plugin) {
 	})
 }
 
+// Cleanup clean up all plugin clients created by the ClientFactory.
+var Cleanup func() = plugin.CleanupClients
+
 // ClientFactoryFunc defines a function signature for creating
 // new go-plugin clients.
 type ClientFactoryFunc func(manifest Manifest) (*plugin.Client, error)

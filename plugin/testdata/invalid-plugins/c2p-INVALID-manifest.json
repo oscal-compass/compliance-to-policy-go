@@ -1,0 +1,10 @@
+{
+  "metadata": {
+    "id": "INVALID",
+    "description": "My example test plugin",
+    "version": "0.0.1",
+    "types": ["pvp", "remediation"]
+  },
+  "executablePath": "INVALID",
+  "sha256": "bbcf41a0b2684c99cbf39b7b5844b82e88eefe1748392ca6df7836100058ffe2"
+}

@@ -69,8 +69,6 @@ func FindPlugins(pluginDir string, opts ...FindOption) (ManifestSet, error) {
 	metaDataSet := make(ManifestSet)
 	var errs []error
 
-	fmt.Println(matchingPlugins)
-
 	// Filter plugins by provider IDs if provided
 	if len(config.providerIds) != 0 {
 		filteredIds := make(map[string]string)
@@ -94,6 +92,13 @@ func FindPlugins(pluginDir string, opts ...FindOption) (ManifestSet, error) {
 		manifest, err := readManifestFile(id, manifestPath)
 		if err != nil {
 			errs = append(errs, err)
+			continue
+		}
+
+		// Ensure consistent naming for the plugin identifier and
+		// that the name meets identifier criteria.
+		if !manifest.ValidateID() || manifest.ID != id {
+			errs = append(errs, fmt.Errorf("invalid plugin id %q in manifest %s", manifest.ID, manifestName))
 			continue
 		}
 
