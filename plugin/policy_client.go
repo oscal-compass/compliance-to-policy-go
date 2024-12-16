@@ -20,7 +20,7 @@ type pvpClient struct {
 }
 
 func (pvp *pvpClient) Generate(p policy.Policy) error {
-	request := PolicyToProto((p))
+	request := PolicyToProto(p)
 	_, err := pvp.client.Generate(context.Background(), request)
 	if err != nil {
 		return err
@@ -29,7 +29,7 @@ func (pvp *pvpClient) Generate(p policy.Policy) error {
 }
 
 func (pvp *pvpClient) GetResults(p policy.Policy) (policy.PVPResult, error) {
-	request := PolicyToProto((p))
+	request := PolicyToProto(p)
 	resp, err := pvp.client.GetResults(context.Background(), request)
 	if err != nil {
 		return policy.PVPResult{}, err

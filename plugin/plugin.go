@@ -6,9 +6,14 @@
 package plugin
 
 import (
+	"context"
 	"regexp"
 
 	"github.com/hashicorp/go-plugin"
+	"google.golang.org/grpc"
+
+	"github.com/oscal-compass/compliance-to-policy-go/v2/api/proto"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/policy"
 )
 
 const (
@@ -36,4 +41,24 @@ var Handshake = plugin.HandshakeConfig{
 }
 
 // SupportedPlugins is the map of plugins we can dispense.
-var SupportedPlugins = map[string]plugin.Plugin{}
+var SupportedPlugins = map[string]plugin.Plugin{
+	PVPPluginName: &PVPPlugin{},
+}
+
+var _ plugin.GRPCPlugin = (*PVPPlugin)(nil)
+
+// PVPPlugin is concrete implementation of the policy.Provider written in Go for use
+// with go-plugin.
+type PVPPlugin struct {
+	plugin.Plugin
+	Impl policy.Provider
+}
+
+func (p *PVPPlugin) GRPCServer(broker *plugin.GRPCBroker, s *grpc.Server) error {
+	proto.RegisterPolicyEngineServer(s, FromPVP(p.Impl))
+	return nil
+}
+
+func (p *PVPPlugin) GRPCClient(ctx context.Context, broker *plugin.GRPCBroker, c *grpc.ClientConn) (interface{}, error) {
+	return &pvpClient{client: proto.NewPolicyEngineClient(c)}, nil
+}
