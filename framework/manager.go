@@ -19,9 +19,20 @@ import (
 // PluginManager manages the plugin lifecycle and compliance-to-policy
 // workflows.
 type PluginManager struct {
-	pluginDir     string
-	store         rules.Store
-	titleByIds    map[string]string
+	// pluginDir is the location to search for plugins.
+	pluginDir string
+	// rulesStore contains indexed information about available RuleSets
+	// which can be searched for the component title.
+	rulesStore rules.Store
+	// pluginIdMap stores resolved plugin IDs to the original component title from the
+	// OSCAL Component Definitions.
+	//
+	// The original component title is needed to get information for the validation
+	// component in the rules.Store (which provides input for the corresponding policy.Provider
+	// plugin).
+	pluginIdMap map[string]string
+	// clientFactory is the function used to
+	// create new plugin clients.
 	clientFactory plugin.ClientFactoryFunc
 }
 
@@ -37,7 +48,7 @@ func NewPluginManager(cfg *config.C2PConfig) (*PluginManager, error) {
 		return nil, err
 	}
 
-	// Resolve all the options that were set in C2P into loaded
+	// Resolve all the options that were set in the C2PConfig into loaded structures
 	// that are immediately usable for the PluginManager.
 	rulesStore, pluginIDMap, err := config.ResolveOptions(cfg)
 	if err != nil {
@@ -46,9 +57,9 @@ func NewPluginManager(cfg *config.C2PConfig) (*PluginManager, error) {
 
 	return &PluginManager{
 		pluginDir:     cfg.PluginDir,
-		store:         rulesStore,
+		rulesStore:    rulesStore,
 		clientFactory: plugin.ClientFactory(cfg.Logger),
-		titleByIds:    pluginIDMap,
+		pluginIdMap:   pluginIDMap,
 	}, nil
 }
 
@@ -57,7 +68,7 @@ func NewPluginManager(cfg *config.C2PConfig) (*PluginManager, error) {
 // AggregateResults().
 func (m *PluginManager) LaunchPolicyPlugins() (map[string]policy.Provider, error) {
 	var providerIds []string
-	for id := range m.titleByIds {
+	for id := range m.pluginIdMap {
 		providerIds = append(providerIds, id)
 	}
 	pluginsByIds := make(map[string]policy.Provider)
@@ -85,12 +96,12 @@ func (m *PluginManager) LaunchPolicyPlugins() (map[string]policy.Provider, error
 // each policy.Provider.
 func (m *PluginManager) GeneratePolicy(ctx context.Context, pluginSet map[string]policy.Provider) error {
 	for providerId, policyPlugin := range pluginSet {
-		componentTitle, ok := m.titleByIds[providerId]
+		componentTitle, ok := m.pluginIdMap[providerId]
 		if !ok {
 			return fmt.Errorf("missing title for provider %s", providerId)
 		}
 
-		ruleSets, err := m.store.FindByComponent(ctx, componentTitle)
+		ruleSets, err := m.rulesStore.FindByComponent(ctx, componentTitle)
 		if err != nil {
 			return err
 		}
@@ -107,12 +118,12 @@ func (m *PluginManager) AggregateResults(ctx context.Context, pluginSet map[stri
 	var allResults []policy.PVPResult
 	for providerId, policyPlugin := range pluginSet {
 		// get the provider ids here to grab the policy
-		componentTitle, ok := m.titleByIds[providerId]
+		componentTitle, ok := m.pluginIdMap[providerId]
 		if !ok {
 			return allResults, fmt.Errorf("missing title for provider %s", providerId)
 		}
 
-		ruleSets, err := m.store.FindByComponent(ctx, componentTitle)
+		ruleSets, err := m.rulesStore.FindByComponent(ctx, componentTitle)
 		if err != nil {
 			return allResults, err
 		}
