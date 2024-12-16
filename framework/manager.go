@@ -25,12 +25,20 @@ type PluginManager struct {
 	clientFactory plugin.ClientFactoryFunc
 }
 
-// NewPluginManager creates a new instance of a Plugin Manager from a C2PConfig.
+// NewPluginManager creates a new instance of a PluginManager from a C2PConfig that can be used to
+// interact with support plugins.
+//
+// It supports the plugin lifecycle with the following methods:
+//   - Finding and initializing plugins: LaunchPolicyPlugins()
+//   - Execution - GeneratePolicy() and AggregateResults()
+//   - Clean/Stop - Clean()
 func NewPluginManager(cfg *config.C2PConfig) (*PluginManager, error) {
 	if err := cfg.Validate(); err != nil {
 		return nil, err
 	}
 
+	// Resolve all the options that were set in C2P into loaded
+	// that are immediately usable for the PluginManager.
 	rulesStore, pluginIDMap, err := config.ResolveOptions(cfg)
 	if err != nil {
 		return nil, err
@@ -44,9 +52,10 @@ func NewPluginManager(cfg *config.C2PConfig) (*PluginManager, error) {
 	}, nil
 }
 
-// LoadPolicyPlugins retrieves information for the plugins that have been requested
-// in the C2PConfig.
-func (m *PluginManager) LoadPolicyPlugins() (map[string]policy.Provider, error) {
+// LaunchPolicyPlugins retrieves information for the plugins that have been requested
+// in the C2PConfig and launches each plugin to make it ready for use with GeneratePolicy() and
+// AggregateResults().
+func (m *PluginManager) LaunchPolicyPlugins() (map[string]policy.Provider, error) {
 	var providerIds []string
 	for id := range m.titleByIds {
 		providerIds = append(providerIds, id)
@@ -72,6 +81,8 @@ func (m *PluginManager) LoadPolicyPlugins() (map[string]policy.Provider, error) 
 	return pluginsByIds, nil
 }
 
+// GeneratePolicy identifies policy configuration for each provider in the given pluginSet to execute the Generate() method
+// each policy.Provider.
 func (m *PluginManager) GeneratePolicy(ctx context.Context, pluginSet map[string]policy.Provider) error {
 	for providerId, policyPlugin := range pluginSet {
 		componentTitle, ok := m.titleByIds[providerId]
@@ -90,6 +101,8 @@ func (m *PluginManager) GeneratePolicy(ctx context.Context, pluginSet map[string
 	return nil
 }
 
+// AggregateResults identifies policy configuration for each provider in the given pluginSet to execute the GetResults() method
+// each policy.Provider.
 func (m *PluginManager) AggregateResults(ctx context.Context, pluginSet map[string]policy.Provider) ([]policy.PVPResult, error) {
 	var allResults []policy.PVPResult
 	for providerId, policyPlugin := range pluginSet {
@@ -113,6 +126,7 @@ func (m *PluginManager) AggregateResults(ctx context.Context, pluginSet map[stri
 	return allResults, nil
 }
 
-func (m *PluginManager) Stop() {
+// Clean deletes instances of plugin clients that have been created using LaunchPolicyPlugins.
+func (m *PluginManager) Clean() {
 	plugin.Cleanup()
 }

@@ -45,6 +45,7 @@ func ClientFactory(logger hclog.Logger) ClientFactoryFunc {
 			Logger:          logger,
 			// Enabling this will ensure that client.Kill() is run when this is cleaned up.
 			Managed:          true,
+			AutoMTLS:         true,
 			AllowedProtocols: []plugin.Protocol{plugin.ProtocolGRPC},
 			Cmd:              exec.Command(manifest.ExecutablePath),
 			Plugins:          SupportedPlugins,
