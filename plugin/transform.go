@@ -13,7 +13,7 @@ import (
 	"github.com/oscal-compass/compliance-to-policy-go/v2/policy"
 )
 
-// Transform a plugin Policy to a protobuf PolicyRequest
+// PolicyToProto transforms a plugin Policy to a protobuf PolicyRequest.
 func PolicyToProto(p policy.Policy) *proto.PolicyRequest {
 	policyRequest := &proto.PolicyRequest{}
 	for _, rs := range p {
@@ -45,7 +45,7 @@ func PolicyToProto(p policy.Policy) *proto.PolicyRequest {
 	return policyRequest
 }
 
-// Transform protobuf PolicyRequest into a pluign Policy
+// NewPolicyFromProto transforms protobuf PolicyRequest into a plugin Policy.
 func NewPolicyFromProto(pb *proto.PolicyRequest) policy.Policy {
 	var p policy.Policy
 
