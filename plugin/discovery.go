@@ -51,7 +51,7 @@ func WithPluginType(pluginType string) FindOption {
 //   - `WithPluginType`: Filters by plugin type.
 //
 // If no filters are applied, all discovered plugins are returned.
-func FindPlugins(pluginDir string, opts ...FindOption) (ManifestSet, error) {
+func FindPlugins(pluginDir string, opts ...FindOption) (Manifests, error) {
 	config := &findOptions{}
 	for _, opt := range opts {
 		opt(config)
@@ -66,7 +66,7 @@ func FindPlugins(pluginDir string, opts ...FindOption) (ManifestSet, error) {
 		return nil, fmt.Errorf("%w in %s", ErrPluginsNotFound, pluginDir)
 	}
 
-	metaDataSet := make(ManifestSet)
+	collectedManifests := make(Manifests)
 	var errs []error
 
 	// Filter plugins by provider IDs if provided
@@ -113,18 +113,18 @@ func FindPlugins(pluginDir string, opts ...FindOption) (ManifestSet, error) {
 			continue
 		}
 		manifest.ExecutablePath = cleanPath
-		metaDataSet[id] = manifest
+		collectedManifests[id] = manifest
 	}
 
 	if len(errs) > 0 {
 		return nil, errors.Join(errs...)
 	}
 
-	if len(metaDataSet) == 0 {
+	if len(collectedManifests) == 0 {
 		return nil, fmt.Errorf("%w in %s with matching criteria", ErrPluginsNotFound, pluginDir)
 	}
 
-	return metaDataSet, nil
+	return collectedManifests, nil
 }
 
 // findAllPluginsMatches locates the manifests in the plugin directory that match

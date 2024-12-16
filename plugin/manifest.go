@@ -39,5 +39,5 @@ func (m Metadata) ValidateID() bool {
 	return IdentifierPattern.MatchString(m.ID)
 }
 
-// ManifestSet defines the Manifest by plugin id.
-type ManifestSet map[string]Manifest
+// Manifests defines the Manifest by plugin id.
+type Manifests map[string]Manifest
