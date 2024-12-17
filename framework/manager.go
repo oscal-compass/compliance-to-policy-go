@@ -9,6 +9,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/hashicorp/go-hclog"
 	"github.com/oscal-compass/oscal-sdk-go/rules"
 
 	"github.com/oscal-compass/compliance-to-policy-go/v2/framework/config"
@@ -34,6 +35,8 @@ type PluginManager struct {
 	// clientFactory is the function used to
 	// create new plugin clients.
 	clientFactory plugin.ClientFactoryFunc
+	// logger for the PluginManager
+	log hclog.Logger
 }
 
 // NewPluginManager creates a new instance of a PluginManager from a C2PConfig that can be used to
@@ -60,6 +63,7 @@ func NewPluginManager(cfg *config.C2PConfig) (*PluginManager, error) {
 		rulesStore:    rulesStore,
 		clientFactory: plugin.ClientFactory(cfg.Logger),
 		pluginIdMap:   pluginIDMap,
+		log:           cfg.Logger,
 	}, nil
 }
 
@@ -67,11 +71,13 @@ func NewPluginManager(cfg *config.C2PConfig) (*PluginManager, error) {
 // in the C2PConfig and launches each plugin to make it ready for use with GeneratePolicy() and
 // AggregateResults().
 func (m *PluginManager) LaunchPolicyPlugins() (map[string]policy.Provider, error) {
-	var providerIds []string
+	providerIds := make([]string, 0, len(m.pluginIdMap))
 	for id := range m.pluginIdMap {
 		providerIds = append(providerIds, id)
 	}
 	pluginsByIds := make(map[string]policy.Provider)
+
+	m.log.Info(fmt.Sprintf("Searching for plugins in %s", m.pluginDir))
 
 	pluginManifests, err := plugin.FindPlugins(
 		m.pluginDir,
@@ -81,6 +87,7 @@ func (m *PluginManager) LaunchPolicyPlugins() (map[string]policy.Provider, error
 	if err != nil {
 		return pluginsByIds, err
 	}
+	m.log.Debug(fmt.Sprintf("Found %d matching plugins", len(pluginManifests)))
 
 	for _, manifest := range pluginManifests {
 		policyPlugin, err := plugin.NewPolicyPlugin(manifest, m.clientFactory)
@@ -88,6 +95,7 @@ func (m *PluginManager) LaunchPolicyPlugins() (map[string]policy.Provider, error
 			return pluginsByIds, err
 		}
 		pluginsByIds[manifest.ID] = policyPlugin
+		m.log.Debug(fmt.Sprintf("Launching plugin %s", manifest.ID))
 	}
 	return pluginsByIds, nil
 }
@@ -100,6 +108,7 @@ func (m *PluginManager) GeneratePolicy(ctx context.Context, pluginSet map[string
 		if !ok {
 			return fmt.Errorf("missing title for provider %s", providerId)
 		}
+		m.log.Debug(fmt.Sprintf("Generating policy for provider %s", providerId))
 
 		ruleSets, err := m.rulesStore.FindByComponent(ctx, componentTitle)
 		if err != nil {
@@ -122,7 +131,7 @@ func (m *PluginManager) AggregateResults(ctx context.Context, pluginSet map[stri
 		if !ok {
 			return allResults, fmt.Errorf("missing title for provider %s", providerId)
 		}
-
+		m.log.Debug(fmt.Sprintf("Aggregating results for provider %s", providerId))
 		ruleSets, err := m.rulesStore.FindByComponent(ctx, componentTitle)
 		if err != nil {
 			return allResults, err
@@ -137,7 +146,9 @@ func (m *PluginManager) AggregateResults(ctx context.Context, pluginSet map[stri
 	return allResults, nil
 }
 
-// Clean deletes instances of plugin clients that have been created using LaunchPolicyPlugins.
+// Clean deletes managed instances of plugin clients that have been created using LaunchPolicyPlugins.
+// This will remove all clients launched with the plugin.ClientFactoryFunc.
 func (m *PluginManager) Clean() {
+	m.log.Debug("Cleaning launched plugins")
 	plugin.Cleanup()
 }

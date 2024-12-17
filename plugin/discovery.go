@@ -128,7 +128,7 @@ func FindPlugins(pluginDir string, opts ...FindOption) (Manifests, error) {
 }
 
 // findAllPluginsMatches locates the manifests in the plugin directory that match
-// the prefix name scheme and return the plugin ID and file name.
+// the prefix naming scheme and returns the plugin ID and file name.
 func findAllPluginMatches(pluginDir string) (map[string]string, error) {
 	items, err := os.ReadDir(pluginDir)
 	if err != nil {
