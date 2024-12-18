@@ -115,7 +115,7 @@ func (m *PluginManager) GeneratePolicy(ctx context.Context, pluginSet map[string
 			return err
 		}
 		if err := policyPlugin.Generate(ruleSets); err != nil {
-			return err
+			return fmt.Errorf("plugin %s: %w", providerId, err)
 		}
 	}
 	return nil
@@ -139,7 +139,7 @@ func (m *PluginManager) AggregateResults(ctx context.Context, pluginSet map[stri
 
 		pluginResults, err := policyPlugin.GetResults(ruleSets)
 		if err != nil {
-			return allResults, err
+			return allResults, fmt.Errorf("plugin %s: %w", providerId, err)
 		}
 		allResults = append(allResults, pluginResults)
 	}
