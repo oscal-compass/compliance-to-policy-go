@@ -21,6 +21,6 @@ message ResultsResponse {
 
 // get policy results from PVP
 service PolicyEngine {
-  rpc Genererate(PolicyRequest) returns (GenerateResponse);
+  rpc Generate(PolicyRequest) returns (GenerateResponse);
   rpc GetResults(PolicyRequest) returns (ResultsResponse);
 }

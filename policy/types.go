@@ -7,6 +7,8 @@ package policy
 
 import (
 	"time"
+
+	"github.com/oscal-compass/oscal-sdk-go/extensions"
 )
 
 // Result represents the kind of result statuses.
@@ -73,3 +75,5 @@ type PVPResult struct {
 	ObservationsByCheck []ObservationByCheck
 	Links               []Link
 }
+
+type Policy []extensions.RuleSet

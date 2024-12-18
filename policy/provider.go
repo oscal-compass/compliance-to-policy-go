@@ -5,8 +5,6 @@
 
 package policy
 
-import "github.com/oscal-compass/oscal-sdk-go/extensions"
-
 /*
 Provider defines methods for a policy validation engine.
 Defined uses cases include the following:
@@ -15,6 +13,6 @@ Defined uses cases include the following:
 3. A scanning plugin may be a self-contained scanning tool
 */
 type Provider interface {
-	Generate(rules []extensions.RuleSet) error
-	GetResults(rules []extensions.RuleSet) (PVPResult, error)
+	Generate(Policy) error
+	GetResults(Policy) (PVPResult, error)
 }
