@@ -7,6 +7,7 @@ package plugin
 
 import (
 	"crypto/sha256"
+	"encoding/hex"
 	"os/exec"
 
 	"github.com/hashicorp/go-hclog"
@@ -40,6 +41,10 @@ type ClientFactoryFunc func(manifest Manifest) (*plugin.Client, error)
 // and security settings.
 func ClientFactory(logger hclog.Logger) ClientFactoryFunc {
 	return func(manifest Manifest) (*plugin.Client, error) {
+		manifestSum, err := hex.DecodeString(manifest.Checksum)
+		if err != nil {
+			return nil, err
+		}
 		config := &plugin.ClientConfig{
 			HandshakeConfig: Handshake,
 			Logger:          logger,
@@ -50,7 +55,7 @@ func ClientFactory(logger hclog.Logger) ClientFactoryFunc {
 			Cmd:              exec.Command(manifest.ExecutablePath),
 			Plugins:          SupportedPlugins,
 			SecureConfig: &plugin.SecureConfig{
-				Checksum: []byte(manifest.Checksum),
+				Checksum: manifestSum,
 				Hash:     sha256.New(),
 			},
 		}
