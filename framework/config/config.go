@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	oscalTypes "github.com/defenseunicorns/go-oscal/src/types/oscal-1-1-2"
@@ -54,7 +55,10 @@ func DefaultConfig() *C2PConfig {
 
 // Validate returns an error if C2PConfig has invalid fields.
 func (c *C2PConfig) Validate() error {
-	if c.PluginDir == "" {
+	// Sanitize the plugin directory input
+	c.PluginDir = strings.TrimSpace(c.PluginDir)
+	c.PluginDir = filepath.Clean(c.PluginDir)
+	if strings.TrimSpace(c.PluginDir) == "" {
 		return fmt.Errorf("plugin directory cannot be empty")
 	}
 	if _, err := os.Stat(c.PluginDir); err != nil {
@@ -102,8 +106,8 @@ func ResolveOptions(config *C2PConfig) (*rules.MemoryStore, map[string]string, e
 	return store, titleByID, nil
 }
 
-// resolveConfiguration returns processed OSCAL Components and a plugin identifier map. This performs most
-// of the logic in ResolveConfiguration, but is broken out to make it easier to test.
+// resolveOptions returns processed OSCAL Components and a plugin identifier map. This performs most
+// of the logic in ResolveOptions, but is broken out to make it easier to test.
 func resolveOptions(config *C2PConfig) ([]oscalTypes.DefinedComponent, map[string]string, error) {
 	var allComponents []oscalTypes.DefinedComponent
 	titleByID := make(map[string]string)
