@@ -8,6 +8,7 @@ package plugin
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"os/exec"
 
 	"github.com/hashicorp/go-hclog"
@@ -69,16 +70,16 @@ func ClientFactory(logger hclog.Logger) ClientFactoryFunc {
 func NewPolicyPlugin(pluginManifest Manifest, createClient ClientFactoryFunc) (policy.Provider, error) {
 	client, err := createClient(pluginManifest)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create plugin client for %s: %w", pluginManifest.ID, err)
 	}
 	rpcClient, err := client.Client()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get plugin client for %s: %w", pluginManifest.ID, err)
 	}
 
 	raw, err := rpcClient.Dispense(PVPPluginName)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to dispense plugin %s: %w", pluginManifest.ID, err)
 	}
 
 	p := raw.(policy.Provider)
