@@ -107,12 +107,10 @@ func FindPlugins(pluginDir string, opts ...FindOption) (Manifests, error) {
 		}
 
 		// sanitize the executable path in the manifest
-		cleanPath, err := sanitizeAndResolvePath(pluginDir, manifest.ExecutablePath)
-		if err != nil {
-			errs = append(errs, err)
+		if manifestErr := manifest.ResolvePath(pluginDir); manifestErr != nil {
+			errs = append(errs, manifestErr)
 			continue
 		}
-		manifest.ExecutablePath = cleanPath
 		collectedManifests[id] = manifest
 	}
 
@@ -177,27 +175,4 @@ func readManifestFile(pluginName, manifestPath string) (Manifest, error) {
 		return Manifest{}, err
 	}
 	return manifest, nil
-}
-
-// sanitizeAndResolvePath returns the absolute, cleaned filepath.
-func sanitizeAndResolvePath(pluginDir, path string) (string, error) {
-	absPluginDir, err := filepath.Abs(pluginDir)
-	if err != nil {
-		return "", fmt.Errorf("failed to get absolute plugin directory: %w", err)
-	}
-
-	cleanedPath := filepath.Clean(filepath.Join(absPluginDir, path))
-
-	fileInfo, err := os.Stat(cleanedPath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return "", fmt.Errorf("plugin executable %s does not exist", cleanedPath)
-		}
-		return "", fmt.Errorf("failed to stat plugin executable: %w", err)
-	}
-
-	if fileInfo.Mode()&0100 == 0 {
-		return "", fmt.Errorf("plugin executable %s is not executable", cleanedPath)
-	}
-	return cleanedPath, nil
 }

@@ -5,6 +5,13 @@
 
 package plugin
 
+import (
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+)
+
 // Manifest is metadata about a plugin to support discovering and
 // launching plugins. This should be provided with the plugin on-disk.
 type Manifest struct {
@@ -15,6 +22,47 @@ type Manifest struct {
 	// Checksum is the SHA256 hash of the content.
 	// This checked against the calculated value at plugin launch.
 	Checksum string `json:"sha256"`
+}
+
+// ResolvePath validates and sanitized the Manifest.ExecutablePath.
+// If the path is not absolute, it updates Manifest.ExecutablePath
+// location under the given plugin directory.
+func (m *Manifest) ResolvePath(pluginDir string) error {
+	absPluginDir, err := filepath.Abs(pluginDir)
+	if err != nil {
+		return fmt.Errorf("failed to get absolute plugin directory: %w", err)
+	}
+
+	// Handle different path types
+	var cleanedPath string
+	if filepath.IsAbs(m.ExecutablePath) {
+		// Check if the absolute path is under the plugin directory
+		if !strings.HasPrefix(m.ExecutablePath, absPluginDir+string(os.PathSeparator)) {
+			return fmt.Errorf("absolute path %s is not under the plugin directory %s", m.ExecutablePath, absPluginDir)
+		}
+		cleanedPath = filepath.Clean(m.ExecutablePath)
+	} else {
+		cleanedPath = filepath.Clean(filepath.Join(absPluginDir, m.ExecutablePath))
+	}
+
+	fileInfo, err := os.Stat(cleanedPath)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return fmt.Errorf("plugin executable %s does not exist: %w", cleanedPath, err)
+		}
+		return fmt.Errorf("failed to stat plugin executable: %w", err)
+	}
+
+	if !fileInfo.Mode().IsRegular() {
+		return fmt.Errorf("plugin executable %s is not a file", cleanedPath)
+	}
+
+	if fileInfo.Mode()&0100 == 0 {
+		return fmt.Errorf("plugin executable %s is not executable", cleanedPath)
+	}
+	m.ExecutablePath = cleanedPath
+
+	return nil
 }
 
 // Metadata has required information for plugin launch and discovery.
