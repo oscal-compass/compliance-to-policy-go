@@ -24,19 +24,20 @@ type Manifest struct {
 	Checksum string `json:"sha256"`
 }
 
-// ResolvePath validates and sanitized the Manifest.ExecutablePath.
-// If the path is not absolute, it updates Manifest.ExecutablePath
-// location under the given plugin directory.
+// ResolvePath validates and sanitizes the Manifest.ExecutablePath.
+//
+// If the path is not absolute, it updates Manifest.ExecutablePath field
+// to a location under the given plugin directory. If the path is absolute,
+// it validates it is under the given plugin directory.
 func (m *Manifest) ResolvePath(pluginDir string) error {
 	absPluginDir, err := filepath.Abs(pluginDir)
 	if err != nil {
 		return fmt.Errorf("failed to get absolute plugin directory: %w", err)
 	}
 
-	// Handle different path types
+	// Handle different path types (relative and absolute)
 	var cleanedPath string
 	if filepath.IsAbs(m.ExecutablePath) {
-		// Check if the absolute path is under the plugin directory
 		if !strings.HasPrefix(m.ExecutablePath, absPluginDir+string(os.PathSeparator)) {
 			return fmt.Errorf("absolute path %s is not under the plugin directory %s", m.ExecutablePath, absPluginDir)
 		}
@@ -58,7 +59,7 @@ func (m *Manifest) ResolvePath(pluginDir string) error {
 	}
 
 	if fileInfo.Mode()&0100 == 0 {
-		return fmt.Errorf("plugin executable %s is not executable", cleanedPath)
+		return fmt.Errorf("plugin file %s is not executable", cleanedPath)
 	}
 	m.ExecutablePath = cleanedPath
 
