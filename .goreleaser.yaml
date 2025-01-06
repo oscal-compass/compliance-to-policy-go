@@ -1,6 +1,17 @@
 # .goreleaser.yaml
 builds:
-  - skip: true
+- id: c2pcli
+  main: ./cmd/c2pcli
+  binary: c2pcli
+  goos:
+  - linux
+  - darwin
+  goarch:
+  - amd64
+  - arm64
+  ignore:
+  - goos: linux
+    goarch: arm64
 
 release:
   disable: false
