@@ -6,6 +6,7 @@ toolchain go1.22.9
 
 require (
 	github.com/hashicorp/go-plugin v1.6.2
+	github.com/oscal-compass/oscal-sdk-go v0.0.0-20241209195345-3e8abe96267d
 	github.com/stretchr/testify v1.10.0
 	google.golang.org/grpc v1.68.1
 	google.golang.org/protobuf v1.34.2
