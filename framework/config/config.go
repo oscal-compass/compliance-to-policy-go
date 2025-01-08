@@ -31,10 +31,9 @@ type C2PConfig struct {
 	// PluginDir is the directory where the PluginManager searches
 	// for installed plugins.
 	PluginDir string
-	// Logger is the logging implementation using in the PluginManager and
+	// Logger is the logging implementation used in the PluginManager and
 	// plugin clients.
-	Logger hclog.Logger
-	// ComponentDefinitions
+	Logger               hclog.Logger
 	ComponentDefinitions []oscalTypes.ComponentDefinition
 }
 

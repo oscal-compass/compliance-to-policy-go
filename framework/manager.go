@@ -40,7 +40,7 @@ type PluginManager struct {
 }
 
 // NewPluginManager creates a new instance of a PluginManager from a C2PConfig that can be used to
-// interact with support plugins.
+// interact with supported plugins.
 //
 // It supports the plugin lifecycle with the following methods:
 //   - Finding and initializing plugins: LaunchPolicyPlugins()
