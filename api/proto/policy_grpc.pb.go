@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	PolicyEngine_Genererate_FullMethodName = "/protocols.PolicyEngine/Genererate"
+	PolicyEngine_Generate_FullMethodName   = "/protocols.PolicyEngine/Generate"
 	PolicyEngine_GetResults_FullMethodName = "/protocols.PolicyEngine/GetResults"
 )
 
@@ -29,7 +29,7 @@ const (
 //
 // get policy results from PVP
 type PolicyEngineClient interface {
-	Genererate(ctx context.Context, in *PolicyRequest, opts ...grpc.CallOption) (*GenerateResponse, error)
+	Generate(ctx context.Context, in *PolicyRequest, opts ...grpc.CallOption) (*GenerateResponse, error)
 	GetResults(ctx context.Context, in *PolicyRequest, opts ...grpc.CallOption) (*ResultsResponse, error)
 }
 
@@ -41,10 +41,10 @@ func NewPolicyEngineClient(cc grpc.ClientConnInterface) PolicyEngineClient {
 	return &policyEngineClient{cc}
 }
 
-func (c *policyEngineClient) Genererate(ctx context.Context, in *PolicyRequest, opts ...grpc.CallOption) (*GenerateResponse, error) {
+func (c *policyEngineClient) Generate(ctx context.Context, in *PolicyRequest, opts ...grpc.CallOption) (*GenerateResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GenerateResponse)
-	err := c.cc.Invoke(ctx, PolicyEngine_Genererate_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, PolicyEngine_Generate_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func (c *policyEngineClient) GetResults(ctx context.Context, in *PolicyRequest, 
 //
 // get policy results from PVP
 type PolicyEngineServer interface {
-	Genererate(context.Context, *PolicyRequest) (*GenerateResponse, error)
+	Generate(context.Context, *PolicyRequest) (*GenerateResponse, error)
 	GetResults(context.Context, *PolicyRequest) (*ResultsResponse, error)
 	mustEmbedUnimplementedPolicyEngineServer()
 }
@@ -79,8 +79,8 @@ type PolicyEngineServer interface {
 // pointer dereference when methods are called.
 type UnimplementedPolicyEngineServer struct{}
 
-func (UnimplementedPolicyEngineServer) Genererate(context.Context, *PolicyRequest) (*GenerateResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Genererate not implemented")
+func (UnimplementedPolicyEngineServer) Generate(context.Context, *PolicyRequest) (*GenerateResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Generate not implemented")
 }
 func (UnimplementedPolicyEngineServer) GetResults(context.Context, *PolicyRequest) (*ResultsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetResults not implemented")
@@ -106,20 +106,20 @@ func RegisterPolicyEngineServer(s grpc.ServiceRegistrar, srv PolicyEngineServer)
 	s.RegisterService(&PolicyEngine_ServiceDesc, srv)
 }
 
-func _PolicyEngine_Genererate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PolicyEngine_Generate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PolicyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PolicyEngineServer).Genererate(ctx, in)
+		return srv.(PolicyEngineServer).Generate(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: PolicyEngine_Genererate_FullMethodName,
+		FullMethod: PolicyEngine_Generate_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PolicyEngineServer).Genererate(ctx, req.(*PolicyRequest))
+		return srv.(PolicyEngineServer).Generate(ctx, req.(*PolicyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -150,8 +150,8 @@ var PolicyEngine_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*PolicyEngineServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Genererate",
-			Handler:    _PolicyEngine_Genererate_Handler,
+			MethodName: "Generate",
+			Handler:    _PolicyEngine_Generate_Handler,
 		},
 		{
 			MethodName: "GetResults",
