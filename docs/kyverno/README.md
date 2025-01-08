@@ -31,7 +31,7 @@ Use "c2pcli kyverno [command] --help" for more information about a command.
 
 #### Convert OSCAL to Kyverno Policy
 ```
-$ c2pcli kyverno oscal2policy -c ./pkg/testdata/kyverno/c2p-config.yaml -o /tmp/kyverno-policies
+$ c2pcli kyverno oscal2policy -c ./pkg/testdata/kyverno/c2p-config.yaml --results ./pkg/testdata/kyverno/policy-reports -o /tmp/kyverno-policies
 2023-10-31T07:23:56.291+0900    INFO    kyverno/c2pcr   kyverno/configparser.go:53      Component-definition is loaded from ./pkg/testdata/kyverno/component-definition.json
 
 $ tree /tmp/kyverno-policies 
