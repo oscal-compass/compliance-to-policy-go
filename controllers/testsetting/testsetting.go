@@ -24,9 +24,9 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	compliancetopolicycontrollerv1alpha1 "github.com/oscal-compass/compliance-to-policy-go/api/v1alpha1"
-	"github.com/oscal-compass/compliance-to-policy-go/controllers/utils/ocmk8sclients"
-	"github.com/oscal-compass/compliance-to-policy-go/pkg"
+	compliancetopolicycontrollerv1alpha1 "github.com/oscal-compass/compliance-to-policy-go/v2/api/v1alpha1"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/controllers/utils/ocmk8sclients"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
 
 	corev1 "k8s.io/api/core/v1"
 	apixv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"

@@ -20,8 +20,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/oscal-compass/compliance-to-policy-go/pkg"
-	typec2pcr "github.com/oscal-compass/compliance-to-policy-go/pkg/types/c2pcr"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
+	typec2pcr "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/c2pcr"
 	"github.com/stretchr/testify/assert"
 )
 

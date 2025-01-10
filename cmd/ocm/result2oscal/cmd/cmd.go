@@ -19,10 +19,10 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/oscal-compass/compliance-to-policy-go/cmd/ocm/result2oscal/options"
-	"github.com/oscal-compass/compliance-to-policy-go/pkg"
-	"github.com/oscal-compass/compliance-to-policy-go/pkg/ocm"
-	typec2pcr "github.com/oscal-compass/compliance-to-policy-go/pkg/types/c2pcr"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/cmd/ocm/result2oscal/options"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/ocm"
+	typec2pcr "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/c2pcr"
 )
 
 func New() *cobra.Command {

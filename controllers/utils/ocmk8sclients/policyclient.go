@@ -19,8 +19,8 @@ package ocmk8sclients
 import (
 	"context"
 
-	"github.com/oscal-compass/compliance-to-policy-go/pkg"
-	typespolicy "github.com/oscal-compass/compliance-to-policy-go/pkg/types/policy"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
+	typespolicy "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/policy"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/dynamic"
 )

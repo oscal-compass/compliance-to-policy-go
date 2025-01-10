@@ -20,19 +20,19 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/oscal-compass/compliance-to-policy-go/pkg"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
 	sigyaml "sigs.k8s.io/yaml"
 
 	"k8s.io/apimachinery/pkg/util/sets"
 
-	"github.com/oscal-compass/compliance-to-policy-go/pkg/oscal"
-	typec2pcr "github.com/oscal-compass/compliance-to-policy-go/pkg/types/c2pcr"
-	typear "github.com/oscal-compass/compliance-to-policy-go/pkg/types/oscal/assessmentresults"
-	typeoscalcommon "github.com/oscal-compass/compliance-to-policy-go/pkg/types/oscal/common"
-	typeplacementdecision "github.com/oscal-compass/compliance-to-policy-go/pkg/types/placementdecision"
-	typepolicy "github.com/oscal-compass/compliance-to-policy-go/pkg/types/policy"
-	typereport "github.com/oscal-compass/compliance-to-policy-go/pkg/types/report"
-	typeutils "github.com/oscal-compass/compliance-to-policy-go/pkg/types/utils"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/oscal"
+	typec2pcr "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/c2pcr"
+	typear "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/oscal/assessmentresults"
+	typeoscalcommon "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/oscal/common"
+	typeplacementdecision "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/placementdecision"
+	typepolicy "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/policy"
+	typereport "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/report"
+	typeutils "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/utils"
 )
 
 type ResultToOscal struct {

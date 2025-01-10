@@ -25,11 +25,11 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/oscal-compass/compliance-to-policy-go/pkg/oscal"
-	tp "github.com/oscal-compass/compliance-to-policy-go/pkg/pvpcommon/template"
-	typec2pcr "github.com/oscal-compass/compliance-to-policy-go/pkg/types/c2pcr"
-	typear "github.com/oscal-compass/compliance-to-policy-go/pkg/types/oscal/assessmentresults"
-	typecd "github.com/oscal-compass/compliance-to-policy-go/pkg/types/oscal/componentdefinition"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/oscal"
+	tp "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/pvpcommon/template"
+	typec2pcr "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/c2pcr"
+	typear "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/oscal/assessmentresults"
+	typecd "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/oscal/componentdefinition"
 )
 
 //go:embed template/*.md

@@ -17,12 +17,13 @@ limitations under the License.
 package ocmk8sclients
 
 import (
-	"github.com/oscal-compass/compliance-to-policy-go/pkg"
-	typespolicy "github.com/oscal-compass/compliance-to-policy-go/pkg/types/policy"
-	"k8s.io/client-go/dynamic"
-
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	"k8s.io/client-go/dynamic"
+
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
+	typespolicy "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/policy"
 )
 
 var _ = Describe("Test CRUD of Policy", func() {

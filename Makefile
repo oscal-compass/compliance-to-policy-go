@@ -78,12 +78,12 @@ repo_name:
 all: build
 
 .PHONY: build
-build: 
+build:
 	GOOS=$(GOOS) GOARCH=$(GOARCH) go build -o ./bin/c2pcli_$(VERSIONED_SUFFIX) ./cmd/c2pcli
 
 .PHONY: test
 test:
-	go test ./pkg/... -coverprofile cover.out
+	go test ./pkg/... ./plugin/... ./framework/... -coverprofile cover.out
 
 artifact: build
 	mkdir -p ./dist/artifacts
@@ -321,4 +321,8 @@ bin/compose-v2.darwin_arm64:
 	GOOS=darwin GOARCH=arm64 go build -o bin/compose-v2.darwin_arm64 ./cmd/compose-v2
 
 bin/compose-v2.%.gz: bin/compose-v2.%
-	gzip ./bin/compose-v2.$*	
+	gzip ./bin/compose-v2.$*
+
+generate-protobuf:
+	protoc api/proto/*.proto --go-grpc_out=. --go-grpc_opt=paths=source_relative --go_out=. --go_opt=paths=source_relative --proto_path=.
+.PHONY: generate-protobuf

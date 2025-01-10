@@ -22,16 +22,17 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/oscal-compass/compliance-to-policy-go/pkg"
-	"github.com/oscal-compass/compliance-to-policy-go/pkg/types/configurationpolicy"
-	. "github.com/oscal-compass/compliance-to-policy-go/pkg/types/internalcompliance"
-	typespolicy "github.com/oscal-compass/compliance-to-policy-go/pkg/types/policy"
-	pgtype "github.com/oscal-compass/compliance-to-policy-go/pkg/types/policygenerator"
 	cp "github.com/otiai10/copy"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	utilyaml "k8s.io/apimachinery/pkg/util/yaml"
 	"sigs.k8s.io/kustomize/api/resmap"
 	"sigs.k8s.io/kustomize/api/resource"
+
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/configurationpolicy"
+	. "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/internalcompliance"
+	typespolicy "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/policy"
+	pgtype "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/policygenerator"
 )
 
 type ComposedResult struct {

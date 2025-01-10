@@ -21,10 +21,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/oscal-compass/compliance-to-policy-go/pkg"
-	"github.com/oscal-compass/compliance-to-policy-go/pkg/tables/resources"
-	. "github.com/oscal-compass/compliance-to-policy-go/pkg/types/internalcompliance"
-	"github.com/oscal-compass/compliance-to-policy-go/pkg/types/policycomposition"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/tables/resources"
+	. "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/internalcompliance"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/policycomposition"
 )
 
 type Decomposer struct {

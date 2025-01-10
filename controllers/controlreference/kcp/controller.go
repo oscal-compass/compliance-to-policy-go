@@ -33,12 +33,12 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	"github.com/go-logr/logr"
-	c2pv1alpha1 "github.com/oscal-compass/compliance-to-policy-go/api/v1alpha1"
-	"github.com/oscal-compass/compliance-to-policy-go/controllers/composer"
-	"github.com/oscal-compass/compliance-to-policy-go/controllers/utils"
-	"github.com/oscal-compass/compliance-to-policy-go/controllers/utils/kcpclient"
-	"github.com/oscal-compass/compliance-to-policy-go/pkg"
-	"github.com/oscal-compass/compliance-to-policy-go/pkg/types/internalcompliance"
+	c2pv1alpha1 "github.com/oscal-compass/compliance-to-policy-go/v2/api/v1alpha1"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/controllers/composer"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/controllers/utils"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/controllers/utils/kcpclient"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/internalcompliance"
 )
 
 var logger logr.Logger = ctrl.Log.WithName("control-reference-controller-kcp")

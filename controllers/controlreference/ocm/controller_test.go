@@ -18,17 +18,18 @@ package ocm
 
 import (
 	"context"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-	ctrlv1alpha1 "github.com/oscal-compass/compliance-to-policy-go/api/v1alpha1"
-	"github.com/oscal-compass/compliance-to-policy-go/controllers/utils/ocmk8sclients"
-	"github.com/oscal-compass/compliance-to-policy-go/pkg"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-
 	"os"
 	"testing"
 	"time"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+
+	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	ctrlv1alpha1 "github.com/oscal-compass/compliance-to-policy-go/v2/api/v1alpha1"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/controllers/utils/ocmk8sclients"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
 
 	ctrl "sigs.k8s.io/controller-runtime"
 
@@ -36,7 +37,7 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	"github.com/oscal-compass/compliance-to-policy-go/controllers/testsetting"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/controllers/testsetting"
 )
 
 var testSetting *testsetting.TestSetting

@@ -21,16 +21,17 @@ import (
 	"os"
 	"testing"
 
-	"github.com/oscal-compass/compliance-to-policy-go/pkg"
-	"github.com/oscal-compass/compliance-to-policy-go/pkg/types/configurationpolicy"
-	. "github.com/oscal-compass/compliance-to-policy-go/pkg/types/internalcompliance"
-	"github.com/oscal-compass/compliance-to-policy-go/pkg/types/placements"
-	typepolicy "github.com/oscal-compass/compliance-to-policy-go/pkg/types/policy"
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	utilyaml "k8s.io/apimachinery/pkg/util/yaml"
 	"sigs.k8s.io/kustomize/api/resource"
+
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/configurationpolicy"
+	. "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/internalcompliance"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/placements"
+	typepolicy "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/policy"
 )
 
 func TestCompose(t *testing.T) {

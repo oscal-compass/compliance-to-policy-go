@@ -19,10 +19,11 @@ package ocmk8sclients
 import (
 	"context"
 
-	"github.com/oscal-compass/compliance-to-policy-go/pkg"
-	typesplacement "github.com/oscal-compass/compliance-to-policy-go/pkg/types/placements"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/dynamic"
+
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
+	typesplacement "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/placements"
 )
 
 type placementRuleClient struct {

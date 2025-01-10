@@ -30,14 +30,6 @@ import (
 	"github.com/go-git/go-git/v5"
 	githttp "github.com/go-git/go-git/v5/plumbing/transport/http"
 	"github.com/go-logr/logr"
-	c2pv1alpha1 "github.com/oscal-compass/compliance-to-policy-go/api/v1alpha1"
-	edge "github.com/oscal-compass/compliance-to-policy-go/controllers/edge.kcp.io/v1alpha1"
-	"github.com/oscal-compass/compliance-to-policy-go/controllers/utils/kcpclient"
-	"github.com/oscal-compass/compliance-to-policy-go/pkg"
-	"github.com/oscal-compass/compliance-to-policy-go/pkg/oscal"
-	internalcompliance "github.com/oscal-compass/compliance-to-policy-go/pkg/types/internalcompliance"
-	typesoscal "github.com/oscal-compass/compliance-to-policy-go/pkg/types/oscal"
-	cd "github.com/oscal-compass/compliance-to-policy-go/pkg/types/oscal/componentdefinition"
 	"k8s.io/apimachinery/pkg/api/errors"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -45,6 +37,15 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+
+	c2pv1alpha1 "github.com/oscal-compass/compliance-to-policy-go/v2/api/v1alpha1"
+	edge "github.com/oscal-compass/compliance-to-policy-go/v2/controllers/edge.kcp.io/v1alpha1"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/controllers/utils/kcpclient"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/oscal"
+	internalcompliance "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/internalcompliance"
+	typesoscal "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/oscal"
+	cd "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/oscal/componentdefinition"
 )
 
 var logger logr.Logger = ctrl.Log.WithName("controller-common-utils")

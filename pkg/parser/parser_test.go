@@ -21,7 +21,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/oscal-compass/compliance-to-policy-go/pkg"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
 )
 
 //go:embed testdata/*

@@ -22,9 +22,9 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
-	"github.com/oscal-compass/compliance-to-policy-go/pkg"
-	typec2pcr "github.com/oscal-compass/compliance-to-policy-go/pkg/types/c2pcr"
-	typear "github.com/oscal-compass/compliance-to-policy-go/pkg/types/oscal/assessmentresults"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
+	typec2pcr "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/c2pcr"
+	typear "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/oscal/assessmentresults"
 	"github.com/stretchr/testify/assert"
 )
 

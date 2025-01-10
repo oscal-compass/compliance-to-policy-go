@@ -21,9 +21,9 @@ import (
 	"fmt"
 	"strings"
 
-	c2pv1alpha1 "github.com/oscal-compass/compliance-to-policy-go/api/v1alpha1"
-	"github.com/oscal-compass/compliance-to-policy-go/controllers/utils/kcpclient"
-	"github.com/oscal-compass/compliance-to-policy-go/pkg"
+	c2pv1alpha1 "github.com/oscal-compass/compliance-to-policy-go/v2/api/v1alpha1"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/controllers/utils/kcpclient"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
 	"k8s.io/apimachinery/pkg/api/errors"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"

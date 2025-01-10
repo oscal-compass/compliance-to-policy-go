@@ -19,9 +19,9 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/oscal-compass/compliance-to-policy-go/cmd/c2pcli/options"
-	oscal2posturecmd "github.com/oscal-compass/compliance-to-policy-go/cmd/pvpcommon/oscal2posture/cmd"
-	"github.com/oscal-compass/compliance-to-policy-go/pkg"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/cmd/c2pcli/options"
+	oscal2posturecmd "github.com/oscal-compass/compliance-to-policy-go/v2/cmd/pvpcommon/oscal2posture/cmd"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
 )
 
 func New() *cobra.Command {

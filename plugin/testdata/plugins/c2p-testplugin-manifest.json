@@ -1,0 +1,10 @@
+{
+  "metadata": {
+    "id": "testplugin",
+    "description": "My test plugin",
+    "version": "0.0.0",
+    "types": ["pvp"]
+  },
+  "executablePath": "testplugin",
+  "sha256": "63784a675a475b0e93865eae1028626a90bab7c66f55c3d8a510f06874e0924a"
+}

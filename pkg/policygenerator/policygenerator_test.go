@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/oscal-compass/compliance-to-policy-go/pkg"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
 	"sigs.k8s.io/kustomize/api/krusty"
 	"sigs.k8s.io/kustomize/api/types"
 )

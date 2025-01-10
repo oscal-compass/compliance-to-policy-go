@@ -43,7 +43,7 @@ $ tree /tmp/kyverno-policies
 
 #### Convert Policy Report to OSCAL Assessment Results
 ```
-$ c2pcli kyverno result2oscal -c ./pkg/testdata/kyverno/c2p-config.yaml -o /tmp/assessment-results
+$ c2pcli kyverno result2oscal -c ./pkg/testdata/kyverno/c2p-config.yaml --results ./pkg/testdata/kyverno/policy-reports -o /tmp/assessment-results
 
 $ tree /tmp/assessment-results 
 /tmp/assessment-results

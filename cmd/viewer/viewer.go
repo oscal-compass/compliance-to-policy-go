@@ -22,9 +22,9 @@ import (
 	"net/url"
 	"os"
 
-	"github.com/oscal-compass/compliance-to-policy-go/pkg"
-	"github.com/oscal-compass/compliance-to-policy-go/pkg/tables/resources"
-	"github.com/oscal-compass/compliance-to-policy-go/pkg/types/policycomposition"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/tables/resources"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/policycomposition"
 	"gopkg.in/yaml.v3"
 )
 

@@ -35,15 +35,15 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	"sigs.k8s.io/controller-runtime/pkg/metrics/server"
 
-	compliancetopolicycontrollerv1alpha1 "github.com/oscal-compass/compliance-to-policy-go/api/v1alpha1"
-	wgpolicyk8sv1alpha2 "github.com/oscal-compass/compliance-to-policy-go/controllers/wgpolicyk8s.io/v1alpha2"
+	compliancetopolicycontrollerv1alpha1 "github.com/oscal-compass/compliance-to-policy-go/v2/api/v1alpha1"
+	wgpolicyk8sv1alpha2 "github.com/oscal-compass/compliance-to-policy-go/v2/controllers/wgpolicyk8s.io/v1alpha2"
 
-	"github.com/oscal-compass/compliance-to-policy-go/controllers/compliancedeployment"
-	ctrlrefkcp "github.com/oscal-compass/compliance-to-policy-go/controllers/controlreference/kcp"
-	ctrlrefocm "github.com/oscal-compass/compliance-to-policy-go/controllers/controlreference/ocm"
-	"github.com/oscal-compass/compliance-to-policy-go/controllers/resultcollector"
-	"github.com/oscal-compass/compliance-to-policy-go/controllers/utils/ocmk8sclients"
-	"github.com/oscal-compass/compliance-to-policy-go/pkg"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/controllers/compliancedeployment"
+	ctrlrefkcp "github.com/oscal-compass/compliance-to-policy-go/v2/controllers/controlreference/kcp"
+	ctrlrefocm "github.com/oscal-compass/compliance-to-policy-go/v2/controllers/controlreference/ocm"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/controllers/resultcollector"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/controllers/utils/ocmk8sclients"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
 	//+kubebuilder:scaffold:imports
 )
 

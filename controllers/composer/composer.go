@@ -21,15 +21,17 @@ import (
 	"os"
 	"strings"
 
-	policygenerator "github.com/oscal-compass/compliance-to-policy-go/pkg/policygenerator"
-	. "github.com/oscal-compass/compliance-to-policy-go/pkg/types/internalcompliance"
-	pgtype "github.com/oscal-compass/compliance-to-policy-go/pkg/types/policygenerator"
 	cp "github.com/otiai10/copy"
 	typekustomize "sigs.k8s.io/kustomize/api/types"
 
-	"github.com/oscal-compass/compliance-to-policy-go/pkg"
+	policygenerator "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/policygenerator"
+	. "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/internalcompliance"
+	pgtype "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/policygenerator"
+
 	"go.uber.org/zap"
 	"k8s.io/apimachinery/pkg/util/sets"
+
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
 )
 
 var logger *zap.Logger = pkg.GetLogger("composer")

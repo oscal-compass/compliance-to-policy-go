@@ -24,11 +24,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/oscal-compass/compliance-to-policy-go/pkg"
-	"github.com/oscal-compass/compliance-to-policy-go/pkg/tables/resources"
-	"github.com/oscal-compass/compliance-to-policy-go/pkg/types/internalcompliance"
-	"github.com/oscal-compass/compliance-to-policy-go/pkg/types/oscal"
-	cd "github.com/oscal-compass/compliance-to-policy-go/pkg/types/oscal/componentdefinition"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/tables/resources"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/internalcompliance"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/oscal"
+	cd "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/oscal/componentdefinition"
 	"github.com/stretchr/testify/assert"
 )
 

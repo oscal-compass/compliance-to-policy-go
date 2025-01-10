@@ -19,9 +19,9 @@ package ocm
 import (
 	"fmt"
 
-	"github.com/oscal-compass/compliance-to-policy-go/pkg"
-	"github.com/oscal-compass/compliance-to-policy-go/pkg/oscal"
-	"github.com/oscal-compass/compliance-to-policy-go/pkg/types/c2pcr"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/oscal"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/c2pcr"
 )
 
 type C2PCRParser struct {

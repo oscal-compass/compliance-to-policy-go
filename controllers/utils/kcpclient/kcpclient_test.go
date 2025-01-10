@@ -24,8 +24,6 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.com/oscal-compass/compliance-to-policy-go/controllers/testsetting"
-	"github.com/oscal-compass/compliance-to-policy-go/pkg"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -33,6 +31,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+
+	"github.com/oscal-compass/compliance-to-policy-go/v2/controllers/testsetting"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
 )
 
 var testSetting *testsetting.KcpTestSetting

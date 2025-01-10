@@ -19,10 +19,10 @@ package subcommands
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/oscal-compass/compliance-to-policy-go/cmd/c2pcli/options"
-	oscal2policycmd "github.com/oscal-compass/compliance-to-policy-go/cmd/kyverno/oscal2policy/cmd"
-	result2oscalcmd "github.com/oscal-compass/compliance-to-policy-go/cmd/kyverno/result2oscal/cmd"
-	toolscmd "github.com/oscal-compass/compliance-to-policy-go/cmd/kyverno/tools/cmd"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/cmd/c2pcli/options"
+	oscal2policycmd "github.com/oscal-compass/compliance-to-policy-go/v2/cmd/kyverno/oscal2policy/cmd"
+	result2oscalcmd "github.com/oscal-compass/compliance-to-policy-go/v2/cmd/kyverno/result2oscal/cmd"
+	toolscmd "github.com/oscal-compass/compliance-to-policy-go/v2/cmd/kyverno/tools/cmd"
 )
 
 func NewKyvernoSubCommand() *cobra.Command {

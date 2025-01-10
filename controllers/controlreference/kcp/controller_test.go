@@ -24,15 +24,17 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	ctrlv1alpha1 "github.com/oscal-compass/compliance-to-policy-go/api/v1alpha1"
-	"github.com/oscal-compass/compliance-to-policy-go/controllers/testsetting"
-	"github.com/oscal-compass/compliance-to-policy-go/controllers/utils/kcpclient"
-	"github.com/oscal-compass/compliance-to-policy-go/pkg"
+
 	apixv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	apix "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
+
+	ctrlv1alpha1 "github.com/oscal-compass/compliance-to-policy-go/v2/api/v1alpha1"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/controllers/testsetting"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/controllers/utils/kcpclient"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
 
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
