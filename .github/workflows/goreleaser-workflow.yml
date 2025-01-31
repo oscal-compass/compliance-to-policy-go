@@ -35,7 +35,7 @@ jobs:
       run: echo LDFLAGS="$(make ldflags)" >> $GITHUB_ENV
     - name: Run GoReleaser on tag
       if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
-      uses: goreleaser/goreleaser-action@v4
+      uses: goreleaser/goreleaser-action@v6
       with:
         distribution: goreleaser
         version: latest
@@ -44,7 +44,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Run GoReleaser on push without tag
       if: github.event_name == 'push' && !contains(github.ref, 'refs/tags/')
-      uses: goreleaser/goreleaser-action@v4
+      uses: goreleaser/goreleaser-action@v6
       with:
         distribution: goreleaser
         version: latest
