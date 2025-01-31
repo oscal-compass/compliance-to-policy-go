@@ -295,3 +295,5 @@ require (
 	sigs.k8s.io/release-utils v0.7.7 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.4.1 // indirect
 )
+
+replace github.com/oscal-compass/oscal-sdk-go => github.com/complytime/oscal-sdk-go v0.0.0-20250125144051-7723a7b6b06b

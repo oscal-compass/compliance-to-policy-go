@@ -11,6 +11,7 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/oscal-compass/oscal-sdk-go/rules"
+	"github.com/oscal-compass/oscal-sdk-go/settings"
 
 	"github.com/oscal-compass/compliance-to-policy-go/v2/framework/config"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/plugin"
@@ -101,8 +102,9 @@ func (m *PluginManager) LaunchPolicyPlugins() (map[string]policy.Provider, error
 }
 
 // GeneratePolicy identifies policy configuration for each provider in the given pluginSet to execute the Generate() method
-// each policy.Provider.
-func (m *PluginManager) GeneratePolicy(ctx context.Context, pluginSet map[string]policy.Provider) error {
+// each policy.Provider. The rule set passed to each plugin can be configured with compliance specific settings with the
+// complianceSettings input.
+func (m *PluginManager) GeneratePolicy(ctx context.Context, pluginSet map[string]policy.Provider, complianceSettings settings.Settings) error {
 	for providerId, policyPlugin := range pluginSet {
 		componentTitle, ok := m.pluginIdMap[providerId]
 		if !ok {
@@ -110,11 +112,11 @@ func (m *PluginManager) GeneratePolicy(ctx context.Context, pluginSet map[string
 		}
 		m.log.Debug(fmt.Sprintf("Generating policy for provider %s", providerId))
 
-		ruleSets, err := m.rulesStore.FindByComponent(ctx, componentTitle)
+		appliedRuleSet, err := settings.ApplyToComponent(ctx, componentTitle, m.rulesStore, complianceSettings)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to get rule sets for component %s: %w", componentTitle, err)
 		}
-		if err := policyPlugin.Generate(ruleSets); err != nil {
+		if err := policyPlugin.Generate(appliedRuleSet); err != nil {
 			return fmt.Errorf("plugin %s: %w", providerId, err)
 		}
 	}
@@ -122,8 +124,9 @@ func (m *PluginManager) GeneratePolicy(ctx context.Context, pluginSet map[string
 }
 
 // AggregateResults identifies policy configuration for each provider in the given pluginSet to execute the GetResults() method
-// each policy.Provider.
-func (m *PluginManager) AggregateResults(ctx context.Context, pluginSet map[string]policy.Provider) ([]policy.PVPResult, error) {
+// each policy.Provider. The rule set passed to each plugin can be configured with compliance specific settings with the
+// // complianceSettings input.
+func (m *PluginManager) AggregateResults(ctx context.Context, pluginSet map[string]policy.Provider, complianceSettings settings.Settings) ([]policy.PVPResult, error) {
 	var allResults []policy.PVPResult
 	for providerId, policyPlugin := range pluginSet {
 		// get the provider ids here to grab the policy
@@ -132,12 +135,12 @@ func (m *PluginManager) AggregateResults(ctx context.Context, pluginSet map[stri
 			return allResults, fmt.Errorf("missing title for provider %s", providerId)
 		}
 		m.log.Debug(fmt.Sprintf("Aggregating results for provider %s", providerId))
-		ruleSets, err := m.rulesStore.FindByComponent(ctx, componentTitle)
+		appliedRuleSet, err := settings.ApplyToComponent(ctx, componentTitle, m.rulesStore, complianceSettings)
 		if err != nil {
-			return allResults, err
+			return allResults, fmt.Errorf("failed to get rule sets for component %s: %w", componentTitle, err)
 		}
 
-		pluginResults, err := policyPlugin.GetResults(ruleSets)
+		pluginResults, err := policyPlugin.GetResults(appliedRuleSet)
 		if err != nil {
 			return allResults, fmt.Errorf("plugin %s: %w", providerId, err)
 		}
