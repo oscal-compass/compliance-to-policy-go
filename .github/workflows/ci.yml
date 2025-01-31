@@ -17,7 +17,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-go@v4
         with:
-          go-version: v1.22
+          go-version-file: './go.mod'
       - name: Linting and formatting
         run: |
           go mod tidy
