@@ -1,8 +1,6 @@
 module github.com/oscal-compass/compliance-to-policy-go/v2
 
-go 1.22.7
-
-toolchain go1.22.9
+go 1.23.0
 
 require (
 	github.com/defenseunicorns/go-oscal v0.6.2
