@@ -234,7 +234,10 @@ func (r *Reporter) GenerateAssessmentResults(ctx context.Context, planHref strin
 			rule, err := r.rulesStore.GetByCheckID(ctx, observationByCheck.CheckID)
 			if err != nil {
 				if !errors.Is(err, rules.ErrRuleNotFound) {
-					return assessmentResults, fmt.Errorf("failed to convert observation for check: %w", err)
+					return assessmentResults, fmt.Errorf("failed to convert observation for check %v: %w", observationByCheck.CheckID, err)
+				} else {
+					r.log.Warn(fmt.Sprintf("skipping observation for check %v: %v", observationByCheck.CheckID, err))
+					continue
 				}
 			}
 
@@ -279,5 +282,4 @@ func (r *Reporter) GenerateAssessmentResults(ctx context.Context, planHref strin
 	}
 
 	return assessmentResults, nil
-
 }
