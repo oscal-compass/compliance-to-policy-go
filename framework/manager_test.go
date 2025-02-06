@@ -145,6 +145,10 @@ type policyProvider struct {
 	mock.Mock
 }
 
+func (p *policyProvider) Configure(option map[string]string) error {
+	return nil
+}
+
 func (p *policyProvider) Generate(policyRules policy.Policy) error {
 	sort.SliceStable(policyRules, func(i, j int) bool {
 		return policyRules[i].Rule.ID > policyRules[j].Rule.ID

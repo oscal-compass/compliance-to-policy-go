@@ -19,6 +19,17 @@ type pvpClient struct {
 	client proto.PolicyEngineClient
 }
 
+func (pvp *pvpClient) Configure(configuration map[string]string) error {
+	request := proto.ConfigureRequest{
+		Settings: configuration,
+	}
+	_, err := pvp.client.Configure(context.Background(), &request)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (pvp *pvpClient) Generate(p policy.Policy) error {
 	request := PolicyToProto(p)
 	_, err := pvp.client.Generate(context.Background(), request)

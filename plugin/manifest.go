@@ -22,6 +22,9 @@ type Manifest struct {
 	// Checksum is the SHA256 hash of the content.
 	// This checked against the calculated value at plugin launch.
 	Checksum string `json:"sha256"`
+	// Configuration is an optional section to add plugin
+	// configuration options and default values.
+	Configuration []ConfigurationOption `json:"configuration,omitempty"`
 }
 
 // ResolvePath validates and sanitizes the Manifest.ExecutablePath.
@@ -80,6 +83,18 @@ type Metadata struct {
 	// are implemented by this plugin. It should match
 	// on or more of the values in plugin.SupportedPlugin.
 	Types []string `json:"types"`
+}
+
+// ConfigurationOption defines an option for configuring plugin behavior.
+type ConfigurationOption struct {
+	// Name is the human-readable name of the option.
+	Name string `json:"name"`
+	// Description is a short description of the option.
+	Description string `json:"description"`
+	// Required is whether the option is required to be set
+	Required bool `json:"required"`
+	// Default is an optional parameter with the default selected value.
+	Default *string `json:"default,omitempty"`
 }
 
 // ValidateID ensure the plugin id is valid based on the

@@ -30,6 +30,15 @@ func FromPVP(pe policy.Provider) proto.PolicyEngineServer {
 	}
 }
 
+func (p *pvpService) Configure(ctx context.Context, request *proto.ConfigureRequest) (*proto.ConfigureResponse, error) {
+	if err := p.Impl.Configure(request.Settings); err != nil {
+		return &proto.ConfigureResponse{}, status.Error(codes.Internal, err.Error())
+	}
+
+	// policy.Provider.Configure currently only returns an error, so using an empty proto.ConifgureResponse
+	return &proto.ConfigureResponse{}, nil
+}
+
 func (p *pvpService) Generate(ctx context.Context, request *proto.PolicyRequest) (*proto.GenerateResponse, error) {
 	policy := NewPolicyFromProto(request)
 	if err := p.Impl.Generate(policy); err != nil {

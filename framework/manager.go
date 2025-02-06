@@ -69,13 +69,14 @@ func NewPluginManager(cfg *config.C2PConfig) (*PluginManager, error) {
 }
 
 // LaunchPolicyPlugins retrieves information for the plugins that have been requested
-// in the C2PConfig and launches each plugin to make it ready for use with GeneratePolicy() and
-// AggregateResults().
-func (m *PluginManager) LaunchPolicyPlugins() (map[string]policy.Provider, error) {
+// in the C2PConfig and launches and configures each plugin to make it ready for use with GeneratePolicy() and
+// AggregateResults(). The plugin is configured based on default options and given options.
+func (m *PluginManager) LaunchPolicyPlugins(pluginConfigMap map[string]map[string]string) (map[string]policy.Provider, error) {
 	providerIds := make([]string, 0, len(m.pluginIdMap))
 	for id := range m.pluginIdMap {
 		providerIds = append(providerIds, id)
 	}
+
 	pluginsByIds := make(map[string]policy.Provider)
 
 	m.log.Info(fmt.Sprintf("Searching for plugins in %s", m.pluginDir))
@@ -96,8 +97,42 @@ func (m *PluginManager) LaunchPolicyPlugins() (map[string]policy.Provider, error
 			return pluginsByIds, err
 		}
 		pluginsByIds[manifest.ID] = policyPlugin
-		m.log.Debug(fmt.Sprintf("Launching plugin %s", manifest.ID))
+		m.log.Debug(fmt.Sprintf("Launched plugin %s", manifest.ID))
+
+		m.log.Debug(fmt.Sprintf("Gathering configuration options for %s", manifest.ID))
+
+		// Get all the base configuration
+		configMap := make(map[string]string)
+		if len(manifest.Configuration) > 0 {
+			configMapOverides, ok := pluginConfigMap[manifest.ID]
+			if !ok {
+				configMapOverides = make(map[string]string)
+				m.log.Debug("No overrides set for plugin %s, using defaults...", manifest.ID)
+			}
+			for _, option := range manifest.Configuration {
+
+				// Grab the defaults for each
+				if option.Default != nil {
+					configMap[option.Name] = *option.Default
+				}
+
+				// Apply overrides, if they do not exist for required options,
+				// fail.
+				selected, ok := configMapOverides[option.Name]
+				if ok {
+					configMap[option.Name] = selected
+				} else if option.Required {
+					return pluginsByIds,
+						fmt.Errorf("plugin %s: required value not supplied for option %s", manifest.ID, option.Name)
+				}
+			}
+
+			if err := policyPlugin.Configure(configMap); err != nil {
+				return pluginsByIds, fmt.Errorf("failed to configure plugin %s: %w", manifest.ID, err)
+			}
+		}
 	}
+
 	return pluginsByIds, nil
 }
 
