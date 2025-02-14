@@ -102,38 +102,31 @@ func (m *PluginManager) LaunchPolicyPlugins(pluginConfigMap map[string]map[strin
 		m.log.Debug(fmt.Sprintf("Gathering configuration options for %s", manifest.ID))
 
 		// Get all the base configuration
-		configMap := make(map[string]string)
 		if len(manifest.Configuration) > 0 {
-			configMapOverides, ok := pluginConfigMap[manifest.ID]
-			if !ok {
-				configMapOverides = make(map[string]string)
-				m.log.Debug("No overrides set for plugin %s, using defaults...", manifest.ID)
-			}
-			for _, option := range manifest.Configuration {
-
-				// Grab the defaults for each
-				if option.Default != nil {
-					configMap[option.Name] = *option.Default
-				}
-
-				// Apply overrides, if they do not exist for required options,
-				// fail.
-				selected, ok := configMapOverides[option.Name]
-				if ok {
-					configMap[option.Name] = selected
-				} else if option.Required {
-					return pluginsByIds,
-						fmt.Errorf("plugin %s: required value not supplied for option %s", manifest.ID, option.Name)
-				}
-			}
-
-			if err := policyPlugin.Configure(configMap); err != nil {
+			if err := m.configurePlugin(policyPlugin, manifest, pluginConfigMap); err != nil {
 				return pluginsByIds, fmt.Errorf("failed to configure plugin %s: %w", manifest.ID, err)
 			}
+
 		}
 	}
 
 	return pluginsByIds, nil
+}
+
+func (m *PluginManager) configurePlugin(policyPlugin policy.Provider, manifest plugin.Manifest, pluginConfigMap map[string]map[string]string) error {
+	selections, ok := pluginConfigMap[manifest.ID]
+	if !ok {
+		selections = make(map[string]string)
+		m.log.Debug("No overrides set for plugin %s, using defaults...", manifest.ID)
+	}
+	configMap, err := manifest.ResolveOptions(selections)
+	if err != nil {
+		return err
+	}
+	if err := policyPlugin.Configure(configMap); err != nil {
+		return err
+	}
+	return nil
 }
 
 // GeneratePolicy identifies policy configuration for each provider in the given pluginSet to execute the Generate() method

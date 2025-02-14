@@ -69,6 +69,30 @@ func (m *Manifest) ResolvePath(pluginDir string) error {
 	return nil
 }
 
+// ResolveOptions validates and applies given configuration selections against the manifest
+// declared configuration and returns the resolved options.
+func (m *Manifest) ResolveOptions(configSelections map[string]string) (map[string]string, error) {
+	configMap := make(map[string]string)
+	for _, option := range m.Configuration {
+
+		// Grab the defaults for each
+		if option.Default != nil {
+			configMap[option.Name] = *option.Default
+		}
+
+		// Apply overrides, if they do not exist for required options,
+		// fail.
+		selected, ok := configSelections[option.Name]
+		if ok {
+			configMap[option.Name] = selected
+		} else if option.Required {
+			return nil,
+				fmt.Errorf("required value not supplied for option %q", option.Name)
+		}
+	}
+	return configMap, nil
+}
+
 // Metadata has required information for plugin launch and discovery.
 type Metadata struct {
 	// ID is the name of the plugin. This is the information used

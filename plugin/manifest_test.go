@@ -28,8 +28,6 @@ func TestMetadata_ValidateID(t *testing.T) {
 
 func TestManifest_ResolvePath(t *testing.T) {
 	tmpDir := t.TempDir()
-	defer os.RemoveAll(tmpDir)
-
 	copyPlugin(t, tmpDir, "testdata/plugins/testplugin")
 
 	tests := []struct {
@@ -77,6 +75,101 @@ func TestManifest_ResolvePath(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				require.Equal(t, c.wantPath, c.testManifest.ExecutablePath)
+			}
+		})
+	}
+}
+
+func TestManifest_ResolveOptions(t *testing.T) {
+
+	defaultValue := "default"
+	tests := []struct {
+		name         string
+		testManifest Manifest
+		selections   map[string]string
+		wantError    string
+		wantOptions  map[string]string
+	}{
+		{
+			name: "Success/AllDefaults",
+			testManifest: Manifest{
+				ExecutablePath: "testplugin",
+				Configuration: []ConfigurationOption{
+					{
+						Name:        "default",
+						Description: "A required options",
+						Required:    false,
+						Default:     &defaultValue,
+					},
+				},
+			},
+			wantOptions: map[string]string{"default": "default"},
+		},
+		{
+			name: "Success/WithSelections",
+			testManifest: Manifest{
+				ExecutablePath: "testplugin",
+				Configuration: []ConfigurationOption{
+					{
+						Name:        "required",
+						Description: "A required options",
+						Required:    true,
+					},
+					{
+						Name:        "default",
+						Description: "A default option",
+						Required:    false,
+						Default:     &defaultValue,
+					},
+					{
+						Name:        "default2",
+						Description: "A default option",
+						Required:    false,
+						Default:     &defaultValue,
+					},
+				},
+			},
+			selections: map[string]string{
+				"required": "myvalue",
+				"default":  "override",
+			},
+			wantOptions: map[string]string{
+				"required": "myvalue",
+				"default":  "override",
+				"default2": "default",
+			},
+		},
+		{
+			name: "Success/NoConfiguration",
+			testManifest: Manifest{
+				ExecutablePath: "testplugin",
+			},
+			wantOptions: map[string]string{},
+		},
+		{
+			name: "Failure/RequiredMissing",
+			testManifest: Manifest{
+				ExecutablePath: "testplugin",
+				Configuration: []ConfigurationOption{
+					{
+						Name:        "required",
+						Description: "A required option",
+						Required:    true,
+					},
+				},
+			},
+			wantError: "required value not supplied for option \"required\"",
+		},
+	}
+
+	for _, c := range tests {
+		t.Run(c.name, func(t *testing.T) {
+			gotOptions, err := c.testManifest.ResolveOptions(c.selections)
+			if c.wantError != "" {
+				require.EqualError(t, err, c.wantError)
+			} else {
+				require.NoError(t, err)
+				require.Equal(t, c.wantOptions, gotOptions)
 			}
 		})
 	}
