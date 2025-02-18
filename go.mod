@@ -17,7 +17,7 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/onsi/ginkgo/v2 v2.19.0
 	github.com/onsi/gomega v1.34.1
-	github.com/oscal-compass/oscal-sdk-go v0.0.0-20241209195345-3e8abe96267d
+	github.com/oscal-compass/oscal-sdk-go v0.0.0-20250214194258-09243b514d6c
 	github.com/otiai10/copy v1.9.0
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.5
@@ -295,5 +295,3 @@ require (
 	sigs.k8s.io/release-utils v0.7.7 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.4.1 // indirect
 )
-
-replace github.com/oscal-compass/oscal-sdk-go => github.com/complytime/oscal-sdk-go v0.0.0-20250125144051-7723a7b6b06b
