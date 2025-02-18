@@ -44,7 +44,7 @@ type PluginManager struct {
 // interact with supported plugins.
 //
 // It supports the plugin lifecycle with the following methods:
-//   - Finding and initializing plugins: LaunchPolicyPlugins()
+//   - Finding and initializing plugins: FindRequestedPlugins() and LaunchPolicyPlugins()
 //   - Execution - GeneratePolicy() and AggregateResults()
 //   - Clean/Stop - Clean()
 func NewPluginManager(cfg *config.C2PConfig) (*PluginManager, error) {
@@ -68,16 +68,13 @@ func NewPluginManager(cfg *config.C2PConfig) (*PluginManager, error) {
 	}, nil
 }
 
-// LaunchPolicyPlugins retrieves information for the plugins that have been requested
-// in the C2PConfig and launches and configures each plugin to make it ready for use with GeneratePolicy() and
-// AggregateResults(). The plugin is configured based on default options and given options.
-func (m *PluginManager) LaunchPolicyPlugins(pluginConfigMap map[string]map[string]string) (map[string]policy.Provider, error) {
+// FindRequestedPlugins retrieves information for the plugins that have been requested
+// in the C2PConfig and returns the plugin manifests for use with LaunchPolicyPlugins().
+func (m *PluginManager) FindRequestedPlugins() (plugin.Manifests, error) {
 	providerIds := make([]string, 0, len(m.pluginIdMap))
 	for id := range m.pluginIdMap {
 		providerIds = append(providerIds, id)
 	}
-
-	pluginsByIds := make(map[string]policy.Provider)
 
 	m.log.Info(fmt.Sprintf("Searching for plugins in %s", m.pluginDir))
 
@@ -87,34 +84,38 @@ func (m *PluginManager) LaunchPolicyPlugins(pluginConfigMap map[string]map[strin
 		plugin.WithPluginType(plugin.PVPPluginName),
 	)
 	if err != nil {
-		return pluginsByIds, err
+		return pluginManifests, err
 	}
 	m.log.Debug(fmt.Sprintf("Found %d matching plugins", len(pluginManifests)))
+	return pluginManifests, nil
+}
 
-	for _, manifest := range pluginManifests {
+// LaunchPolicyPlugins launches requested plugins and configures each plugin to make it ready for use with GeneratePolicy() and
+// AggregateResults(). The plugin is configured based on default options and given options.
+// Given options are represented through the configSelections input (pluginID -> optionID -> selectedValue).
+func (m *PluginManager) LaunchPolicyPlugins(manifests plugin.Manifests, configSelections map[string]map[string]string) (map[string]policy.Provider, error) {
+	pluginsByIds := make(map[string]policy.Provider)
+	for _, manifest := range manifests {
 		policyPlugin, err := plugin.NewPolicyPlugin(manifest, m.clientFactory)
 		if err != nil {
 			return pluginsByIds, err
 		}
 		pluginsByIds[manifest.ID] = policyPlugin
 		m.log.Debug(fmt.Sprintf("Launched plugin %s", manifest.ID))
-
 		m.log.Debug(fmt.Sprintf("Gathering configuration options for %s", manifest.ID))
 
 		// Get all the base configuration
 		if len(manifest.Configuration) > 0 {
-			if err := m.configurePlugin(policyPlugin, manifest, pluginConfigMap); err != nil {
+			if err := m.configurePlugin(policyPlugin, manifest, configSelections); err != nil {
 				return pluginsByIds, fmt.Errorf("failed to configure plugin %s: %w", manifest.ID, err)
 			}
-
 		}
 	}
-
 	return pluginsByIds, nil
 }
 
-func (m *PluginManager) configurePlugin(policyPlugin policy.Provider, manifest plugin.Manifest, pluginConfigMap map[string]map[string]string) error {
-	selections, ok := pluginConfigMap[manifest.ID]
+func (m *PluginManager) configurePlugin(policyPlugin policy.Provider, manifest plugin.Manifest, configSelections map[string]map[string]string) error {
+	selections, ok := configSelections[manifest.ID]
 	if !ok {
 		selections = make(map[string]string)
 		m.log.Debug("No overrides set for plugin %s, using defaults...", manifest.ID)
