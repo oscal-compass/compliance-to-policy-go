@@ -125,7 +125,7 @@ func (m *PluginManager) GeneratePolicy(ctx context.Context, pluginSet map[string
 
 // AggregateResults identifies policy configuration for each provider in the given pluginSet to execute the GetResults() method
 // each policy.Provider. The rule set passed to each plugin can be configured with compliance specific settings with the
-// // complianceSettings input.
+// complianceSettings input.
 func (m *PluginManager) AggregateResults(ctx context.Context, pluginSet map[string]policy.Provider, complianceSettings settings.Settings) ([]policy.PVPResult, error) {
 	var allResults []policy.PVPResult
 	for providerId, policyPlugin := range pluginSet {

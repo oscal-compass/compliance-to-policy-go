@@ -65,9 +65,9 @@ func WithTitle(title string) GenerateOption {
 // getFindingForTarget returns an existing finding that matches the targetId if one exists in findings
 func (r *Reporter) getFindingForTarget(findings []oscalTypes.Finding, targetId string) *oscalTypes.Finding {
 
-	for _, f := range findings {
-		if f.Target.TargetId == targetId {
-			return &f //if finding is found, return a pointer to that finding
+	for i := range findings {
+		if findings[i].Target.TargetId == targetId {
+			return &findings[i] // if finding is found, return a pointer to that slice element
 		}
 	}
 	return nil
