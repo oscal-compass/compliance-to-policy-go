@@ -14,6 +14,7 @@ import (
 
 	oscalTypes "github.com/defenseunicorns/go-oscal/src/types/oscal-1-1-2"
 	"github.com/hashicorp/go-hclog"
+	"github.com/oscal-compass/oscal-sdk-go/models/components"
 	"github.com/oscal-compass/oscal-sdk-go/rules"
 
 	"github.com/oscal-compass/compliance-to-policy-go/v2/plugin"
@@ -98,7 +99,8 @@ func ResolveOptions(config *C2PConfig) (*rules.MemoryStore, map[string]string, e
 	if err != nil {
 		return nil, nil, err
 	}
-	store, err := rules.NewMemoryStoreFromComponents(allComponents)
+	store := rules.NewMemoryStore()
+	err = store.IndexAll(allComponents)
 	if err != nil {
 		return store, titleByID, err
 	}
@@ -107,8 +109,8 @@ func ResolveOptions(config *C2PConfig) (*rules.MemoryStore, map[string]string, e
 
 // resolveOptions returns processed OSCAL Components and a plugin identifier map. This performs most
 // of the logic in ResolveOptions, but is broken out to make it easier to test.
-func resolveOptions(config *C2PConfig) ([]oscalTypes.DefinedComponent, map[string]string, error) {
-	var allComponents []oscalTypes.DefinedComponent
+func resolveOptions(config *C2PConfig) ([]components.Component, map[string]string, error) {
+	var allComponents []components.Component
 	titleByID := make(map[string]string)
 	for _, compDef := range config.ComponentDefinitions {
 		if compDef.Components == nil {
@@ -122,7 +124,8 @@ func resolveOptions(config *C2PConfig) ([]oscalTypes.DefinedComponent, map[strin
 				}
 				titleByID[pluginId] = component.Title
 			}
-			allComponents = append(allComponents, component)
+			compAdapter := components.NewDefinedComponentAdapter(component)
+			allComponents = append(allComponents, compAdapter)
 		}
 	}
 	return allComponents, titleByID, nil

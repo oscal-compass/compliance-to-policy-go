@@ -14,14 +14,13 @@ import (
 	oscalTypes "github.com/defenseunicorns/go-oscal/src/types/oscal-1-1-2"
 	"github.com/oscal-compass/oscal-sdk-go/extensions"
 	"github.com/oscal-compass/oscal-sdk-go/generators"
+	"github.com/oscal-compass/oscal-sdk-go/settings"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
 	"github.com/oscal-compass/compliance-to-policy-go/v2/framework/config"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/policy"
 )
-
-const testDataPath = "../test/testdata/component-definition-test.json"
 
 var (
 	expectedCertFileRule = extensions.RuleSet{
@@ -77,11 +76,14 @@ func TestPluginManager_GeneratePolicy(t *testing.T) {
 
 	// Create pluginSet
 	providerTestObj := new(policyProvider)
-	providerTestObj.On("Generate", policy.Policy{expectedKeyFileRule, expectedCertFileRule}).Return(nil)
+	providerTestObj.On("Generate", policy.Policy{expectedCertFileRule}).Return(nil)
 	pluginSet := map[string]policy.Provider{
 		"mypvpvalidator": providerTestObj,
 	}
-	err = pluginManager.GeneratePolicy(context.TODO(), pluginSet)
+
+	testSettings := settings.NewSettings(map[string]struct{}{"etcd_cert_file": {}}, map[string]string{})
+
+	err = pluginManager.GeneratePolicy(context.TODO(), pluginSet, testSettings)
 	require.NoError(t, err)
 	providerTestObj.AssertExpectations(t)
 }
@@ -101,13 +103,25 @@ func TestPluginManager_AggregateResults(t *testing.T) {
 		},
 	}
 
+	updatedParam := &extensions.Parameter{
+		ID:          "file_name",
+		Description: "A parameter for a file name",
+		Value:       "my_file",
+	}
+
+	updatedKeyFileRule := expectedKeyFileRule
+	updatedKeyFileRule.Rule.Parameter = updatedParam
+
 	// Create pluginSet
 	providerTestObj := new(policyProvider)
-	providerTestObj.On("GetResults", policy.Policy{expectedKeyFileRule, expectedCertFileRule}).Return(wantResults, nil)
+	providerTestObj.On("GetResults", policy.Policy{updatedKeyFileRule}).Return(wantResults, nil)
 	pluginSet := map[string]policy.Provider{
 		"mypvpvalidator": providerTestObj,
 	}
-	gotResults, err := pluginManager.AggregateResults(context.TODO(), pluginSet)
+
+	testSettings := settings.NewSettings(map[string]struct{}{"etcd_key_file": {}}, map[string]string{"file_name": "my_file"})
+
+	gotResults, err := pluginManager.AggregateResults(context.TODO(), pluginSet, testSettings)
 	require.NoError(t, err)
 	providerTestObj.AssertExpectations(t)
 	require.Len(t, gotResults, 1)
