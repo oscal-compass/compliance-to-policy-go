@@ -97,7 +97,7 @@ func TestManifest_ResolveOptions(t *testing.T) {
 				Configuration: []ConfigurationOption{
 					{
 						Name:        "default",
-						Description: "A required options",
+						Description: "A not required option",
 						Required:    false,
 						Default:     &defaultValue,
 					},
@@ -112,7 +112,7 @@ func TestManifest_ResolveOptions(t *testing.T) {
 				Configuration: []ConfigurationOption{
 					{
 						Name:        "required",
-						Description: "A required options",
+						Description: "A required option",
 						Required:    true,
 					},
 					{
@@ -137,6 +137,26 @@ func TestManifest_ResolveOptions(t *testing.T) {
 				"required": "myvalue",
 				"default":  "override",
 				"default2": "default",
+			},
+		},
+		{
+			name: "Success/RequiredWithDefault",
+			testManifest: Manifest{
+				ExecutablePath: "testplugin",
+				Configuration: []ConfigurationOption{
+					{
+						Name:        "required_with_default",
+						Description: "A required option with a default that needs to be explicitly chosen.",
+						Required:    true,
+						Default:     &defaultValue,
+					},
+				},
+			},
+			selections: map[string]string{
+				"required_with_default": "default",
+			},
+			wantOptions: map[string]string{
+				"required_with_default": "default",
 			},
 		},
 		{
