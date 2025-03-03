@@ -1,0 +1,138 @@
+/*
+ Copyright 2025 The OSCAL Compass Authors
+ SPDX-License-Identifier: Apache-2.0
+*/
+
+package framework
+
+import (
+	"bytes"
+	"fmt"
+	"os"
+	"strings"
+	"text/template"
+
+	oscalTypes "github.com/defenseunicorns/go-oscal/src/types/oscal-1-1-2"
+)
+
+type TemplateValues struct {
+	Catalog           string
+	Component         string
+	AssessmentResults oscalTypes.AssessmentResults
+}
+
+// Get the catalog title as the tamplate.md catalog info
+func getCatalogTitle(catalog oscalTypes.Catalog) string {
+	if catalog.Metadata.Title != "" {
+		return catalog.Metadata.Title
+	} else {
+		fmt.Println("Error getting catalog title")
+		return ""
+	}
+}
+
+// Get the component title as the tamplate.md component info
+func getComponentTitle(assessmentPlan oscalTypes.AssessmentPlan) string {
+	if len(*assessmentPlan.LocalDefinitions.Components) > 0 {
+		component := (*assessmentPlan.LocalDefinitions.Components)[0]
+		return component.Title
+	} else {
+		fmt.Println("Error getting component title")
+		return ""
+	}
+}
+
+// Get controlId info from finding.Target.TargetId
+func extractControlId(targetId string) string {
+	parts := strings.Split(targetId, "_")
+	if len(parts) > 1 {
+		return parts[0]
+	}
+	return ""
+}
+
+// Get the controlId mapping Rules from result.Observations base on finding.RelatedObservations
+func extractRuleId(ob oscalTypes.Observation, observationUuid string) string {
+	// Check if the UUID matches
+	if ob.UUID == observationUuid {
+		// Loop through the Props slice to find the assessment-rule-id
+		for _, prop := range *ob.Props { // Dereference the pointer to access the slice
+			if prop.Name == "assessment-rule-id" {
+				return prop.Value // Return the value if the property is found
+			}
+		}
+	}
+	// Return empty string if not found or UUID doesn't match
+	return ""
+}
+
+func CreateTemplateValues(catalog oscalTypes.Catalog, assessmentPlan oscalTypes.AssessmentPlan, assessmentResults oscalTypes.AssessmentResults) TemplateValues {
+	var catalogTitle string
+	var componentTitle string
+	catalogTitle = getCatalogTitle(catalog)
+	componentTitle = getComponentTitle(assessmentPlan)
+	/*
+		file, err := os.Open("assessment-results.json")
+		if err != nil {
+			fmt.Println("Error opening file:", err)
+		}
+		defer file.Close()
+
+		// Initialize the AssessmentResults struct
+		type AssessmentResultsRoot struct {
+			AssessmentResults oscalTypes.AssessmentResults `json:"assessment-results" yaml:"assessment-results"`
+		}
+
+		var assessmentResultsRoot AssessmentResultsRoot
+
+		// Parse the JSON data into the AssessmentResults struct
+		decoder := json.NewDecoder(file)
+		err = decoder.Decode(&assessmentResultsRoot)
+		if err != nil {
+			fmt.Println("Error decoding JSON:", err)
+		}
+
+		assessmentResults := assessmentResultsRoot.AssessmentResults
+	*/
+	return TemplateValues{
+		Catalog:           catalogTitle,
+		Component:         componentTitle,
+		AssessmentResults: assessmentResults,
+	}
+}
+
+func (p *TemplateValues) GenerateAssessmentResultsMd(mdfilepath string) ([]byte, error) {
+	// Read the template file
+	templateData, err := os.ReadFile("template/template.md")
+	if err != nil {
+		return nil, err
+	}
+
+	// Custom function to add indentation for newlines
+	funcmap := template.FuncMap{
+		"extractControlId": extractControlId,
+		"extractRuleId":    extractRuleId,
+		"newline_with_indent": func(text string, indent int) string {
+			return strings.ReplaceAll(text, "\n", "\n"+strings.Repeat(" ", indent))
+		},
+	}
+
+	// Convert templateData to string
+	templateString := string(templateData)
+
+	// Create a new template and parse the string
+	tmpl, err := template.New(mdfilepath).Funcs(funcmap).Parse(templateString)
+	if err != nil {
+		return nil, err
+	}
+
+	// Generate the markdown content using the struct data
+	var buffer bytes.Buffer
+	err = tmpl.Execute(&buffer, p)
+	if err != nil {
+		return nil, err
+	}
+
+	// Return the generated markdown content as a byte slice
+	return buffer.Bytes(), nil
+}
