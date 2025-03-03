@@ -47,11 +47,8 @@ func getComponentTitle(assessmentPlan oscalTypes.AssessmentPlan) string {
 
 // Get controlId info from finding.Target.TargetId
 func extractControlId(targetId string) string {
-	parts := strings.Split(targetId, "_")
-	if len(parts) > 1 {
-		return parts[0]
-	}
-	return ""
+	controlId, _ := strings.CutSuffix(targetId, "_smt")
+	return controlId
 }
 
 // Get the controlId mapping Rules from result.Observations base on finding.RelatedObservations
