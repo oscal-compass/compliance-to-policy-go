@@ -7,13 +7,16 @@ package framework
 
 import (
 	"bytes"
+	"embed"
 	"fmt"
-	"os"
 	"strings"
 	"text/template"
 
 	oscalTypes "github.com/defenseunicorns/go-oscal/src/types/oscal-1-1-2"
 )
+
+//go:embed template/*.md
+var embeddedResources embed.FS
 
 type TemplateValues struct {
 	Catalog           string
@@ -71,29 +74,7 @@ func CreateTemplateValues(catalog oscalTypes.Catalog, assessmentPlan oscalTypes.
 	var componentTitle string
 	catalogTitle = getCatalogTitle(catalog)
 	componentTitle = getComponentTitle(assessmentPlan)
-	/*
-		file, err := os.Open("assessment-results.json")
-		if err != nil {
-			fmt.Println("Error opening file:", err)
-		}
-		defer file.Close()
 
-		// Initialize the AssessmentResults struct
-		type AssessmentResultsRoot struct {
-			AssessmentResults oscalTypes.AssessmentResults `json:"assessment-results" yaml:"assessment-results"`
-		}
-
-		var assessmentResultsRoot AssessmentResultsRoot
-
-		// Parse the JSON data into the AssessmentResults struct
-		decoder := json.NewDecoder(file)
-		err = decoder.Decode(&assessmentResultsRoot)
-		if err != nil {
-			fmt.Println("Error decoding JSON:", err)
-		}
-
-		assessmentResults := assessmentResultsRoot.AssessmentResults
-	*/
 	return TemplateValues{
 		Catalog:           catalogTitle,
 		Component:         componentTitle,
@@ -103,7 +84,7 @@ func CreateTemplateValues(catalog oscalTypes.Catalog, assessmentPlan oscalTypes.
 
 func (p *TemplateValues) GenerateAssessmentResultsMd(mdfilepath string) ([]byte, error) {
 	// Read the template file
-	templateData, err := os.ReadFile("template/template.md")
+	templateData, err := embeddedResources.ReadFile("template/template.md")
 	if err != nil {
 		return nil, err
 	}
