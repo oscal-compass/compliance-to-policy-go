@@ -9,6 +9,8 @@ import (
 	"bytes"
 	"embed"
 	"fmt"
+	"log"
+	"os"
 	"strings"
 	"text/template"
 
@@ -29,20 +31,21 @@ func getCatalogTitle(catalog oscalTypes.Catalog) string {
 	if catalog.Metadata.Title != "" {
 		return catalog.Metadata.Title
 	} else {
-		fmt.Println("Error getting catalog title")
+		log.Println("WARNING: The catalog is nil")
 		return ""
 	}
 }
 
-// Get the component title as the tamplate.md component info
+// Get the component title as the template.md component info
+// At that stage, it only supports the Components length is 1. When the
+// observation links to the component in assessment plan, it will be improved.
 func getComponentTitle(assessmentPlan oscalTypes.AssessmentPlan) string {
-	if len(*assessmentPlan.LocalDefinitions.Components) > 0 {
-		component := (*assessmentPlan.LocalDefinitions.Components)[0]
-		return component.Title
-	} else {
-		fmt.Println("Error getting component title")
-		return ""
+	if len(*assessmentPlan.LocalDefinitions.Components) != 1 {
+		fmt.Println("Component length is not 1. Exiting program.")
+		os.Exit(1)
 	}
+	component := (*assessmentPlan.LocalDefinitions.Components)[0]
+	return component.Title
 }
 
 // Get controlId info from finding.Target.TargetId
