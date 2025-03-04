@@ -68,13 +68,13 @@ func extractRuleId(ob oscalTypes.Observation, observationUuid string) string {
 
 func CreateTemplateValues(catalog oscalTypes.Catalog, assessmentPlan oscalTypes.AssessmentPlan, assessmentResults oscalTypes.AssessmentResults) (*TemplateValues, error) {
 	catalogTitle, err := getCatalogTitle(catalog)
-        if err != nil {
-                return nil, err
-        }
+	if err != nil {
+		return nil, err
+	}
 	componentTitle, err := getComponentTitle(assessmentPlan)
-        if err != nil {
-                return nil, err
-        }
+	if err != nil {
+		return nil, err
+	}
 
 	return &TemplateValues{
 		Catalog:           catalogTitle,
