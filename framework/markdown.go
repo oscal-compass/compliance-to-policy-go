@@ -9,8 +9,6 @@ import (
 	"bytes"
 	"embed"
 	"fmt"
-	"log"
-	"os"
 	"strings"
 	"text/template"
 
@@ -26,26 +24,25 @@ type TemplateValues struct {
 	AssessmentResults oscalTypes.AssessmentResults
 }
 
-// Get the catalog title as the tamplate.md catalog info
-func getCatalogTitle(catalog oscalTypes.Catalog) string {
+// Get the catalog title as the template.md catalog info
+func getCatalogTitle(catalog oscalTypes.Catalog) (string, error) {
 	if catalog.Metadata.Title != "" {
-		return catalog.Metadata.Title
+		return catalog.Metadata.Title, nil
 	} else {
-		log.Println("WARNING: The catalog is nil")
-		return ""
+		return "", fmt.Errorf("Error getting catalog title")
 	}
 }
 
 // Get the component title as the template.md component info
 // At that stage, it only supports the Components length is 1. When the
 // observation links to the component in assessment plan, it will be improved.
-func getComponentTitle(assessmentPlan oscalTypes.AssessmentPlan) string {
-	if len(*assessmentPlan.LocalDefinitions.Components) != 1 {
-		fmt.Println("Component length is not 1. Exiting program.")
-		os.Exit(1)
+func getComponentTitle(assessmentPlan oscalTypes.AssessmentPlan) (string, error) {
+	if len(*assessmentPlan.LocalDefinitions.Components) == 1 {
+		component := (*assessmentPlan.LocalDefinitions.Components)[0]
+		return component.Title, nil
+	} else {
+		return "", fmt.Errorf("Error getting component title")
 	}
-	component := (*assessmentPlan.LocalDefinitions.Components)[0]
-	return component.Title
 }
 
 // Get controlId info from finding.Target.TargetId
@@ -69,17 +66,21 @@ func extractRuleId(ob oscalTypes.Observation, observationUuid string) string {
 	return ""
 }
 
-func CreateTemplateValues(catalog oscalTypes.Catalog, assessmentPlan oscalTypes.AssessmentPlan, assessmentResults oscalTypes.AssessmentResults) TemplateValues {
-	var catalogTitle string
-	var componentTitle string
-	catalogTitle = getCatalogTitle(catalog)
-	componentTitle = getComponentTitle(assessmentPlan)
+func CreateTemplateValues(catalog oscalTypes.Catalog, assessmentPlan oscalTypes.AssessmentPlan, assessmentResults oscalTypes.AssessmentResults) (*TemplateValues, error) {
+	catalogTitle, err := getCatalogTitle(catalog)
+        if err != nil {
+                return nil, err
+        }
+	componentTitle, err := getComponentTitle(assessmentPlan)
+        if err != nil {
+                return nil, err
+        }
 
-	return TemplateValues{
+	return &TemplateValues{
 		Catalog:           catalogTitle,
 		Component:         componentTitle,
 		AssessmentResults: assessmentResults,
-	}
+	}, nil
 }
 
 func (p *TemplateValues) GenerateAssessmentResultsMd(mdfilepath string) ([]byte, error) {
