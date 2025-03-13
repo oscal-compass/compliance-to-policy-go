@@ -19,8 +19,15 @@ message ResultsResponse {
   protocols.PVPResult result = 1;
 }
 
+message ConfigureRequest {
+  map<string, string> settings = 1;
+}
+
+message ConfigureResponse {}
+
 // get policy results from PVP
 service PolicyEngine {
   rpc Generate(PolicyRequest) returns (GenerateResponse);
   rpc GetResults(PolicyRequest) returns (ResultsResponse);
+  rpc Configure(ConfigureRequest) returns (ConfigureResponse);
 }

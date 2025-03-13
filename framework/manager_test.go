@@ -19,6 +19,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/oscal-compass/compliance-to-policy-go/v2/framework/config"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/plugin"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/policy"
 )
 
@@ -127,6 +128,47 @@ func TestPluginManager_AggregateResults(t *testing.T) {
 	require.Len(t, gotResults, 1)
 }
 
+func TestPluginManager_Configure(t *testing.T) {
+	cfg := prepConfig(t)
+	pluginManager, err := NewPluginManager(cfg)
+	require.NoError(t, err)
+
+	defaultValue := "value"
+	// test options and manifest
+	manifest := plugin.Manifest{
+		Metadata: plugin.Metadata{
+			ID: "myplugin",
+		},
+		Configuration: []plugin.ConfigurationOption{
+			{
+				Name:        "option1",
+				Description: "Option 1",
+				Required:    true,
+			},
+			{
+				Name:        "option 2",
+				Description: "Option 2",
+				Required:    false,
+				Default:     &defaultValue,
+			},
+		},
+	}
+	pluginMap := map[string]map[string]string{
+		"myplugin": {
+			"option1": "override",
+		},
+	}
+
+	// Create pluginSet
+	providerTestObj := new(policyProvider)
+	providerTestObj.
+		On("Configure", map[string]string{"option 2": "value", "option1": "override"}).
+		Return(nil)
+	err = pluginManager.configurePlugin(providerTestObj, manifest, pluginMap)
+	require.NoError(t, err)
+	providerTestObj.AssertExpectations(t)
+}
+
 // prepConfig returns an initialized C2PConfig to support the
 // unit tests.
 func prepConfig(t *testing.T) *config.C2PConfig {
@@ -143,6 +185,11 @@ func prepConfig(t *testing.T) *config.C2PConfig {
 // policyProvider is a mocked implementation of policy.Provider.
 type policyProvider struct {
 	mock.Mock
+}
+
+func (p *policyProvider) Configure(option map[string]string) error {
+	args := p.Called(option)
+	return args.Error(0)
 }
 
 func (p *policyProvider) Generate(policyRules policy.Policy) error {

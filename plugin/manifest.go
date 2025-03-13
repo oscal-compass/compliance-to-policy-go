@@ -22,6 +22,9 @@ type Manifest struct {
 	// Checksum is the SHA256 hash of the content.
 	// This checked against the calculated value at plugin launch.
 	Checksum string `json:"sha256"`
+	// Configuration is an optional section to add plugin
+	// configuration options and default values.
+	Configuration []ConfigurationOption `json:"configuration,omitempty"`
 }
 
 // ResolvePath validates and sanitizes the Manifest.ExecutablePath.
@@ -66,6 +69,30 @@ func (m *Manifest) ResolvePath(pluginDir string) error {
 	return nil
 }
 
+// ResolveOptions validates and applies given configuration selections against the manifest
+// declared configuration and returns the resolved options.
+func (m *Manifest) ResolveOptions(configSelections map[string]string) (map[string]string, error) {
+	configMap := make(map[string]string)
+	for _, option := range m.Configuration {
+
+		// Grab the defaults for each
+		if option.Default != nil {
+			configMap[option.Name] = *option.Default
+		}
+
+		// Apply overrides, if they do not exist for required options,
+		// fail.
+		selected, ok := configSelections[option.Name]
+		if ok {
+			configMap[option.Name] = selected
+		} else if option.Required {
+			return nil,
+				fmt.Errorf("required value not supplied for option %q", option.Name)
+		}
+	}
+	return configMap, nil
+}
+
 // Metadata has required information for plugin launch and discovery.
 type Metadata struct {
 	// ID is the name of the plugin. This is the information used
@@ -80,6 +107,18 @@ type Metadata struct {
 	// are implemented by this plugin. It should match
 	// on or more of the values in plugin.SupportedPlugin.
 	Types []string `json:"types"`
+}
+
+// ConfigurationOption defines an option for configuring plugin behavior.
+type ConfigurationOption struct {
+	// Name is the human-readable name of the option.
+	Name string `json:"name"`
+	// Description is a short description of the option.
+	Description string `json:"description"`
+	// Required is whether the option is required to be set
+	Required bool `json:"required"`
+	// Default is an optional parameter with the default selected value.
+	Default *string `json:"default,omitempty"`
 }
 
 // ValidateID ensure the plugin id is valid based on the
