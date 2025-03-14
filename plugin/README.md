@@ -1,7 +1,9 @@
 # Plugins
 
-C2P supported external plugins allow extending functionality without needing to recompile.
-C2P allows extension through gRPC based plugins.
+C2P supports external plugins to allow extension of functionality without needing to recompile.
+
+This package contains shared code needed for building C2P plugins to interact with the C2P Plugin Manager.
+The `hashicorp/go-plugin` library is leveraged to support gRPC-based plugins.
 
 ## How To Write a Plugin
 
