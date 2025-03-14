@@ -137,7 +137,8 @@ func (m *PluginManager) GeneratePolicy(ctx context.Context, pluginSet map[string
 	for providerId, policyPlugin := range pluginSet {
 		componentTitle, ok := m.pluginIdMap[providerId]
 		if !ok {
-			return fmt.Errorf("missing title for provider %s", providerId)
+			m.log.Warn(fmt.Sprintf("skipping %s provider: missing validation component", providerId))
+			continue
 		}
 		m.log.Debug(fmt.Sprintf("Generating policy for provider %s", providerId))
 
