@@ -15,7 +15,7 @@ import (
 	oscalTypes "github.com/defenseunicorns/go-oscal/src/types/oscal-1-1-2"
 	"github.com/hashicorp/go-hclog"
 	"github.com/oscal-compass/oscal-sdk-go/extensions"
-	"github.com/oscal-compass/oscal-sdk-go/generators"
+	"github.com/oscal-compass/oscal-sdk-go/models"
 	"github.com/oscal-compass/oscal-sdk-go/rules"
 	"github.com/oscal-compass/oscal-sdk-go/settings"
 
@@ -49,7 +49,7 @@ type generateOpts struct {
 }
 
 func (g *generateOpts) defaults() {
-	g.title = generators.SampleRequiredString
+	g.title = models.SampleRequiredString
 }
 
 // GenerateOption defines optional arguments to tune the behavior of GenerateAssessmentResults
@@ -215,7 +215,7 @@ func (r *Reporter) GenerateAssessmentResults(ctx context.Context, planHref strin
 		Href: planHref,
 	}
 
-	metadata := generators.NewSampleMetadata()
+	metadata := models.NewSampleMetadata()
 	metadata.Title = options.title
 
 	assessmentResults := oscalTypes.AssessmentResults{
