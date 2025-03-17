@@ -17,14 +17,16 @@ limitations under the License.
 package main
 
 import (
-	"os"
+	hplugin "github.com/hashicorp/go-plugin"
 
-	"github.com/oscal-compass/compliance-to-policy-go/v2/cmd/ocm/oscal2policy/cmd"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/cmd/ocm-plugin/server"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/plugin"
 )
 
 func main() {
-	err := cmd.New().Execute()
-	if err != nil {
-		os.Exit(1)
+	ocmPlugin := server.NewPlugin()
+	plugins := map[string]hplugin.Plugin{
+		plugin.PVPPluginName: &plugin.PVPPlugin{Impl: ocmPlugin},
 	}
+	plugin.Register(plugins)
 }
