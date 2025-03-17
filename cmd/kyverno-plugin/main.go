@@ -14,26 +14,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package options
+package main
 
 import (
-	"github.com/spf13/pflag"
+	hplugin "github.com/hashicorp/go-plugin"
+
+	"github.com/oscal-compass/compliance-to-policy-go/v2/cmd/kyverno-plugin/server"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/plugin"
 )
 
-type Options struct {
-}
-
-func NewOptions() *Options {
-	return &Options{}
-}
-
-func (o *Options) AddFlags(fs *pflag.FlagSet) {
-}
-
-func (o *Options) Complete() error {
-	return nil
-}
-
-func (o *Options) Validate() error {
-	return nil
+func main() {
+	kyvernoPlugin := server.NewPlugin()
+	plugins := map[string]hplugin.Plugin{
+		plugin.PVPPluginName: &plugin.PVPPlugin{Impl: kyvernoPlugin},
+	}
+	plugin.Register(plugins)
 }

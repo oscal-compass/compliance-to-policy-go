@@ -14,43 +14,40 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package kyverno
+package server
 
 import (
 	"fmt"
 
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
-	typec2pcr "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/c2pcr"
+	"github.com/hashicorp/go-hclog"
 	cp "github.com/otiai10/copy"
-	"go.uber.org/zap"
+
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/logging"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/policy"
 )
 
 type Oscal2Policy struct {
 	policiesDir string
 	tempDir     pkg.TempDirectory
-	logger      *zap.Logger
+	logger      hclog.Logger
 }
 
 func NewOscal2Policy(policiesDir string, tempDir pkg.TempDirectory) *Oscal2Policy {
 	return &Oscal2Policy{
 		policiesDir: policiesDir,
 		tempDir:     tempDir,
-		logger:      pkg.GetLogger("kyverno/composer"),
+		logger:      logging.GetLogger("composer"),
 	}
 }
 
-func (c *Oscal2Policy) Generate(c2pParsed typec2pcr.C2PCRParsed) error {
-	for _, componentObject := range c2pParsed.ComponentObjects {
-		if componentObject.ComponentType == "validation" {
-			continue
-		}
-		for _, ruleObject := range componentObject.RuleObjects {
-			sourceDir := fmt.Sprintf("%s/%s", c.policiesDir, ruleObject.RuleId)
-			destDir := fmt.Sprintf("%s/%s", c.tempDir.GetTempDir(), ruleObject.RuleId)
-			err := cp.Copy(sourceDir, destDir)
-			if err != nil {
-				return err
-			}
+func (c *Oscal2Policy) Generate(pl policy.Policy) error {
+	for _, ruleObject := range pl {
+		sourceDir := fmt.Sprintf("%s/%s", c.policiesDir, ruleObject.Rule.ID)
+		destDir := fmt.Sprintf("%s/%s", c.tempDir.GetTempDir(), ruleObject.Rule.ID)
+		err := cp.Copy(sourceDir, destDir)
+		if err != nil {
+			return err
 		}
 	}
 	return nil

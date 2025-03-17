@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package kyverno
+package server
 
 import (
 	"fmt"
@@ -23,9 +23,11 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
-	"go.uber.org/zap"
+	"github.com/hashicorp/go-hclog"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/logging"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
 )
 
 type PolicyResourceIndex struct {
@@ -38,13 +40,13 @@ type PolicyResourceIndex struct {
 }
 
 type FileLoader struct {
-	logger               *zap.Logger
+	logger               hclog.Logger
 	policyResourceIndice []PolicyResourceIndex
 }
 
 func NewFileLoader() *FileLoader {
 	return &FileLoader{
-		logger:               pkg.GetLogger("kyverno/fileloader"),
+		logger:               logging.GetLogger("fileloader"),
 		policyResourceIndice: []PolicyResourceIndex{},
 	}
 }
@@ -54,7 +56,7 @@ func (fl *FileLoader) GetPolicyResourceIndice() []PolicyResourceIndex {
 }
 
 func (fl *FileLoader) LoadFromDirectory(dir string) error {
-
+	logger.Info("dddff")
 	re := regexp.MustCompile(`^[\.*]`)
 	callback := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
