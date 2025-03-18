@@ -17,6 +17,8 @@ import (
 	"github.com/oscal-compass/compliance-to-policy-go/v2/policy"
 )
 
+// ServeConfig defines the configuration for plugin
+// registration.
 type ServeConfig struct {
 	PluginSet map[string]plugin.Plugin
 	Logger    hclog.Logger
