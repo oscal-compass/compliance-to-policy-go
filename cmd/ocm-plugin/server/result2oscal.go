@@ -143,11 +143,13 @@ func (r *ResultToOscal) GenerateResults() (provider.PVPResult, error) {
 	var observations []provider.ObservationByCheck
 	for _, rule := range r.policy {
 		for _, check := range rule.Checks {
+			logger.Debug(fmt.Sprintf("processing check %s for rule %s", check.ID, rule.Rule.ID))
 			policyId := check.ID
 			var policy *typepolicy.Policy
 
 			if policySet != nil {
 				policy = typeutils.FindByNamespaceName(r.policies, policySet.Namespace, policyId)
+				logger.Debug(fmt.Sprintf("found policy %s in namespace %s", policyId, policySet.Namespace))
 			}
 
 			var subjects []provider.Subject
