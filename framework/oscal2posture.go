@@ -89,36 +89,38 @@ func (r *Oscal2Posture) toTemplateValue() tp.TemplateValue {
 					RuleResults: []tp.RuleResult{},
 				}
 
-				ruleIdsProps := extensions.FindAllProps(*co.Props, extensions.WithName(extensions.RuleIdProp))
-				for _, ruleId := range ruleIdsProps {
-					subjects := []tp.Subject{}
-					rawSubjects := r.findSubjects(ruleId.Value)
-					for _, rawSubject := range rawSubjects {
-						var result, reason string
-						resultProp, resultFound := extensions.GetTrestleProp("result", *rawSubject.Props)
-						reasonProp, reasonFound := extensions.GetTrestleProp("reason", *rawSubject.Props)
+				if co.Props != nil {
+					ruleIdsProps := extensions.FindAllProps(*co.Props, extensions.WithName(extensions.RuleIdProp))
+					for _, ruleId := range ruleIdsProps {
+						subjects := []tp.Subject{}
+						rawSubjects := r.findSubjects(ruleId.Value)
+						for _, rawSubject := range rawSubjects {
+							var result, reason string
+							resultProp, resultFound := extensions.GetTrestleProp("result", *rawSubject.Props)
+							reasonProp, reasonFound := extensions.GetTrestleProp("reason", *rawSubject.Props)
 
-						if resultFound {
-							result = resultProp.Value
-							if reasonFound {
-								reason = reasonProp.Value
+							if resultFound {
+								result = resultProp.Value
+								if reasonFound {
+									reason = reasonProp.Value
+								}
+							} else {
+								result = "Error"
+								reason = "No results found."
 							}
-						} else {
-							result = "Error"
-							reason = "No results found."
+							subject := tp.Subject{
+								Title:  rawSubject.Title,
+								UUID:   rawSubject.SubjectUuid,
+								Result: result,
+								Reason: reason,
+							}
+							subjects = append(subjects, subject)
 						}
-						subject := tp.Subject{
-							Title:  rawSubject.Title,
-							UUID:   rawSubject.SubjectUuid,
-							Result: result,
-							Reason: reason,
-						}
-						subjects = append(subjects, subject)
+						controlResult.RuleResults = append(controlResult.RuleResults, tp.RuleResult{
+							RuleId:   ruleId.Value,
+							Subjects: subjects,
+						})
 					}
-					controlResult.RuleResults = append(controlResult.RuleResults, tp.RuleResult{
-						RuleId:   ruleId.Value,
-						Subjects: subjects,
-					})
 				}
 				component.ControlResults = append(component.ControlResults, controlResult)
 			}

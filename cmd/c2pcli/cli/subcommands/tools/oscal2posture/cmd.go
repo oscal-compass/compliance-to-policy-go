@@ -24,7 +24,6 @@ import (
 	"github.com/oscal-compass/oscal-sdk-go/models"
 	"github.com/oscal-compass/oscal-sdk-go/validation"
 	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
 	"github.com/oscal-compass/compliance-to-policy-go/v2/cmd/c2pcli/cli/subcommands"
@@ -37,10 +36,8 @@ func New() *cobra.Command {
 	command := &cobra.Command{
 		Use:   "oscal2posture",
 		Short: "Generate Compliance Posture from OSCAL artifacts.",
-		PreRun: func(cmd *cobra.Command, args []string) {
-			cmd.Flags().VisitAll(func(flag *pflag.Flag) {
-				_ = viper.BindPFlag(flag.Name, flag)
-			})
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			return subcommands.SetupViper(cmd)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := viper.Unmarshal(options); err != nil {
@@ -59,10 +56,11 @@ func New() *cobra.Command {
 		},
 	}
 	fs := command.Flags()
-	fs.StringP("catalog", "c", "", "path to catalog.json")
+	fs.String("catalog", "", "path to catalog.json")
 	fs.StringP("assessment-results", "a", "./assessment-results.json", "path to assessment-results.json")
 	fs.StringP("component-definition", "d", "", "path to component-definition.json")
 	fs.StringP("out", "o", "-", "path to output file. Use '-' for stdout. Default '-'.")
+	fs.StringP(subcommands.PluginConfigPath, "c", "plugins.yaml", "Path to the configuration file for plugins.")
 	return command
 }
 

@@ -18,6 +18,7 @@ package subcommands
 
 import (
 	"context"
+	"errors"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -32,7 +33,7 @@ func NewOSCAL2Policy() *cobra.Command {
 		Use:   "oscal2policy",
 		Short: "Transform OSCAL to policy artifacts.",
 		PreRunE: func(cmd *cobra.Command, args []string) error {
-			return setupViper(cmd)
+			return SetupViper(cmd)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := viper.Unmarshal(options); err != nil {
@@ -40,6 +41,9 @@ func NewOSCAL2Policy() *cobra.Command {
 			}
 			if err := options.Validate(); err != nil {
 				return err
+			}
+			if options.Name == "" {
+				return errors.New("name option must be set")
 			}
 			return runOSCAL2Policy(cmd.Context(), options)
 		},
