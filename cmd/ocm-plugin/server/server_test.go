@@ -138,6 +138,7 @@ func TestResult2Oscal(t *testing.T) {
 	}
 	diff := cmp.Diff(expected, results,
 		cmpopts.IgnoreFields(policy.ObservationByCheck{}, "Collected"),
+		cmpopts.IgnoreFields(policy.Subject{}, "EvaluatedOn"),
 		cmpopts.IgnoreFields(policy.Subject{}, "ResourceID"),
 		cmpopts.IgnoreFields(policy.Subject{}, "Reason"),
 		cmpopts.SortSlices(func(i, j policy.ObservationByCheck) bool {
