@@ -21,7 +21,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/oscal-compass/compliance-to-policy-go/v2/cmd/c2pcli/cli/subcommands"
-	"github.com/oscal-compass/compliance-to-policy-go/v2/cmd/c2pcli/cli/subcommands/tools"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/logging"
 )
 
@@ -44,7 +43,7 @@ func New() *cobra.Command {
 	}
 	command.AddCommand(
 		subcommands.NewVersionSubCommand(),
-		tools.New(),
+		subcommands.NewOSCAL2Posture(),
 		subcommands.NewOSCAL2Policy(),
 		subcommands.NewResult2OSCAL(),
 	)

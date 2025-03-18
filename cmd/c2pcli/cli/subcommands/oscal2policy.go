@@ -33,7 +33,7 @@ func NewOSCAL2Policy() *cobra.Command {
 		Use:   "oscal2policy",
 		Short: "Transform OSCAL to policy artifacts.",
 		PreRunE: func(cmd *cobra.Command, args []string) error {
-			return SetupViper(cmd)
+			return setupViper(cmd)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := viper.Unmarshal(options); err != nil {

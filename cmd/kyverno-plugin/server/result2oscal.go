@@ -112,7 +112,8 @@ func (r *ResultToOscal) GenerateResults() (policy.PVPResult, error) {
 			name := check.ID
 			prrs := r.retrievePolicyReportResults(name)
 			observation := policy.ObservationByCheck{
-				Title:       name,
+				Title:       rule.Rule.ID,
+				CheckID:     name,
 				Description: fmt.Sprintf("Observation of check %s", name),
 				Methods:     []string{"TEST-AUTOMATED"},
 				Props: []policy.Property{
