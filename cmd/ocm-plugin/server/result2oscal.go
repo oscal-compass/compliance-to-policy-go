@@ -172,11 +172,12 @@ func (r *ResultToOscal) GenerateResults() (provider.PVPResult, error) {
 							message = err.Error()
 						}
 						subject := provider.Subject{
-							Type:       "resource",
-							Title:      "Cluster Name: " + clusterName,
-							ResourceID: inventoryUuid,
-							Result:     mapToPolicyResult(reason.ComplianceState),
-							Reason:     message,
+							Type:        "resource",
+							Title:       "Cluster Name: " + clusterName,
+							ResourceID:  inventoryUuid,
+							Result:      mapToPolicyResult(reason.ComplianceState),
+							Reason:      message,
+							EvaluatedOn: time.Now(),
 						}
 						subjects = append(subjects, subject)
 					}

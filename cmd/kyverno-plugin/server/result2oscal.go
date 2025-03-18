@@ -18,6 +18,7 @@ package server
 
 import (
 	"fmt"
+	"time"
 
 	kyvernov1 "github.com/kyverno/kyverno/api/kyverno/v1"
 	typepolr "sigs.k8s.io/wg-policy-prototypes/policy-report/pkg/api/wgpolicyk8s.io/v1beta1"
@@ -119,16 +120,19 @@ func (r *ResultToOscal) GenerateResults() (policy.PVPResult, error) {
 				Props: []policy.Property{
 					makeProp("assessment-rule-id", rule.Rule.ID),
 				},
-				Subjects: []policy.Subject{},
+				Collected: time.Now(),
+				Subjects:  []policy.Subject{},
 			}
 			for _, prr := range prrs {
 				for _, resource := range prr.Subjects {
 					gvknsn := fmt.Sprintf("ApiVersion: %s, Kind: %s, Namespace: %s, Name: %s", resource.APIVersion, resource.Kind, resource.Namespace, resource.Name)
 					subject := policy.Subject{
-						Title:  gvknsn,
-						Type:   "resource",
-						Result: mapResults(prr.Result),
-						Reason: prr.Description,
+						Title:       gvknsn,
+						ResourceID:  string(resource.UID),
+						Type:        "resource",
+						Result:      mapResults(prr.Result),
+						EvaluatedOn: time.Now(),
+						Reason:      prr.Description,
 					}
 					observation.Subjects = append(observation.Subjects, subject)
 				}

@@ -16,10 +16,9 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/oscal-compass/compliance-to-policy-go/v2/framework"
-	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/logging"
 )
 
-func NewOSCAL2Posture() *cobra.Command {
+func NewOSCAL2Posture(logger hclog.Logger) *cobra.Command {
 	options := NewOptions()
 	command := &cobra.Command{
 		Use:   "oscal2posture",
@@ -39,8 +38,8 @@ func NewOSCAL2Posture() *cobra.Command {
 			if options.Catalog == "" {
 				return fmt.Errorf("\"catalog\" flag must be set")
 			}
-			logger := logging.GetLogger("oscal2posture")
-			return Run(logger, options)
+			options.logger = logger
+			return runOSCAL2Posture(options)
 		},
 	}
 	fs := command.Flags()
@@ -52,7 +51,7 @@ func NewOSCAL2Posture() *cobra.Command {
 	return command
 }
 
-func Run(logger hclog.Logger, option *Options) error {
+func runOSCAL2Posture(option *Options) error {
 	arFile, err := os.Open(option.AssessmentResults)
 	if err != nil {
 		return err
@@ -83,7 +82,7 @@ func Run(logger hclog.Logger, option *Options) error {
 		return fmt.Errorf("error loading component definition: %w", err)
 	}
 
-	r := framework.NewOscal2Posture(assessmentResults, catalog, compDef, logger)
+	r := framework.NewOscal2Posture(assessmentResults, catalog, compDef, option.logger)
 	data, err := r.Generate()
 	if err != nil {
 		return err

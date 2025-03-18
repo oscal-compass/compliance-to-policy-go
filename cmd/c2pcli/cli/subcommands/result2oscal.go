@@ -19,8 +19,11 @@ package subcommands
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	oscalTypes "github.com/defenseunicorns/go-oscal/src/types/oscal-1-1-2"
+	"github.com/hashicorp/go-hclog"
+	"github.com/oscal-compass/oscal-sdk-go/validation"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -29,7 +32,7 @@ import (
 	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
 )
 
-func NewResult2OSCAL() *cobra.Command {
+func NewResult2OSCAL(logger hclog.Logger) *cobra.Command {
 	options := NewOptions()
 	command := &cobra.Command{
 		Use:   "result2oscal",
@@ -47,6 +50,7 @@ func NewResult2OSCAL() *cobra.Command {
 			if options.Name == "" {
 				return errors.New("name option must be set")
 			}
+			options.logger = logger
 			return runResult2Policy(cmd.Context(), options)
 		},
 	}
@@ -102,7 +106,15 @@ func runResult2Policy(ctx context.Context, option *Options) error {
 		AssessmentResults: &assessmentResults,
 	}
 
-	err = pkg.WriteObjToJsonFile(viper.GetString("out"), oscalModels)
+	// Validate before writing out
+	option.logger.Info("Validating generated assessment results")
+	validator := validation.NewSchemaValidator()
+	if err := validator.Validate(oscalModels); err != nil {
+		return err
+	}
+
+	option.logger.Info(fmt.Sprintf("Writing assessment results to %s.", option.Output))
+	err = pkg.WriteObjToJsonFile(option.Output, oscalModels)
 	if err != nil {
 		return err
 	}

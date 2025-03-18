@@ -33,3 +33,14 @@ func defaultLogger() hclog.Logger {
 func GetLogger(name string) hclog.Logger {
 	return logger.Named(name)
 }
+
+// NewPluginLogger returns a configured hcl.Logger for plugins to use and
+// pass in the plugin.ServeConfig.
+func NewPluginLogger() hclog.Logger {
+	return hclog.New(&hclog.LoggerOptions{
+		Level:           hclog.Debug,
+		Output:          os.Stderr,
+		SyncParentLevel: true,
+		JSONFormat:      true,
+	})
+}

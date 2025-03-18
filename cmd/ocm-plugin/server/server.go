@@ -13,22 +13,15 @@ import (
 	"github.com/go-viper/mapstructure/v2"
 	"github.com/hashicorp/go-hclog"
 
+	"github.com/oscal-compass/compliance-to-policy-go/v2/logging"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/policy"
 )
 
 var (
 	_      policy.Provider = (*Plugin)(nil)
-	logger hclog.Logger
+	logger hclog.Logger    = logging.NewPluginLogger()
 )
-
-func init() {
-	logger = hclog.New(&hclog.LoggerOptions{
-		Name:   "plugin",
-		Output: os.Stdout,
-		Level:  hclog.Debug,
-	})
-}
 
 func Logger() hclog.Logger {
 	return logger

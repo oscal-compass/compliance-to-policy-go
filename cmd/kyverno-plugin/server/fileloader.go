@@ -26,7 +26,6 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
-	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/logging"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
 )
 
@@ -46,7 +45,7 @@ type FileLoader struct {
 
 func NewFileLoader() *FileLoader {
 	return &FileLoader{
-		logger:               logging.GetLogger("fileloader"),
+		logger:               logger.Named("fileloader"),
 		policyResourceIndice: []PolicyResourceIndex{},
 	}
 }

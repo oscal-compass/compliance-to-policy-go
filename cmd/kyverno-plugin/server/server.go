@@ -7,29 +7,31 @@ package server
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/go-viper/mapstructure/v2"
 	"github.com/hashicorp/go-hclog"
 
-	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/logging"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/logging"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/policy"
 )
 
 var (
 	_      policy.Provider = (*Plugin)(nil)
-	logger                 = logging.GetLogger("kyverno-server")
+	logger hclog.Logger    = logging.NewPluginLogger()
 )
+
+func Logger() hclog.Logger {
+	return logger
+}
 
 type Plugin struct {
 	config Config
-	logger hclog.Logger
 }
 
 func NewPlugin() *Plugin {
-	return &Plugin{
-		logger: logger,
-	}
+	return &Plugin{}
 }
 
 func (p *Plugin) Configure(m map[string]string) error {
@@ -40,7 +42,7 @@ func (p *Plugin) Configure(m map[string]string) error {
 }
 
 func (p *Plugin) Generate(pl policy.Policy) error {
-	logger.Debug(p.config.PoliciesDir)
+	logger.Debug(fmt.Sprintf("Using resources from %s", p.config.PoliciesDir))
 	tmpdir := pkg.NewTempDirectory(p.config.TempDir)
 	composer := NewOscal2Policy(p.config.PoliciesDir, tmpdir)
 	if err := composer.Generate(pl); err != nil {
@@ -51,6 +53,7 @@ func (p *Plugin) Generate(pl policy.Policy) error {
 		if err := composer.CopyAllTo(p.config.OutputDir); err != nil {
 			return err
 		}
+		logger.Debug(fmt.Sprintf("Copied outputs to %s", p.config.OutputDir))
 	}
 	return nil
 }

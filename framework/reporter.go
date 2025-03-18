@@ -40,7 +40,7 @@ func NewReporter(cfg *config.C2PConfig) (*Reporter, error) {
 	}
 
 	return &Reporter{
-		log:        cfg.Logger,
+		log:        cfg.Logger.Named("reporter"),
 		rulesStore: rulesStore,
 	}, nil
 }
@@ -251,8 +251,7 @@ func (r *Reporter) GenerateAssessmentResults(ctx context.Context, planHref strin
 								if err != nil {
 									return assessmentResults, fmt.Errorf("failed to create finding for check: %w", err)
 								}
-								r.log.Info(fmt.Sprintf("generated finding for rule %s", rule.Rule.ID))
-
+								r.log.Info(fmt.Sprintf("generated finding for rule %s for subject %s", rule.Rule.ID, subject.Title))
 							}
 						}
 					}

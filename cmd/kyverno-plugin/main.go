@@ -28,5 +28,9 @@ func main() {
 	plugins := map[string]hplugin.Plugin{
 		plugin.PVPPluginName: &plugin.PVPPlugin{Impl: kyvernoPlugin},
 	}
-	plugin.Register(plugins)
+	config := plugin.ServeConfig{
+		PluginSet: plugins,
+		Logger:    server.Logger(),
+	}
+	plugin.Register(config)
 }

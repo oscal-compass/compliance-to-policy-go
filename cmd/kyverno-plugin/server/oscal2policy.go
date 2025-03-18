@@ -22,7 +22,6 @@ import (
 	"github.com/hashicorp/go-hclog"
 	cp "github.com/otiai10/copy"
 
-	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/logging"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/policy"
 )
@@ -37,7 +36,7 @@ func NewOscal2Policy(policiesDir string, tempDir pkg.TempDirectory) *Oscal2Polic
 	return &Oscal2Policy{
 		policiesDir: policiesDir,
 		tempDir:     tempDir,
-		logger:      logging.GetLogger("composer"),
+		logger:      logger.Named("composer"),
 	}
 }
 
