@@ -33,7 +33,7 @@ func BindCommonFlags(fs *pflag.FlagSet) {
 	fs.StringP(PluginConfigPath, "c", "plugins.yaml", "Path to the configuration file for plugins.")
 }
 
-func setupViper(cmd *cobra.Command) error {
+func SetupViper(cmd *cobra.Command) error {
 	cmd.Flags().VisitAll(func(flag *pflag.Flag) {
 		err := viper.BindPFlag(flag.Name, flag)
 		if err != nil {
@@ -66,9 +66,6 @@ func NewOptions() *Options {
 func (o *Options) Validate() error {
 	if o.Definition == "" {
 		return errors.New("component-definition option must be set")
-	}
-	if o.Name == "" {
-		return errors.New("name option must be set")
 	}
 	return nil
 }

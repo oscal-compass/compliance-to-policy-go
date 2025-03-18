@@ -1,0 +1,15 @@
+component-definition: ./pkg/testdata/oscal/component-definition-heterogeneous.json
+catalog: ./pkg/testdata/oscal/catalog.json
+plugins:
+  ocm:
+    policy-dir: ./pkg/testdata/ocm/policies
+    policy-results-dir: ./pkg/testdata/ocm/policy-results
+    output-dir: /tmp/outputs
+    temp-dir: /tmp/ocm
+    policy-set-name: "kubernetes"
+    namespace: "test"
+  kyverno:
+    policy-dir: ./pkg/testdata/kyverno/policy-resources
+    policy-results-dir: ./pkg/testdata/kyverno/policy-reports
+    temp-dir: /tmp/kyverno
+    output-dir: /tmp/outputs

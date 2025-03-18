@@ -18,6 +18,7 @@ package subcommands
 
 import (
 	"context"
+	"errors"
 
 	oscalTypes "github.com/defenseunicorns/go-oscal/src/types/oscal-1-1-2"
 	"github.com/spf13/cobra"
@@ -34,7 +35,7 @@ func NewResult2OSCAL() *cobra.Command {
 		Use:   "result2oscal",
 		Short: "Transform policy result artifacts to OSCAL Assessment Results.",
 		PreRunE: func(cmd *cobra.Command, args []string) error {
-			return setupViper(cmd)
+			return SetupViper(cmd)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := viper.Unmarshal(options); err != nil {
@@ -42,6 +43,9 @@ func NewResult2OSCAL() *cobra.Command {
 			}
 			if err := options.Validate(); err != nil {
 				return err
+			}
+			if options.Name == "" {
+				return errors.New("name option must be set")
 			}
 			return runResult2Policy(cmd.Context(), options)
 		},

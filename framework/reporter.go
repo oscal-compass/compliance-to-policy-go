@@ -20,6 +20,7 @@ import (
 	"github.com/oscal-compass/oscal-sdk-go/settings"
 
 	"github.com/oscal-compass/compliance-to-policy-go/v2/framework/config"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/policy"
 )
 
@@ -134,15 +135,6 @@ func (r *Reporter) findControls(implementationSettings settings.ImplementationSe
 
 // Convert a PVP ObservationByCheck to an OSCAL Observation
 func (r *Reporter) toOscalObservation(observationByCheck policy.ObservationByCheck, ruleSet extensions.RuleSet) oscalTypes.Observation {
-
-	oscalObservation := oscalTypes.Observation{
-		UUID:        uuid.NewUUID(),
-		Title:       observationByCheck.Title,
-		Description: observationByCheck.Description,
-		Methods:     observationByCheck.Methods,
-		Collected:   observationByCheck.Collected,
-	}
-
 	subjects := make([]oscalTypes.SubjectReference, 0)
 	for _, subject := range observationByCheck.Subjects {
 
@@ -173,7 +165,6 @@ func (r *Reporter) toOscalObservation(observationByCheck policy.ObservationByChe
 		}
 		subjects = append(subjects, s)
 	}
-	oscalObservation.Subjects = &subjects
 
 	relevantEvidences := make([]oscalTypes.RelevantEvidence, 0)
 	if observationByCheck.RelevantEvidences != nil {
@@ -185,8 +176,15 @@ func (r *Reporter) toOscalObservation(observationByCheck policy.ObservationByChe
 			relevantEvidences = append(relevantEvidences, oscalRelEv)
 		}
 	}
-	if len(relevantEvidences) > 0 {
-		oscalObservation.RelevantEvidence = &relevantEvidences
+
+	oscalObservation := oscalTypes.Observation{
+		UUID:             uuid.NewUUID(),
+		Title:            observationByCheck.Title,
+		Description:      observationByCheck.Description,
+		Methods:          observationByCheck.Methods,
+		Collected:        observationByCheck.Collected,
+		Subjects:         pkg.NilIfEmpty(&subjects),
+		RelevantEvidence: pkg.NilIfEmpty(&relevantEvidences),
 	}
 
 	props := []oscalTypes.Property{
@@ -244,32 +242,35 @@ func (r *Reporter) GenerateAssessmentResults(ctx context.Context, planHref strin
 			obs := r.toOscalObservation(observationByCheck, rule)
 
 			// if the observation subject result prop is not "pass" then create relevant findings
-			for _, subject := range *obs.Subjects {
-				for _, prop := range *subject.Props {
-					if prop.Name == "result" {
-						if prop.Value != policy.ResultPass.String() {
-							oscalFindings, err = r.generateFindings(oscalFindings, obs, rule, *implementationSettings)
-							if err != nil {
-								return assessmentResults, fmt.Errorf("failed to create finding for check: %w", err)
-							}
-							r.log.Info(fmt.Sprintf("generated finding for rule %s", rule.Rule.ID))
+			if obs.Subjects != nil {
+				for _, subject := range *obs.Subjects {
+					for _, prop := range *subject.Props {
+						if prop.Name == "result" {
+							if prop.Value != policy.ResultPass.String() {
+								oscalFindings, err = r.generateFindings(oscalFindings, obs, rule, *implementationSettings)
+								if err != nil {
+									return assessmentResults, fmt.Errorf("failed to create finding for check: %w", err)
+								}
+								r.log.Info(fmt.Sprintf("generated finding for rule %s", rule.Rule.ID))
 
+							}
 						}
 					}
 				}
 			}
+
 			oscalObservations = append(oscalObservations, obs)
 		}
 
 	}
-	reviewedConrols := r.findControls(*implementationSettings)
+	reviewedControls := r.findControls(*implementationSettings)
 
 	oscalResult := oscalTypes.Result{
 		UUID:             uuid.NewUUID(),
 		Title:            "Automated Assessment Result",
 		Description:      "Assessment Results Automatically Genererated from PVP Results",
 		Start:            time.Now(),
-		ReviewedControls: reviewedConrols,
+		ReviewedControls: reviewedControls,
 		Observations:     &oscalObservations,
 	}
 
