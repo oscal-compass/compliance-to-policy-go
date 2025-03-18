@@ -20,6 +20,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/hashicorp/go-hclog"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -27,7 +28,7 @@ import (
 	"github.com/oscal-compass/compliance-to-policy-go/v2/framework/config"
 )
 
-func NewOSCAL2Policy() *cobra.Command {
+func NewOSCAL2Policy(logger hclog.Logger) *cobra.Command {
 	options := NewOptions()
 	command := &cobra.Command{
 		Use:   "oscal2policy",
@@ -45,6 +46,7 @@ func NewOSCAL2Policy() *cobra.Command {
 			if options.Name == "" {
 				return errors.New("name option must be set")
 			}
+			options.logger = logger
 			return runOSCAL2Policy(cmd.Context(), options)
 		},
 	}

@@ -21,7 +21,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/oscal-compass/compliance-to-policy-go/v2/cmd/c2pcli/cli/subcommands"
-	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/logging"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/logging"
 )
 
 var logger hclog.Logger
@@ -43,9 +43,9 @@ func New() *cobra.Command {
 	}
 	command.AddCommand(
 		subcommands.NewVersionSubCommand(),
-		subcommands.NewOSCAL2Posture(),
-		subcommands.NewOSCAL2Policy(),
-		subcommands.NewResult2OSCAL(),
+		subcommands.NewOSCAL2Posture(logger),
+		subcommands.NewOSCAL2Policy(logger),
+		subcommands.NewResult2OSCAL(logger),
 	)
 	command.PersistentFlags().BoolVar(&debug, "debug", false, "Run with debug log level")
 

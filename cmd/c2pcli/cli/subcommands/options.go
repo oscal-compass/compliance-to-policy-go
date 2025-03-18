@@ -19,6 +19,7 @@ package subcommands
 import (
 	"errors"
 
+	"github.com/hashicorp/go-hclog"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -55,6 +56,7 @@ type Options struct {
 	AssessmentResults string                       `yaml:"assessment-results" mapstructure:"assessment-results"`
 	Plugins           map[string]map[string]string `yaml:"plugins" mapstructure:"plugins"`
 	Output            string                       `yaml:"out" mapstructure:"out"`
+	logger            hclog.Logger
 }
 
 func NewOptions() *Options {

@@ -25,6 +25,9 @@ func Config(option *Options) (*config.C2PConfig, error) {
 		c2pConfig.PluginDir = pluginsPath
 	}
 
+	// Set logger
+	c2pConfig.Logger = option.logger
+
 	compDef, err := loadCompDef(componentPath)
 	if err != nil {
 		return nil, err
