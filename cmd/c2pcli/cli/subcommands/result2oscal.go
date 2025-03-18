@@ -35,7 +35,7 @@ func NewResult2OSCAL() *cobra.Command {
 		Use:   "result2oscal",
 		Short: "Transform policy result artifacts to OSCAL Assessment Results.",
 		PreRunE: func(cmd *cobra.Command, args []string) error {
-			return SetupViper(cmd)
+			return setupViper(cmd)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := viper.Unmarshal(options); err != nil {

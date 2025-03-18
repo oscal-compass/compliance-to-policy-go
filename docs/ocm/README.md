@@ -150,6 +150,11 @@ EOF
     ```
     c2pcli result2oscal -c ./docs/ocm/plugin-example.yaml --results /tmp/results -o /tmp/assessment-results.json
     ```
+6. Prettify OSCAL Assessment Results in .md format
+   ```bash
+   c2pcli oscal2posture -c ./docs/ocm/c2p-config.yaml --assessment-results /tmp/assessment-results.json -o /tmp/compliance-posture.md
+   ```
+You can view an example compliance posture like [compliance-posture.md](../ocm/final-outputs/compliance-posture.md)
 
 ### GitOps automation use case
 

@@ -1,20 +1,9 @@
 /*
-Copyright 2023 IBM Corporation
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+ Copyright 2025 The OSCAL Compass Authors
+ SPDX-License-Identifier: Apache-2.0
 */
 
-package oscal2posture
+package subcommands
 
 import (
 	"fmt"
@@ -26,18 +15,17 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/oscal-compass/compliance-to-policy-go/v2/cmd/c2pcli/cli/subcommands"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/framework"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/logging"
 )
 
-func New() *cobra.Command {
-	options := subcommands.NewOptions()
+func NewOSCAL2Posture() *cobra.Command {
+	options := NewOptions()
 	command := &cobra.Command{
 		Use:   "oscal2posture",
 		Short: "Generate Compliance Posture from OSCAL artifacts.",
 		PreRunE: func(cmd *cobra.Command, args []string) error {
-			return subcommands.SetupViper(cmd)
+			return setupViper(cmd)
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := viper.Unmarshal(options); err != nil {
@@ -60,11 +48,11 @@ func New() *cobra.Command {
 	fs.StringP("assessment-results", "a", "./assessment-results.json", "path to assessment-results.json")
 	fs.StringP("component-definition", "d", "", "path to component-definition.json")
 	fs.StringP("out", "o", "-", "path to output file. Use '-' for stdout. Default '-'.")
-	fs.StringP(subcommands.PluginConfigPath, "c", "plugins.yaml", "Path to the configuration file for plugins.")
+	fs.StringP(PluginConfigPath, "c", "plugins.yaml", "Path to the configuration file for plugins.")
 	return command
 }
 
-func Run(logger hclog.Logger, option *subcommands.Options) error {
+func Run(logger hclog.Logger, option *Options) error {
 	arFile, err := os.Open(option.AssessmentResults)
 	if err != nil {
 		return err

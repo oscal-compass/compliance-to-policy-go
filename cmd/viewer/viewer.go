@@ -14,16 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package viewer
+package main
 
 import (
 	"bufio"
+	"flag"
 	"net/url"
 	"os"
 
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
-	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 
 	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
@@ -31,29 +29,13 @@ import (
 	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/policycomposition"
 )
 
-var resourceTableFile, filter, format string
+func main() {
+	var resourceTableFile, filter, format string
+	flag.StringVar(&resourceTableFile, "resource-table-file", pkg.PathFromPkgDirectory("../out/resources.csv"), "path to resource table file (csv)")
+	flag.StringVar(&filter, "query-params", "", "query-param (e.g. --filter=\"source=xxx&category=yyy\"")
+	flag.StringVar(&format, "format", "table", "output format (e.g. available formats are table, yaml")
+	flag.Parse()
 
-func New() *cobra.Command {
-	command := &cobra.Command{
-		Use:   "viewer",
-		Short: "Resources viewer",
-		PreRun: func(cmd *cobra.Command, args []string) {
-			cmd.Flags().VisitAll(func(flag *pflag.Flag) {
-				_ = viper.BindPFlag(flag.Name, flag)
-			})
-		},
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return runViewer()
-		},
-	}
-	fs := command.Flags()
-	fs.StringVar(&resourceTableFile, "resource-table-file", pkg.PathFromPkgDirectory("../out/resources.csv"), "path to resource table file (csv)")
-	fs.StringVar(&filter, "query-params", "", "query-param (e.g. --filter=\"source=xxx&category=yyy\"")
-	fs.StringVar(&format, "format", "table", "output format (e.g. available formats are table, yaml")
-	return command
-}
-
-func runViewer() error {
 	u, err := url.Parse("https://abc?" + filter)
 	if err != nil {
 		panic(err)
@@ -121,5 +103,4 @@ func runViewer() error {
 	} else {
 		t.Filter(filterFunc).Print()
 	}
-	return nil
 }
