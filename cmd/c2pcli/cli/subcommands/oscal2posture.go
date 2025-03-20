@@ -35,11 +35,10 @@ func NewOSCAL2Posture(logger hclog.Logger) *cobra.Command {
 		},
 	}
 	fs := command.Flags()
-	fs.String("catalog", "", "path to catalog.json")
+	BindCommonFlags(fs)
+	fs.String(Catalog, "", "path to catalog.json")
 	fs.StringP("assessment-results", "a", "./assessment-results.json", "path to assessment-results.json")
-	fs.StringP("component-definition", "d", "", "path to component-definition.json")
 	fs.StringP("out", "o", "-", "path to output file. Use '-' for stdout. Default '-'.")
-	fs.StringP(ConfigPath, "c", "c2p-config.yaml", "Path to the configuration file for plugins.")
 	return command
 }
 

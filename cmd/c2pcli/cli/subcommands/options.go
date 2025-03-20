@@ -33,11 +33,17 @@ const (
 	Catalog             = "catalog"
 )
 
+// BindCommonFlags binds common flags for all commands.
 func BindCommonFlags(fs *pflag.FlagSet) {
-	fs.StringP("name", "n", "", "short name of the control source for the implementation to be evaluated.")
-	fs.StringP("component-definition", "d", "", "path to component definition")
-	fs.StringP("plugin-dir", "p", "", "Path to plugin directory. Defaults to `c2p-plugins`.")
+	fs.StringP(ComponentDefinition, "d", "", "path to component definition")
 	fs.StringP(ConfigPath, "c", "c2p-config.yaml", "Path to the configuration for the C2P CLI.")
+}
+
+// BindPluginFlags binds flags for command that interact with the plugin manager.
+func BindPluginFlags(fs *pflag.FlagSet) {
+	BindCommonFlags(fs)
+	fs.StringP("plugin-dir", "p", "c2p-plugins", "Path to plugin directory. Defaults to `c2p-plugins`.")
+	fs.StringP(Name, "n", "", "short name of the control source for the implementation to be evaluated.")
 }
 
 // ConfigError is an error for missing configuration options
