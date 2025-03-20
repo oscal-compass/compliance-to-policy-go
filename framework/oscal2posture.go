@@ -19,6 +19,7 @@ package framework
 import (
 	"bytes"
 	"embed"
+	"fmt"
 	"html/template"
 	"os"
 	"strings"
@@ -56,17 +57,24 @@ func NewOscal2Posture(assessmentResults *oscalTypes.AssessmentResults, catalog *
 	}
 }
 
-func (r *Oscal2Posture) findSubjects(ruleId string) []oscalTypes.SubjectReference {
-	var subjects []oscalTypes.SubjectReference
+func (r *Oscal2Posture) findSubjects() map[string][]oscalTypes.SubjectReference {
+	subjectsByRule := make(map[string][]oscalTypes.SubjectReference)
 	for _, ar := range r.assessmentResults.Results {
+		if ar.Observations == nil {
+			continue
+		}
 		for _, ob := range *ar.Observations {
+			if ob.Props == nil || ob.Subjects == nil {
+				r.logger.Debug(fmt.Sprintf("no subjects found for %s", ob.Title))
+				continue
+			}
 			prop, found := extensions.GetTrestleProp("assessment-rule-id", *ob.Props)
-			if found && prop.Value == ruleId {
-				subjects = append(subjects, *ob.Subjects...)
+			if found {
+				subjectsByRule[prop.Value] = *ob.Subjects
 			}
 		}
 	}
-	return subjects
+	return subjectsByRule
 }
 
 func (r *Oscal2Posture) toTemplateValue() tp.TemplateValue {
@@ -74,6 +82,10 @@ func (r *Oscal2Posture) toTemplateValue() tp.TemplateValue {
 		CatalogTitle: r.catalog.Metadata.Title,
 		Components:   []tp.Component{},
 	}
+
+	// Process assessment results
+	subjectsByRule := r.findSubjects()
+
 	for _, componentObject := range *r.compDef.Components {
 		if componentObject.Type == "validation" {
 			continue
@@ -93,7 +105,10 @@ func (r *Oscal2Posture) toTemplateValue() tp.TemplateValue {
 					ruleIdsProps := extensions.FindAllProps(*co.Props, extensions.WithName(extensions.RuleIdProp))
 					for _, ruleId := range ruleIdsProps {
 						subjects := []tp.Subject{}
-						rawSubjects := r.findSubjects(ruleId.Value)
+						rawSubjects, ok := subjectsByRule[ruleId.Value]
+						if !ok {
+							r.logger.Debug(fmt.Sprintf("no subjects found for rule %s", ruleId.Value))
+						}
 						for _, rawSubject := range rawSubjects {
 							var result, reason string
 							resultProp, resultFound := extensions.GetTrestleProp("result", *rawSubject.Props)
