@@ -17,7 +17,7 @@ limitations under the License.
 package subcommands
 
 import (
-	"errors"
+	"fmt"
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/spf13/cobra"
@@ -25,29 +25,31 @@ import (
 	"github.com/spf13/viper"
 )
 
-const PluginConfigPath = "config-path"
+// Options with no defaults
+const (
+	ConfigPath          = "config-path"
+	ComponentDefinition = "component-definition"
+	Name                = "name"
+	Catalog             = "catalog"
+)
 
 func BindCommonFlags(fs *pflag.FlagSet) {
 	fs.StringP("name", "n", "", "short name of the control source for the implementation to be evaluated.")
 	fs.StringP("component-definition", "d", "", "path to component definition")
 	fs.StringP("plugin-dir", "p", "", "Path to plugin directory. Defaults to `c2p-plugins`.")
-	fs.StringP(PluginConfigPath, "c", "plugins.yaml", "Path to the configuration file for plugins.")
+	fs.StringP(ConfigPath, "c", "c2p-config.yaml", "Path to the configuration for the C2P CLI.")
 }
 
-func setupViper(cmd *cobra.Command) error {
-	cmd.Flags().VisitAll(func(flag *pflag.Flag) {
-		err := viper.BindPFlag(flag.Name, flag)
-		if err != nil {
-			panic(err)
-		}
-	})
-	if viper.IsSet(PluginConfigPath) {
-		viper.SetConfigFile(viper.GetString(PluginConfigPath))
-		return viper.ReadInConfig()
-	}
-	return nil
+// ConfigError is an error for missing configuration options
+type ConfigError struct {
+	Option string
 }
 
+func (c *ConfigError) Error() string {
+	return fmt.Sprintf("%q option is not set", c.Option)
+}
+
+// Options define config options when for the CLI commands.
 type Options struct {
 	PluginDir         string                       `yaml:"plugin-dir" mapstructure:"plugin-dir"`
 	Name              string                       `yaml:"name" mapstructure:"name"`
@@ -59,15 +61,29 @@ type Options struct {
 	logger            hclog.Logger
 }
 
+// NewOptions returns an initialized Options struct.
 func NewOptions() *Options {
 	return &Options{
 		Plugins: make(map[string]map[string]string),
 	}
 }
 
-func (o *Options) Validate() error {
-	if o.Definition == "" {
-		return errors.New("component-definition option must be set")
+// Complete the options from the given command.
+func (o *Options) Complete(cmd *cobra.Command) error {
+	cmd.Flags().VisitAll(func(flag *pflag.Flag) {
+		err := viper.BindPFlag(flag.Name, flag)
+		if err != nil {
+			panic(err)
+		}
+	})
+
+	// If a config path is set, read options from the config
+	if viper.IsSet(ConfigPath) {
+		viper.SetConfigFile(viper.GetString(ConfigPath))
+		if err := viper.ReadInConfig(); err != nil {
+			return err
+		}
+		return viper.Unmarshal(o)
 	}
 	return nil
 }

@@ -18,11 +18,9 @@ package subcommands
 
 import (
 	"context"
-	"errors"
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
 	"github.com/oscal-compass/compliance-to-policy-go/v2/framework"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/framework/config"
@@ -30,28 +28,35 @@ import (
 
 func NewOSCAL2Policy(logger hclog.Logger) *cobra.Command {
 	options := NewOptions()
+	options.logger = logger
+
 	command := &cobra.Command{
 		Use:   "oscal2policy",
 		Short: "Transform OSCAL to policy artifacts.",
-		PreRunE: func(cmd *cobra.Command, args []string) error {
-			return setupViper(cmd)
-		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if err := viper.Unmarshal(options); err != nil {
+			if err := options.Complete(cmd); err != nil {
 				return err
 			}
-			if err := options.Validate(); err != nil {
+			if err := validateOSCAL2Policy(options); err != nil {
 				return err
 			}
-			if options.Name == "" {
-				return errors.New("name option must be set")
-			}
-			options.logger = logger
 			return runOSCAL2Policy(cmd.Context(), options)
 		},
 	}
 	BindCommonFlags(command.Flags())
 	return command
+}
+
+// validateOSCAL2Policy required options with no defaults
+// are in place.
+func validateOSCAL2Policy(options *Options) error {
+	if options.Name == "" {
+		return &ConfigError{Option: Name}
+	}
+	if options.Definition == "" {
+		return &ConfigError{Option: ComponentDefinition}
+	}
+	return nil
 }
 
 func runOSCAL2Policy(ctx context.Context, option *Options) error {

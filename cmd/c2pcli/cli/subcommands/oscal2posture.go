@@ -13,32 +13,24 @@ import (
 	"github.com/oscal-compass/oscal-sdk-go/models"
 	"github.com/oscal-compass/oscal-sdk-go/validation"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
 	"github.com/oscal-compass/compliance-to-policy-go/v2/framework"
 )
 
 func NewOSCAL2Posture(logger hclog.Logger) *cobra.Command {
 	options := NewOptions()
+	options.logger = logger
+
 	command := &cobra.Command{
 		Use:   "oscal2posture",
 		Short: "Generate Compliance Posture from OSCAL artifacts.",
-		PreRunE: func(cmd *cobra.Command, args []string) error {
-			return setupViper(cmd)
-		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if err := viper.Unmarshal(options); err != nil {
+			if err := options.Complete(cmd); err != nil {
 				return err
 			}
-			if err := options.Validate(); err != nil {
+			if err := validateOSCAL2Posture(options); err != nil {
 				return err
 			}
-
-			// Extra validation for this command
-			if options.Catalog == "" {
-				return fmt.Errorf("\"catalog\" flag must be set")
-			}
-			options.logger = logger
 			return runOSCAL2Posture(options)
 		},
 	}
@@ -47,17 +39,29 @@ func NewOSCAL2Posture(logger hclog.Logger) *cobra.Command {
 	fs.StringP("assessment-results", "a", "./assessment-results.json", "path to assessment-results.json")
 	fs.StringP("component-definition", "d", "", "path to component-definition.json")
 	fs.StringP("out", "o", "-", "path to output file. Use '-' for stdout. Default '-'.")
-	fs.StringP(PluginConfigPath, "c", "plugins.yaml", "Path to the configuration file for plugins.")
+	fs.StringP(ConfigPath, "c", "c2p-config.yaml", "Path to the configuration file for plugins.")
 	return command
 }
 
+// validateOSCAL2Posture required options with no defaults
+// are in place.
+func validateOSCAL2Posture(options *Options) error {
+	if options.Catalog == "" {
+		return &ConfigError{
+			Option: Catalog,
+		}
+	}
+	return nil
+}
+
 func runOSCAL2Posture(option *Options) error {
+	schemaValidator := validation.NewSchemaValidator()
 	arFile, err := os.Open(option.AssessmentResults)
 	if err != nil {
 		return err
 	}
 	defer arFile.Close()
-	assessmentResults, err := models.NewAssessmentResults(arFile, validation.NewSchemaValidator())
+	assessmentResults, err := models.NewAssessmentResults(arFile, schemaValidator)
 	if err != nil {
 		return fmt.Errorf("error loading assessment results: %w", err)
 	}
@@ -67,7 +71,7 @@ func runOSCAL2Posture(option *Options) error {
 		return err
 	}
 	defer catalogFile.Close()
-	catalog, err := models.NewCatalog(catalogFile, validation.NewSchemaValidator())
+	catalog, err := models.NewCatalog(catalogFile, schemaValidator)
 	if err != nil {
 		return fmt.Errorf("error loading catalog: %w", err)
 	}
@@ -77,7 +81,7 @@ func runOSCAL2Posture(option *Options) error {
 		return err
 	}
 	defer compDefFile.Close()
-	compDef, err := models.NewComponentDefinition(compDefFile, validation.NewSchemaValidator())
+	compDef, err := models.NewComponentDefinition(compDefFile, schemaValidator)
 	if err != nil {
 		return fmt.Errorf("error loading component definition: %w", err)
 	}
