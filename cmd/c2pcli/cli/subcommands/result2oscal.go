@@ -50,7 +50,7 @@ func NewResult2OSCAL(logger hclog.Logger) *cobra.Command {
 
 	fs := command.Flags()
 	fs.StringP("out", "o", "./assessment-results.json", "path to output OSCAL Assessment Results")
-	BindCommonFlags(fs)
+	BindPluginFlags(fs)
 
 	return command
 }

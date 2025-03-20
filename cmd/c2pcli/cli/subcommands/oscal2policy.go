@@ -43,7 +43,7 @@ func NewOSCAL2Policy(logger hclog.Logger) *cobra.Command {
 			return runOSCAL2Policy(cmd.Context(), options)
 		},
 	}
-	BindCommonFlags(command.Flags())
+	BindPluginFlags(command.Flags())
 	return command
 }
 
