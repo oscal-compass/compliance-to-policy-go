@@ -24,8 +24,8 @@ func NewVersionSubCommand() *cobra.Command {
 		Short: "Display version",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			message := fmt.Sprintf("version: %s, commit: %s, date: %s", version, commit, date)
-			fmt.Fprintln(os.Stdout, message)
-			return nil
+			_, err := fmt.Fprintln(os.Stdout, message)
+			return err
 		},
 	}
 	return command
