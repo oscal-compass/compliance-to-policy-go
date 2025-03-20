@@ -142,18 +142,22 @@ func (r *Reporter) toOscalObservation(observationByCheck policy.ObservationByChe
 			{
 				Name:  "resource-id",
 				Value: subject.ResourceID,
+				Ns:    extensions.TrestleNameSpace,
 			},
 			{
 				Name:  "result",
 				Value: subject.Result.String(),
+				Ns:    extensions.TrestleNameSpace,
 			},
 			{
 				Name:  "evaluated-on",
 				Value: subject.EvaluatedOn.String(),
+				Ns:    extensions.TrestleNameSpace,
 			},
 			{
 				Name:  "reason",
 				Value: subject.Reason,
+				Ns:    extensions.TrestleNameSpace,
 			},
 		}
 
@@ -191,6 +195,7 @@ func (r *Reporter) toOscalObservation(observationByCheck policy.ObservationByChe
 		{
 			Name:  "assessment-rule-id",
 			Value: ruleSet.Rule.ID,
+			Ns:    extensions.TrestleNameSpace,
 		},
 	}
 	oscalObservation.Props = &props

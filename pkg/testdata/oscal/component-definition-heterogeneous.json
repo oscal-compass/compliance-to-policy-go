@@ -215,18 +215,11 @@
                 "uuid": "850a08cf-eaeb-425f-9587-b3e18153862a",
                 "control-id": "cm-8.3",
                 "description": "",
-                "statements": [
+                "props": [
                   {
-                    "statement-id": "cm-8.3_smt.a",
-                    "uuid": "7c0ac8ea-5613-451f-8242-7702791727a2",
-                    "description": "",
-                    "props": [
-                      {
-                        "name": "Rule_Id",
-                        "ns": "https://oscal-compass.github.io/compliance-trestle/schemas/oscal/cd/kubernetes",
-                        "value": "allowed-base-images"
-                      }
-                    ]
+                    "name": "Rule_Id",
+                    "ns": "https://oscal-compass.github.io/compliance-trestle/schemas/oscal/cd/kubernetes",
+                    "value": "allowed-base-images"
                   }
                 ]
               }
