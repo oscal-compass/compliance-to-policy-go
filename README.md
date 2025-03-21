@@ -57,22 +57,22 @@ Provide seamless integration with compliance frameworks and existing policy engi
 
 ## Usage of C2P CLI
 ```
-$ c2pcli -h        
 C2P CLI
 
 Usage:
-  c2pcli [flags]
   c2pcli [command]
 
 Available Commands:
-  completion  Generate the autocompletion script for the specified shell
-  help        Help about any command
-  kyverno     C2P CLI Kyverno plugin
-  ocm         C2P CLI OCM plugin
-  version     Display version
+  completion    Generate the autocompletion script for the specified shell
+  help          Help about any command
+  oscal2policy  Transform OSCAL to policy artifacts.
+  oscal2posture Generate Compliance Posture from OSCAL artifacts.
+  result2oscal  Transform policy result artifacts to OSCAL Assessment Results.
+  version       Display version
 
 Flags:
-  -h, --help   help for c2pcli
+      --debug   Run with debug log level
+  -h, --help    help for c2pcli
 
 Use "c2pcli [command] --help" for more information about a command.
 ```

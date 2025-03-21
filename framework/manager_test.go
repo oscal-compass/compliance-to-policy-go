@@ -13,8 +13,9 @@ import (
 
 	oscalTypes "github.com/defenseunicorns/go-oscal/src/types/oscal-1-1-2"
 	"github.com/oscal-compass/oscal-sdk-go/extensions"
-	"github.com/oscal-compass/oscal-sdk-go/generators"
+	"github.com/oscal-compass/oscal-sdk-go/models"
 	"github.com/oscal-compass/oscal-sdk-go/settings"
+	"github.com/oscal-compass/oscal-sdk-go/validation"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
@@ -57,7 +58,7 @@ var (
 func TestNewPluginManager(t *testing.T) {
 	testFile, err := os.Open(testDataPath)
 	require.NoError(t, err)
-	compDef, err := generators.NewComponentDefinition(testFile)
+	compDef, err := models.NewComponentDefinition(testFile, validation.NoopValidator{})
 	require.NoError(t, err)
 	cfg := &config.C2PConfig{
 		PluginDir: ".",
@@ -153,10 +154,8 @@ func TestPluginManager_Configure(t *testing.T) {
 			},
 		},
 	}
-	pluginMap := map[string]map[string]string{
-		"myplugin": {
-			"option1": "override",
-		},
+	pluginMap := func(string) map[string]string {
+		return map[string]string{"option1": "override"}
 	}
 
 	// Create pluginSet
@@ -176,7 +175,7 @@ func prepConfig(t *testing.T) *config.C2PConfig {
 	cfg.PluginDir = "."
 	file, err := os.Open(testDataPath)
 	require.NoError(t, err)
-	definition, err := generators.NewComponentDefinition(file)
+	definition, err := models.NewComponentDefinition(file, validation.NoopValidator{})
 	require.NoError(t, err)
 	cfg.ComponentDefinitions = append(cfg.ComponentDefinitions, *definition)
 	return cfg

@@ -43,3 +43,4 @@ work
 kubeconfig.*
 
 vendor/
+c2p-plugins/

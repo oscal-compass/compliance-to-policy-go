@@ -17,15 +17,20 @@ limitations under the License.
 package main
 
 import (
-	"os"
+	hplugin "github.com/hashicorp/go-plugin"
 
-	"github.com/oscal-compass/compliance-to-policy-go/v2/cmd/c2pcli/cli"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/cmd/kyverno-plugin/server"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/plugin"
 )
 
 func main() {
-	command := cli.New()
-	err := command.Execute()
-	if err != nil {
-		os.Exit(1)
+	kyvernoPlugin := server.NewPlugin()
+	plugins := map[string]hplugin.Plugin{
+		plugin.PVPPluginName: &plugin.PVPPlugin{Impl: kyvernoPlugin},
 	}
+	config := plugin.ServeConfig{
+		PluginSet: plugins,
+		Logger:    server.Logger(),
+	}
+	plugin.Register(config)
 }
