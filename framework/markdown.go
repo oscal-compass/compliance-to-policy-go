@@ -37,12 +37,13 @@ func getCatalogTitle(catalog oscalTypes.Catalog) (string, error) {
 // At that stage, it only supports the Components length is 1. When the
 // observation links to the component in assessment plan, it will be improved.
 func getComponentTitle(assessmentPlan oscalTypes.AssessmentPlan) (string, error) {
-	if len(*assessmentPlan.LocalDefinitions.Components) == 1 {
-		component := (*assessmentPlan.LocalDefinitions.Components)[0]
-		return component.Title, nil
-	} else {
-		return "", fmt.Errorf("Error getting component title")
+	if assessmentPlan.LocalDefinitions != nil {
+		if len(*assessmentPlan.LocalDefinitions.Components) == 1 {
+			component := (*assessmentPlan.LocalDefinitions.Components)[0]
+			return component.Title, nil
+		}
 	}
+	return "", fmt.Errorf("Error getting component title")
 }
 
 // Get controlId info from finding.Target.TargetId
@@ -55,10 +56,13 @@ func extractControlId(targetId string) string {
 func extractRuleId(ob oscalTypes.Observation, observationUuid string) string {
 	// Check if the UUID matches
 	if ob.UUID == observationUuid {
-		// Loop through the Props slice to find the assessment-rule-id
-		for _, prop := range *ob.Props { // Dereference the pointer to access the slice
-			if prop.Name == "assessment-rule-id" {
-				return prop.Value // Return the value if the property is found
+		// Check if Props is not nil
+		if ob.Props != nil {
+			// Loop through the Props slice to find the assessment-rule-id
+			for _, prop := range *ob.Props { // Dereference the pointer to access the slice
+				if prop.Name == "assessment-rule-id" {
+					return prop.Value // Return the value if the property is found
+				}
 			}
 		}
 	}
