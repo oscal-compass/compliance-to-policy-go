@@ -47,8 +47,3 @@ type Component struct {
 	// Results per control
 	ControlResults []ControlResult `json:"controlResults,omitempty" yaml:"controlResults,omitempty"`
 }
-
-type TemplateValue struct {
-	CatalogTitle string
-	Components   []Component
-}

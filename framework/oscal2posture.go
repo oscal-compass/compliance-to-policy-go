@@ -19,16 +19,12 @@ package framework
 import (
 	"bytes"
 	"embed"
-	"fmt"
 	"html/template"
 	"os"
 	"strings"
 
 	oscalTypes "github.com/defenseunicorns/go-oscal/src/types/oscal-1-1-2"
 	"github.com/hashicorp/go-hclog"
-	"github.com/oscal-compass/oscal-sdk-go/extensions"
-
-	tp "github.com/oscal-compass/compliance-to-policy-go/v2/framework/template"
 )
 
 //go:embed template/*.md
@@ -42,12 +38,6 @@ type Oscal2Posture struct {
 	templateFile      *string
 }
 
-type TemplateValues struct {
-	CatalogTitle     string
-	Components       oscalTypes.ComponentDefinition
-	AssessmentResult oscalTypes.AssessmentResults
-}
-
 func NewOscal2Posture(assessmentResults *oscalTypes.AssessmentResults, catalog *oscalTypes.Catalog, compDef *oscalTypes.ComponentDefinition, logger hclog.Logger) *Oscal2Posture {
 	return &Oscal2Posture{
 		assessmentResults: assessmentResults,
@@ -55,94 +45,6 @@ func NewOscal2Posture(assessmentResults *oscalTypes.AssessmentResults, catalog *
 		compDef:           compDef,
 		logger:            logger,
 	}
-}
-
-func (r *Oscal2Posture) findSubjects() map[string][]oscalTypes.SubjectReference {
-	subjectsByRule := make(map[string][]oscalTypes.SubjectReference)
-	for _, ar := range r.assessmentResults.Results {
-		if ar.Observations == nil {
-			continue
-		}
-		for _, ob := range *ar.Observations {
-			if ob.Props == nil || ob.Subjects == nil {
-				r.logger.Debug(fmt.Sprintf("no subjects found for %s", ob.Title))
-				continue
-			}
-			prop, found := extensions.GetTrestleProp("assessment-rule-id", *ob.Props)
-			if found {
-				subjectsByRule[prop.Value] = *ob.Subjects
-			}
-		}
-	}
-	return subjectsByRule
-}
-
-func (r *Oscal2Posture) toTemplateValue() tp.TemplateValue {
-	templateValue := tp.TemplateValue{
-		CatalogTitle: r.catalog.Metadata.Title,
-		Components:   []tp.Component{},
-	}
-
-	// Process assessment results
-	subjectsByRule := r.findSubjects()
-
-	for _, componentObject := range *r.compDef.Components {
-		if componentObject.Type == "validation" {
-			continue
-		}
-		component := tp.Component{
-			ComponentTitle: componentObject.Title,
-			ControlResults: []tp.ControlResult{},
-		}
-		for _, cio := range *componentObject.ControlImplementations {
-			for _, co := range cio.ImplementedRequirements {
-				controlResult := tp.ControlResult{
-					ControlId:   co.ControlId,
-					RuleResults: []tp.RuleResult{},
-				}
-
-				if co.Props != nil {
-					ruleIdsProps := extensions.FindAllProps(*co.Props, extensions.WithName(extensions.RuleIdProp))
-					for _, ruleId := range ruleIdsProps {
-						subjects := []tp.Subject{}
-						rawSubjects, ok := subjectsByRule[ruleId.Value]
-						if !ok {
-							r.logger.Debug(fmt.Sprintf("no subjects found for rule %s", ruleId.Value))
-						}
-						for _, rawSubject := range rawSubjects {
-							var result, reason string
-							resultProp, resultFound := extensions.GetTrestleProp("result", *rawSubject.Props)
-							reasonProp, reasonFound := extensions.GetTrestleProp("reason", *rawSubject.Props)
-
-							if resultFound {
-								result = resultProp.Value
-								if reasonFound {
-									reason = reasonProp.Value
-								}
-							} else {
-								result = "Error"
-								reason = "No results found."
-							}
-							subject := tp.Subject{
-								Title:  rawSubject.Title,
-								UUID:   rawSubject.SubjectUuid,
-								Result: result,
-								Reason: reason,
-							}
-							subjects = append(subjects, subject)
-						}
-						controlResult.RuleResults = append(controlResult.RuleResults, tp.RuleResult{
-							RuleId:   ruleId.Value,
-							Subjects: subjects,
-						})
-					}
-				}
-				component.ControlResults = append(component.ControlResults, controlResult)
-			}
-		}
-		templateValue.Components = append(templateValue.Components, component)
-	}
-	return templateValue
 }
 
 func (r *Oscal2Posture) SetTemplateFile(templateFile string) {
@@ -153,7 +55,7 @@ func (r *Oscal2Posture) Generate() ([]byte, error) {
 	var templateData []byte
 	var err error
 	if r.templateFile == nil {
-		templateData, err = embeddedResources.ReadFile("template/template.md")
+		templateData, err = embeddedResources.ReadFile("template/posture.md")
 	} else {
 		templateData, err = os.ReadFile(*r.templateFile)
 	}
@@ -175,7 +77,10 @@ func (r *Oscal2Posture) Generate() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	templateValue := r.toTemplateValue()
+	templateValue, err := CreateComponentValues(r.catalog, r.compDef, r.assessmentResults, r.logger)
+	if err != nil {
+		return nil, err
+	}
 	buffer := bytes.NewBuffer([]byte{})
 	err = tmpl.Execute(buffer, templateValue)
 	if err != nil {

@@ -7,10 +7,11 @@ package framework
 
 import (
 	"bytes"
-	oscalTypes "github.com/defenseunicorns/go-oscal/src/types/oscal-1-1-2"
-	"github.com/stretchr/testify/require"
 	"os"
 	"testing"
+
+	oscalTypes "github.com/defenseunicorns/go-oscal/src/types/oscal-1-1-2"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGetCatalogTitle(t *testing.T) {
@@ -163,12 +164,12 @@ func TestCreateTemplateValues(t *testing.T) {
 		catalog           oscalTypes.Catalog
 		assessmentPlan    oscalTypes.AssessmentPlan
 		assessmentResults oscalTypes.AssessmentResults
-		expected          *TemplateValues
+		expected          *ResultsTemplateValues
 	}{
 		catalog:           catalog,
 		assessmentPlan:    assessmentPlan,
 		assessmentResults: assessmentResults,
-		expected: &TemplateValues{
+		expected: &ResultsTemplateValues{
 			Catalog:           "Catalog Title",
 			Component:         "Component Title",
 			AssessmentResults: assessmentResults,
@@ -176,9 +177,9 @@ func TestCreateTemplateValues(t *testing.T) {
 	}
 
 	// Run test
-	result, err := CreateTemplateValues(test.catalog, test.assessmentPlan, test.assessmentResults)
+	result, err := CreateResultsValues(test.catalog, test.assessmentPlan, test.assessmentResults)
 	if err != nil {
-		t.Errorf("Error creating TemplateValues: %v", err)
+		t.Errorf("Error creating ResultsTemplateValues: %v", err)
 	}
 	require.Equal(t, test.expected, result)
 }
@@ -231,14 +232,14 @@ func TestGenerateAssessmentResultsMd(t *testing.T) {
 		},
 	}
 
-	templateValues := &TemplateValues{
+	templateValues := &ResultsTemplateValues{
 		Catalog:           "Catalog Title",
 		Component:         "Component Title",
 		AssessmentResults: assessmentResults,
 	}
 
 	// Read the expected markdown file before running the test
-	expectedmd, err := os.ReadFile("../test/testdata/assessment-results.md")
+	expectedmd, err := os.ReadFile("./testdata/assessment-results.md")
 	if err != nil {
 		t.Fatalf("Failed to read file %s: %v", "../test/testdata/assessment-results.md", err)
 	}
