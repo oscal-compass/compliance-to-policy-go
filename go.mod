@@ -6,6 +6,7 @@ require (
 	github.com/defenseunicorns/go-oscal v0.6.2
 	github.com/go-git/go-git/v5 v5.13.0
 	github.com/go-logr/logr v1.4.2
+	github.com/go-viper/mapstructure/v2 v2.2.1
 	github.com/google/go-cmp v0.6.0
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-hclog v1.6.3
@@ -15,10 +16,11 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/onsi/ginkgo/v2 v2.19.0
 	github.com/onsi/gomega v1.34.1
-	github.com/oscal-compass/oscal-sdk-go v0.0.0-20250214194258-09243b514d6c
+	github.com/oscal-compass/oscal-sdk-go v0.0.0-20250313133319-add7970ddf13
 	github.com/otiai10/copy v1.9.0
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.5
+	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.10.0
 	go.uber.org/zap v1.27.0
 	google.golang.org/grpc v1.66.0
@@ -215,6 +217,7 @@ require (
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
+	github.com/santhosh-tekuri/jsonschema/v6 v6.0.1 // indirect
 	github.com/sassoftware/relic v7.2.1+incompatible // indirect
 	github.com/secure-systems-lab/go-securesystemslib v0.8.0 // indirect
 	github.com/segmentio/ksuid v1.0.4 // indirect
@@ -232,7 +235,6 @@ require (
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.11.0 // indirect
 	github.com/spf13/cast v1.6.0 // indirect
-	github.com/spf13/viper v1.18.2 // indirect
 	github.com/spiffe/go-spiffe/v2 v2.2.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect

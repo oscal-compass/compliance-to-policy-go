@@ -1,0 +1,6 @@
+component-definition: ./pkg/testdata/kyverno/component-definition.json
+plugins:
+  kyverno:
+    policy-dir: ./pkg/testdata/kyverno/policy-resources
+    policy-results-dir: ./pkg/testdata/kyverno/policy-reports
+    temp-dir: /tmp/kyverno

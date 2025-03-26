@@ -92,8 +92,8 @@ func (m *PluginManager) FindRequestedPlugins() (plugin.Manifests, error) {
 
 // LaunchPolicyPlugins launches requested plugins and configures each plugin to make it ready for use with GeneratePolicy() and
 // AggregateResults(). The plugin is configured based on default options and given options.
-// Given options are represented through the configSelections input (pluginID -> optionID -> selectedValue).
-func (m *PluginManager) LaunchPolicyPlugins(manifests plugin.Manifests, configSelections map[string]map[string]string) (map[string]policy.Provider, error) {
+// Given options are represented by config.PluginConfig.
+func (m *PluginManager) LaunchPolicyPlugins(manifests plugin.Manifests, pluginConfig config.PluginConfig) (map[string]policy.Provider, error) {
 	pluginsByIds := make(map[string]policy.Provider)
 	for _, manifest := range manifests {
 		policyPlugin, err := plugin.NewPolicyPlugin(manifest, m.clientFactory)
@@ -106,7 +106,7 @@ func (m *PluginManager) LaunchPolicyPlugins(manifests plugin.Manifests, configSe
 
 		// Get all the base configuration
 		if len(manifest.Configuration) > 0 {
-			if err := m.configurePlugin(policyPlugin, manifest, configSelections); err != nil {
+			if err := m.configurePlugin(policyPlugin, manifest, pluginConfig); err != nil {
 				return pluginsByIds, fmt.Errorf("failed to configure plugin %s: %w", manifest.ID, err)
 			}
 		}
@@ -114,9 +114,9 @@ func (m *PluginManager) LaunchPolicyPlugins(manifests plugin.Manifests, configSe
 	return pluginsByIds, nil
 }
 
-func (m *PluginManager) configurePlugin(policyPlugin policy.Provider, manifest plugin.Manifest, configSelections map[string]map[string]string) error {
-	selections, ok := configSelections[manifest.ID]
-	if !ok {
+func (m *PluginManager) configurePlugin(policyPlugin policy.Provider, manifest plugin.Manifest, pluginConfig config.PluginConfig) error {
+	selections := pluginConfig(manifest.ID)
+	if selections == nil {
 		selections = make(map[string]string)
 		m.log.Debug("No overrides set for plugin %s, using defaults...", manifest.ID)
 	}

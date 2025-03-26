@@ -20,6 +20,7 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+
 	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/decomposer"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/tables/resources"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/internalcompliance"

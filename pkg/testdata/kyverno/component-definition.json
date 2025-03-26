@@ -5,7 +5,7 @@
       "title": "Component Definition for Kube",
       "last-modified": "2023-10-17T22:21:08+00:00",
       "version": "1.0",
-      "oscal-version": "1.0.4"
+      "oscal-version": "1.1.2"
     },
     "components": [
       {
@@ -16,13 +16,13 @@
         "props": [
           {
             "name": "Rule_Id",
-            "ns": "http://oscal-compass.github.io/compliance-trestle/schemas/oscal/cd/kubernetes",
+            "ns": "https://oscal-compass.github.io/compliance-trestle/schemas/oscal/cd/kubernetes",
             "value": "allowed-base-images",
             "remarks": "rule_set_0"
           },
           {
             "name": "Rule_Description",
-            "ns": "http://oscal-compass.github.io/compliance-trestle/schemas/oscal/cd/kubernetes",
+            "ns": "https://oscal-compass.github.io/compliance-trestle/schemas/oscal/cd/kubernetes",
             "value": "Building images which specify a base as their origin is a good start to improving supply chain security, but over time organizations may want to build an allow list of specific base images which are allowed to be used when constructing containers. This policy ensures that a container's base, found in an OCI annotation, is in a cluster-wide allow list.",
             "remarks": "rule_set_0"
           }
@@ -31,6 +31,13 @@
           {
             "uuid": "bcdb290a-e726-4350-a06a-b7726b826e72",
             "source": "https://raw.githubusercontent.com/usnistgov/oscal-content/master/nist.gov/SP800-53/rev5/json/NIST_SP-800-53_rev5_catalog.json",
+            "props": [
+              {
+                "name": "Framework_Short_Name",
+                "ns": "https://oscal-compass.github.io/compliance-trestle/schemas/oscal",
+                "value": "nist_800_53"
+              }
+            ],
             "description": "NIST r5",
             "implemented-requirements": [
               {
@@ -45,7 +52,7 @@
                     "props": [
                       {
                         "name": "Rule_Id",
-                        "ns": "http://oscal-compass.github.io/compliance-trestle/schemas/oscal/cd/kubernetes",
+                        "ns": "https://oscal-compass.github.io/compliance-trestle/schemas/oscal/cd/kubernetes",
                         "value": "allowed-base-images"
                       }
                     ]
@@ -64,24 +71,23 @@
         "props": [
           {
             "name": "Rule_Id",
-            "ns": "http://oscal-compass.github.io/compliance-trestle/schemas/oscal/cd/kyverno",
+            "ns": "https://oscal-compass.github.io/compliance-trestle/schemas/oscal/cd/kyverno",
             "value": "allowed-base-images",
             "remarks": "rule_set_1"
           },
           {
             "name": "Check_Id",
-            "ns": "http://oscal-compass.github.io/compliance-trestle/schemas/oscal/cd/kyverno",
+            "ns": "https://oscal-compass.github.io/compliance-trestle/schemas/oscal/cd/kyverno",
             "value": "allowed-base-images",
             "remarks": "rule_set_1"
           },
           {
             "name": "Check_Description",
-            "ns": "http://oscal-compass.github.io/compliance-trestle/schemas/oscal/cd/kyverno",
+            "ns": "https://oscal-compass.github.io/compliance-trestle/schemas/oscal/cd/kyverno",
             "value": "allowed-base-images",
             "remarks": "rule_set_1"
           }
-        ],
-        "control-implementations": []
+        ]
       }
     ]
   }

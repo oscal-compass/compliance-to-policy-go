@@ -17,12 +17,20 @@ import (
 	"github.com/oscal-compass/compliance-to-policy-go/v2/policy"
 )
 
+// ServeConfig defines the configuration for plugin
+// registration.
+type ServeConfig struct {
+	PluginSet map[string]plugin.Plugin
+	Logger    hclog.Logger
+}
+
 // Register a set of implemented plugins.
 // This function should be called last during plugin initialization in the main function.
-func Register(plugins map[string]plugin.Plugin) {
+func Register(config ServeConfig) {
 	plugin.Serve(&plugin.ServeConfig{
 		HandshakeConfig: Handshake,
-		Plugins:         plugins,
+		Plugins:         config.PluginSet,
+		Logger:          config.Logger,
 		GRPCServer:      plugin.DefaultGRPCServer,
 	})
 }
@@ -48,7 +56,7 @@ func ClientFactory(logger hclog.Logger) ClientFactoryFunc {
 		}
 		config := &plugin.ClientConfig{
 			HandshakeConfig: Handshake,
-			Logger:          logger,
+			Logger:          logger.Named(manifest.ID),
 			// Enabling this will ensure that client.Kill() is run when this is cleaned up.
 			Managed:          true,
 			AutoMTLS:         true,
