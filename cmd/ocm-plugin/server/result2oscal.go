@@ -18,6 +18,7 @@ package server
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/defenseunicorns/go-oscal/src/pkg/uuid"
@@ -178,7 +179,7 @@ func (r *ResultToOscal) GenerateResults() (provider.PVPResult, error) {
 							Title:       "Cluster Name: " + clusterName,
 							ResourceID:  inventoryUuid,
 							Result:      mapToPolicyResult(reason.ComplianceState),
-							Reason:      message,
+							Reason:      strings.ReplaceAll(message, "\n", "\\n"),
 							EvaluatedOn: time.Now(),
 						}
 						subjects = append(subjects, subject)
