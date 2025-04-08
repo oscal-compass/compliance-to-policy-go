@@ -6,8 +6,8 @@ plugins:
     policy-results-dir: ./pkg/testdata/ocm/policy-results
     output-dir: /tmp/outputs
     temp-dir: /tmp/ocm
-    policy-set-name: "kubernetes"
-    namespace: "test"
+    policy-set-name: "Managed Kubernetes"
+    namespace: "c2p"
   kyverno:
     policy-dir: ./pkg/testdata/kyverno/policy-resources
     policy-results-dir: ./pkg/testdata/kyverno/policy-reports

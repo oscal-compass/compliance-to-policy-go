@@ -51,7 +51,7 @@ Use "c2pcli [command] --help" for more information about a command.
 
    ```bash
    cat docs/c2p-config.yaml
-   mkdir /tmp/ouputs /tmp/kyverno /tmp/ocm
+   mkdir /tmp/outputs /tmp/kyverno /tmp/ocm
    ```
    Note: When reviewing the OSCAL Component Definition file, note the two `validation` components and their titles. This is how the C2P plugin manager selects the plugins.
    

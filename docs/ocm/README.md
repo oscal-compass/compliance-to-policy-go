@@ -149,7 +149,7 @@ EOF
     ```
 5. Run result2oscal to generate OSCAL Assessment Results from the OCM Policy Results
     ```
-    c2pcli result2oscal -c ./docs/ocm/plugin-example.yaml --results /tmp/results -o /tmp/assessment-results.json
+    c2pcli result2oscal -c ./docs/ocm/c2p-config.yaml -n nist_800_53 -o /tmp/assessment-results.json
     ```
 6. Prettify OSCAL Assessment Results in .md format
    ```bash

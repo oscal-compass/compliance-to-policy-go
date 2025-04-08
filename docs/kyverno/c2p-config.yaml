@@ -4,3 +4,4 @@ plugins:
     policy-dir: ./pkg/testdata/kyverno/policy-resources
     policy-results-dir: ./pkg/testdata/kyverno/policy-reports
     temp-dir: /tmp/kyverno
+    output-dir: /tmp/kyverno-policies

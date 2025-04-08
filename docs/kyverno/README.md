@@ -90,9 +90,11 @@ $ tree /tmp/kyverno-policies
 
 #### Convert Policy Report to OSCAL Assessment Results
 ```
-$ c2pcli result2oscal -c docs/kyverno/c2p-config.yaml -n nist_800_53 -o /tmp/assessment-results
+$ c2pcli result2oscal -c docs/kyverno/c2p-config.yaml -n nist_800_53 -o /tmp/assessment-results.json
 
-$ tree /tmp/assessment-results 
-/tmp/assessment-results
-└── assessment-results.json
+$ cat /tmp/assessment-results.json
+{
+        "assessment-results": {
+                "import-ap": {
+...
 ```
