@@ -1,6 +1,6 @@
 ## C2P Quick Start
 
-Below is an C2P workspace setup and end-to-end workflow with multiple C2P Plugin.
+Below is a C2P workspace setup and end-to-end workflow with multiple C2P Plugins.
 
 ### Usage of C2P CLI
 ```
@@ -23,7 +23,7 @@ Flags:
 Use "c2pcli [command] --help" for more information about a command.
 ```
 
-### Example workflows with multiple PVP
+### Example workflows with multiple PVPs
 
 > Note: For specific usage of `ocm` or `kyverno`, see their respective directories under `docs`.
 
