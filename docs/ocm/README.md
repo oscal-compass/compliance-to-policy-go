@@ -2,21 +2,24 @@
 
 ### Usage of C2P CLI
 ```
-$ c2pcli ocm -h
-C2P CLI OCM plugin
+C2P CLI
 
 Usage:
-  c2pcli ocm [command]
+  c2pcli [command]
 
 Available Commands:
-  oscal2policy Compose deliverable OCM Policies from OSCAL
-  result2oscal Generate OSCAL Assessment Results from OCM Policy statuses
-  tools        Tools
+  completion    Generate the autocompletion script for the specified shell
+  help          Help about any command
+  oscal2policy  Transform OSCAL to policy artifacts.
+  oscal2posture Generate Compliance Posture from OSCAL artifacts.
+  result2oscal  Transform policy result artifacts to OSCAL Assessment Results.
+  version       Display version
 
 Flags:
-  -h, --help   help for ocm
+      --debug   Run with debug log level
+  -h, --help    help for c2pcli
 
-Use "c2pcli ocm [command] --help" for more information about a command.
+Use "c2pcli [command] --help" for more information about a command.
 ```
 
 ### Prerequisites
@@ -30,20 +33,19 @@ Use "c2pcli ocm [command] --help" for more information about a command.
 #### Outline
 1. Create OSCAL Component Definition
     - Use example one. In real cases, a user writes OSCAL by Authoring tool like [Trestle](https://github.com/oscal-compass/compliance-trestle))
-1. Run oscal2policy to generate OCM Policies from OSCAL
-1. Deploy generated OCM Policies to OCM Hub
-1. Get OCM Policies from OCM Hub
-1. Run result2oscal to generate OSCAL Assessment Results from the OCM Policy Results
-1. Prettify OSCAL Assessment Results
-    - Use C2P tools. In real cases, it's responsible of GRC tools.
+2. Run oscal2policy to generate OCM Policies from OSCAL
+3. Deploy generated OCM Policies to OCM Hub
+4. Get OCM Policies from OCM Hub
+5. Run result2oscal to generate OSCAL Assessment Results from the OCM Policy Results
+6. Prettify OSCAL Assessment Results (See [tools](../tools))
 
 ![manual-end-to-end-use-case.png](/docs/ocm/images/manual-end-to-end-use-case.png)
 
 #### Steps
 1. Prerequisites
     1. OCM is configured to manage two k8s clusters (cluster1 and cluster2) and installed Policy Governance Framework.
-    1. Namespace `c2p` is created in OCM Hub
-    1. The managed clusters are labeled `my-cluster=true` and bound to `c2p` namespace
+    2. Namespace `c2p` is created in OCM Hub
+    3. The managed clusters are labeled `my-cluster=true` and bound to `c2p` namespace
         ```
         $ clusteradm get clustersets
 
@@ -61,16 +63,67 @@ Use "c2pcli ocm [command] --help" for more information about a command.
             └── <Status> 2 ManagedClusters selected
             └── <Clusters> [cluster1 cluster2]
         ```
+2. Create the OCM manifest and place your plugin in the plugin directory
+```bash
+cp ../../bin/ocm-plugin ../../c2p-plugins
+checksum=$(sha256sum ../../c2p-plugins/ocm-plugin | cut -d ' ' -f 1 )
+cat > ../../c2p-plugins/c2p-ocm-manifest.json << EOF
+{
+ "metadata": {
+   "id": "ocm",
+   "description": "OCM PVP Plugin",
+   "version": "0.0.1",
+   "types": [
+     "pvp"
+   ]
+ },
+ "executablePath": "ocm-plugin",
+ "sha256": "$checksum",
+ "configuration": [
+   {
+     "name": "policy-dir",
+     "description": "A directory where ocm policies are located.",
+     "required": true
+   },
+   {
+     "name": "policy-results-dir",
+     "description": "A directory where policy results are located",
+     "required": true
+   },
+   {
+     "name": "temp-dir",
+     "description": "A temporary directory for policies",
+     "required": true
+   },
+   {
+     "name": "output-dir",
+     "description": "The output directory for policies",
+     "required": false,
+     "default": "."
+   },
+   {
+      "name": "policy-set-name",
+      "required": true
+   },
+   {
+      "name": "namespace",
+      "required": true
+   }
+ ]
+}
+EOF
+```
+
 1. Run oscal2policy to generate OCM Policies from OSCAL
     ```
-    c2pcli ocm oscal2policy -c ./docs/ocm/c2p-config.yaml -o /tmp/ocm-policies
+    c2pcli oscal2policy -c ./docs/ocm/c2p-config.yaml -n nist_800_53
     ```
     - The generated ocm-policies directory looks like [./final-outputs/ocm-policies](final-outputs/ocm-policies)
-1. Deploy the generated OCM Policies to OCM Hub
+2. Deploy the generated OCM Policies to OCM Hub
     ```
     kubectl create -f /tmp/ocm-policies
     ```
-1. Wait for policies to be delivered
+3. Wait for policies to be delivered
     ```
     $ kubectl get policy -A
     NAMESPACE   NAME                                        REMEDIATION ACTION   COMPLIANCE STATE   AGE
@@ -87,22 +140,22 @@ Use "c2pcli ocm [command] --help" for more information about a command.
     cluster2    c2p.policy-install-kyverno-from-manifests   enforce              Compliant          2m14s
     cluster2    c2p.policy-kyverno-require-labels                                NonCompliant       2m11s
     ```
-1. Get OCM Policy Results (Policy, PolicySet, PlacementDecision) from OCM Hub
+4. Get OCM Policy Results (Policy, PolicySet, PlacementDecision) from OCM Hub
     ```
     mkdir -p /tmp/results
     kubectl get policies.policy.open-cluster-management.io -A -o yaml > /tmp/results/policies.policy.open-cluster-management.io.yaml
     kubectl get policysets.policy.open-cluster-management.io -A -o yaml > /tmp/results/policysets.policy.open-cluster-management.io.yaml
     kubectl get placementdecisions.cluster.open-cluster-management.io -A -o yaml > /tmp/results/placementdecisions.cluster.open-cluster-management.io.yaml
     ```
-1. Run result2oscal to generate OSCAL Assessment Results from the OCM Policy Results
+5. Run result2oscal to generate OSCAL Assessment Results from the OCM Policy Results
     ```
-    c2pcli ocm result2oscal -c ./docs/ocm/c2p-config.yaml --results /tmp/results -o /tmp/assessment-results.json
+    c2pcli result2oscal -c ./docs/ocm/c2p-config.yaml -n nist_800_53 -o /tmp/assessment-results.json
     ```
-1. Prettify OSCAL Assessment Results in .md format
-    ```
-    c2pcli ocm tools oscal2posture -c ./docs/ocm/c2p-config.yaml --assessment-results /tmp/assessment-results.json -o /tmp/compliance-posture.md
-    ```
-    - You can view the compliance posture like [./final-outputs/compliance-posture.md](final-outputs/compliance-posture.md)
+6. Prettify OSCAL Assessment Results in .md format
+   ```bash
+   c2pcli oscal2posture -c ./docs/ocm/c2p-config.yaml --assessment-results /tmp/assessment-results.json -o /tmp/compliance-posture.md
+   ```
+You can view an example compliance posture like [compliance-posture.md](../ocm/final-outputs/compliance-posture.md)
 
 ### GitOps automation use case
 
@@ -116,37 +169,37 @@ Setup Github Repos
 
 1. Create two repositories (one is configuration repository that's used for pipeline from OSCAL to Policy and another is evidence repository that's used for pipeline from OCM statuses to Compliance result)
     - For example, c2p-for-ocm-pipeline01-config and c2p-for-ocm-pipeline01-evidence
-1. Create Github Personal Access Token having following permissions
+2. Create Github Personal Access Token having following permissions
     - Repository permission of `Contents`, `Pull Requests`, and `Workflows` with read-and-write against both the configuration repository and the evidence repository.
-1. Fork C2P repository (yana1205/compliance-to-policy.git) and checkout `template`
-1. Set required parameters for github action to initialize your configuration and evidence repo
+3. Fork C2P repository (yana1205/compliance-to-policy.git) and checkout `template`
+4. Set required parameters for github action to initialize your configuration and evidence repo
     1. Go to Settings tab
-    1. Go to `Actions` under `Secrets and variables`
-    1. Create `New repository secret`
+    2. Go to `Actions` under `Secrets and variables`
+    3. Create `New repository secret`
         - Name: PAT
         - Secret: Created Github Personal Access Token  
-    1. Go to `Variables` tab to create `New repository variable`
-    1. Create `CONFIGURATION_REPOSITORY` variable
+    4. Go to `Variables` tab to create `New repository variable`
+    5. Create `CONFIGURATION_REPOSITORY` variable
         - Name: CONFIGURATION_REPOSITORY
         - Value: `<configuration repository org>/<configuration repository name> (e.g. yana1205/c2p-for-ocm-pipeline01-config)`
-    1. Create `EVIDENCE_REPOSITORY` variable
+    6. Create `EVIDENCE_REPOSITORY` variable
         - Name: EVIDENCE_REPOSITORY
         - Value: `<evidence repository org>/<evidence repository name> (e.g. yana1205/c2p-for-ocm-pipeline01-evidence)`
-1. Run Action `Initialize repositories` with branch `template`
-1. Go to the configuration repository and create `New repository secret`
+5. Run Action `Initialize repositories` with branch `template`
+6. Go to the configuration repository and create `New repository secret`
     - Name: PAT
     - Secret: Created Github Personal Access Token
-1. Go to the evidence repository and create `New repository secret`
+7. Go to the evidence repository and create `New repository secret`
     - Name: PAT
     - Secret: Created Github Personal Access Token
 
 Run oscal-to-pocliy
 
 1. Go to the configuration repository
-1. Go to `Actions` tab
-1. Run `OSCAL to Policy`
+2. Go to `Actions` tab
+3. Run `OSCAL to Policy`
     1. This action generates manifests from OSCAL and then generate a PR of changes for a directory `ocm-policy-manifests` containing the generated manifests.
-1. Merge the PR
+4. Merge the PR
 
 Integrate with GitOps
 
@@ -158,7 +211,7 @@ Deploy collector to your OCM Hub
     ```
     kubectl apply -f https://raw.githubusercontent.com/yana1205/compliance-to-policy/redesign.0622/scripts/collect/rbac.yaml
     ```
-1. Create Secret for Github access
+2. Create Secret for Github access
     ```
     kubectl -n c2p create secret generic --save-config collect-ocm-status-secret --from-literal=user=<github user> --from-literal=token=<github PAT> --from-literal=org=<evidence org name> --from-literal=repo=<evidence repo name>
     ```
@@ -166,7 +219,7 @@ Deploy collector to your OCM Hub
     ```
     kubectl -n c2p create secret generic --save-config collect-ocm-status-secret --from-literal=user=yana1205 --from-literal=token=github_pat_xxx --from-literal=org=yana1205 --from-literal=repo=c2p-for-ocm-pipeline01-evidence
     ```
-1. Deploy collector cronjob
+3. Deploy collector cronjob
     ```
     kubectl apply -f https://raw.githubusercontent.com/IBM/compliance-to-policy/main/scripts/collect/cronjob.yaml
     ```
@@ -187,11 +240,11 @@ Decompose OCM poicy collection to kubernetes resources composing each OCM policy
     ```
     git clone --depth 1 https://github.com/open-cluster-management-io/policy-collection.git /tmp/policy-collection
     ```
-1. Run C2P Decomposer
+2. Run C2P Decomposer
     ```
     go run ./cmd/decompose/decompose.go --policy-collection-dir=/tmp/policy-collection --out=/tmp/c2p-output
     ```
-1. Decomposed policy resources are ouput in `/tmp/c2p-output/decomposed/resources`
+3. Decomposed policy resources are ouput in `/tmp/c2p-output/decomposed/resources`
     ```
     $ tree -L 1 /tmp/c2p-output/decomposed
     /tmp/c2p-output/decomposed
@@ -219,7 +272,7 @@ Compose OCM Policy from policy resources from compliance information (for exampl
     ```
     go run cmd/compose-by-c2pcr/main.go --c2pcr ./cmd/compose-by-c2pcr/c2pcr.yaml --out /tmp/c2p-output
     ```
-1. Composed OCM policies are output in `/tmp/c2p-output`
+2. Composed OCM policies are output in `/tmp/c2p-output`
     ```
     $ tree /tmp/c2p-output                                                                             
     /tmp/c2p-output
@@ -247,28 +300,28 @@ Compose OCM Policy from policy resources from compliance information (for exampl
     ```
     make docker-build docker-push IMG=<controller image>
     ```
-1. Create KinD cluster
+2. Create KinD cluster
     ```
     kind create cluster
     ```
-1. Install (if you use OCM, install-ocm-related-crds may fail since the required CRDs are already there.)
+3. Install (if you use OCM, install-ocm-related-crds may fail since the required CRDs are already there.)
     ```
     make install
     make install-ocm-related-crds
     ```
-1. Deploy
+4. Deploy
     ```
     make deploy IMG=<controller image>
     ```
-1. Create CR
+5. Create CR
     ```
     kubectl apply -f ./config/samples/compliance-to-policy_v1alpha1_compliancedeployment.yaml -n compliance-to-policy-system 
     ```
-1. Check if Policy, PlacmenetBinding/Rule are created
+6. Check if Policy, PlacmenetBinding/Rule are created
     ```
     kubectl get policies,placementbindings,placementrules -n compliance-high
     ```
-1. Cleanup
+7. Cleanup
     ```
     make undeploy
     make uninstall

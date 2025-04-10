@@ -22,10 +22,11 @@ import (
 	"net/url"
 	"os"
 
+	"gopkg.in/yaml.v3"
+
 	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/tables/resources"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/policycomposition"
-	"gopkg.in/yaml.v3"
 )
 
 func main() {

@@ -90,6 +90,14 @@ func LoadYaml(path string) ([]*unstructured.Unstructured, error) {
 	return objects, nil
 }
 
+// NilIfEmpty returns nil if the slice is empty, otherwise returns the original slice.
+func NilIfEmpty[T any](slice *[]T) *[]T {
+	if slice == nil || len(*slice) == 0 {
+		return nil
+	}
+	return slice
+}
+
 func CopyFile(src string, dest string) error {
 	input, err := os.ReadFile(src)
 	if err != nil {

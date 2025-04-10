@@ -6,21 +6,24 @@ https://github.com/oscal-compass/compliance-to-policy/assets/113283236/4b0b5357-
 
 ### Usage of C2P CLI
 ```
-$ c2pcli ocm -h
-C2P CLI Kyverno plugin
+C2P CLI
 
 Usage:
-  c2pcli kyverno [command]
+  c2pcli [command]
 
 Available Commands:
-  oscal2policy Compose deliverable Kyverno policies from OSCAL
-  result2oscal Generate OSCAL Assessment Results from Kyverno policies and the policy reports
-  tools        Tools
+  completion    Generate the autocompletion script for the specified shell
+  help          Help about any command
+  oscal2policy  Transform OSCAL to policy artifacts.
+  oscal2posture Generate Compliance Posture from OSCAL artifacts.
+  result2oscal  Transform policy result artifacts to OSCAL Assessment Results.
+  version       Display version
 
 Flags:
-  -h, --help   help for kyverno
+      --debug   Run with debug log level
+  -h, --help    help for c2pcli
 
-Use "c2pcli kyverno [command] --help" for more information about a command.
+Use "c2pcli [command] --help" for more information about a command.
 ```
 
 ### Prerequisites
@@ -29,9 +32,53 @@ Use "c2pcli kyverno [command] --help" for more information about a command.
     - You can use [policy-resources for test](/pkgstdata/kyverno/policy-resources)
     - For bring your own policies, please see [Bring your own Kyverno Policy Resources](#bring-your-own-kyverno-policy-resources)
 
+2. Create the Kyverno manifest and place your plugin in the plugin directory
+```bash
+cp ../../bin/kyverno-plugin ../../c2p-plugins
+checksum=$(sha256sum ../../c2p-plugins/kyverno-plugin | cut -d ' ' -f 1 )
+cat > ../../c2p-plugins/c2p-kyverno-manifest.json << EOF
+{
+  "metadata": {
+    "id": "kyverno",
+    "description": "Kyverno PVP Plugin",
+    "version": "0.0.1",
+    "types": [
+      "pvp"
+    ]
+  },
+  "executablePath": "kyverno-plugin",
+  "sha256": "$checksum",
+  "configuration": [
+    {
+      "name": "policy-dir",
+      "description": "A directory where kyverno policies are located.",
+      "required": true
+    },
+    {
+      "name": "policy-results-dir",
+      "description": "A directory where policy results are located",
+      "required": true
+    },
+    {
+      "name": "temp-dir",
+      "description": "A temporary directory for policies",
+      "required": true
+    },
+    {
+      "name": "output-dir",
+      "description": "The output directory for policies",
+      "required": false,
+      "default": "."
+    }
+  ]
+}
+EOF
+```
+
+
 #### Convert OSCAL to Kyverno Policy
 ```
-$ c2pcli kyverno oscal2policy -c ./pkg/testdata/kyverno/c2p-config.yaml -o /tmp/kyverno-policies
+$ c2pcli oscal2policy -c docs/kyverno/c2p-config.yaml -n nist_800_53
 2023-10-31T07:23:56.291+0900    INFO    kyverno/c2pcr   kyverno/configparser.go:53      Component-definition is loaded from ./pkg/testdata/kyverno/component-definition.json
 
 $ tree /tmp/kyverno-policies 
@@ -43,70 +90,11 @@ $ tree /tmp/kyverno-policies
 
 #### Convert Policy Report to OSCAL Assessment Results
 ```
-$ c2pcli kyverno result2oscal -c ./pkg/testdata/kyverno/c2p-config.yaml --results ./pkg/testdata/kyverno/policy-reports -o /tmp/assessment-results
+$ c2pcli result2oscal -c docs/kyverno/c2p-config.yaml -n nist_800_53 -o /tmp/assessment-results.json
 
-$ tree /tmp/assessment-results 
-/tmp/assessment-results
-└── assessment-results.json
+$ cat /tmp/assessment-results.json
+{
+        "assessment-results": {
+                "import-ap": {
+...
 ```
-
-#### Reformat in human-friendly format (markdown file)
-```
-$ c2pcli kyverno tools oscal2posture -c ./pkg/testdata/kyverno/c2p-config.yaml --assessment-results /tmp/assessment-results/assessment-results.json -o /tmp/compliance-report.md
-```
-
-```
-$ head -n 15 /tmp/compliance-report.md
-## Catalog
-
-## Component: Kubernetes
-#### Result of control: cm-8.3_smt.a
-
-Rule ID: allowed-base-images
-<details><summary>Details</summary>
-
-  - Subject UUID: 0b1adf1c-f6e2-46af-889e-39255e669655
-    - Title: ApiVersion: v1, Kind: Pod, Namespace: argocd, Name: argocd-application-controller-0
-    - Result: fail
-    - Reason:
-      ```
-      validation failure: This container image&#39;s base is not in the approved list or is not specified. Only pre-approved base images may be used. Please contact the platform team for assistance.
-      ```
-```
-
-### Bring your own Kyverno Policy Resources
-- You can download Kyverno Policies (https://github.com/kyverno/policies) as Policy Resources and modify them
-    1. Run `kyverno tools load-policy-resources` command
-        ```
-        $ c2pcli kyverno tools load-policy-resources --src https://github.com/kyverno/policies --dest /tmp/policies
-        ```
-        ```
-        $ tree /tmp/policies
-        /tmp/policies
-        ├── add-apparmor-annotations
-        │   └── add-apparmor-annotations.yaml
-        ├── add-capabilities
-        │   └── add-capabilities.yaml
-        ├── add-castai-removal-disabled
-        │   └── add-castai-removal-disabled.yaml
-        ├── add-certificates-volume
-        │   └── add-certificates-volume.yaml
-        ├── add-default-resources
-        ...
-        ```
-    - You can check result.json about what resources are downloaded.
-        ```
-        $ cat /tmp/policies/result.json
-
-        ```
-    - There are some policies that depend on context. Please add the context resources manually. result.json contains list of the policies that have context field
-        ```
-        $ jq -r .summary.resourcesHavingContext /tmp/policies/result.json
-        [
-            "allowed-podpriorities",
-            "allowed-base-images",
-            "advanced-restrict-image-registries",
-            ...
-            "require-linkerd-server"
-        ]
-        ```
