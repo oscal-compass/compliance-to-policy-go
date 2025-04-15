@@ -56,7 +56,7 @@ func ClientFactory(logger hclog.Logger) ClientFactoryFunc {
 		}
 		config := &plugin.ClientConfig{
 			HandshakeConfig: Handshake,
-			Logger:          logger.Named(manifest.ID),
+			Logger:          logger.Named(manifest.ID.String()),
 			// Enabling this will ensure that client.Kill() is run when this is cleaned up.
 			Managed:          true,
 			AutoMTLS:         true,

@@ -20,7 +20,7 @@ const (
 )
 
 type findOptions struct {
-	providerIds []string
+	providerIds []ID
 	pluginType  string
 }
 
@@ -28,7 +28,7 @@ type findOptions struct {
 type FindOption func(options *findOptions)
 
 // WithProviderIds filters plugins by their provider IDs.
-func WithProviderIds(providerIds []string) FindOption {
+func WithProviderIds(providerIds []ID) FindOption {
 	return func(options *findOptions) {
 		options.providerIds = providerIds
 	}
@@ -51,7 +51,7 @@ func WithPluginType(pluginType string) FindOption {
 //   - `WithPluginType`: Filters by plugin type.
 //
 // If no filters are applied, all discovered plugins are returned.
-func FindPlugins(pluginDir string, pluginManifestDir string, opts ...FindOption) (Manifests, error) {
+func FindPlugins(pluginDir, pluginManifestDir string, opts ...FindOption) (Manifests, error) {
 	config := &findOptions{}
 	for _, opt := range opts {
 		opt(config)
@@ -71,10 +71,10 @@ func FindPlugins(pluginDir string, pluginManifestDir string, opts ...FindOption)
 
 	// Filter plugins by provider IDs if provided
 	if len(config.providerIds) != 0 {
-		filteredIds := make(map[string]string)
+		filteredIds := make(map[ID]string)
 		for _, providerId := range config.providerIds {
 			if _, ok := matchingPlugins[providerId]; !ok {
-				errs = append(errs, &NotFoundError{providerId})
+				errs = append(errs, &NotFoundError{providerId.String()})
 			}
 			filteredIds[providerId] = matchingPlugins[providerId]
 		}
@@ -97,7 +97,7 @@ func FindPlugins(pluginDir string, pluginManifestDir string, opts ...FindOption)
 
 		// Ensure consistent naming for the plugin identifier and
 		// that the name meets identifier criteria.
-		if !manifest.ValidateID() || manifest.ID != id {
+		if !manifest.ID.Validate() || manifest.ID != id {
 			errs = append(errs, fmt.Errorf("invalid plugin id %q in manifest %s", manifest.ID, manifestName))
 			continue
 		}
@@ -127,13 +127,13 @@ func FindPlugins(pluginDir string, pluginManifestDir string, opts ...FindOption)
 
 // findAllPluginsMatches locates the manifests in the plugin manifest directory that match
 // the prefix naming scheme and returns the plugin ID and file name.
-func findAllPluginMatches(pluginManifestDir string) (map[string]string, error) {
+func findAllPluginMatches(pluginManifestDir string) (map[ID]string, error) {
 	items, err := os.ReadDir(pluginManifestDir)
 	if err != nil {
 		return nil, err
 	}
 
-	matchingPlugins := make(map[string]string)
+	matchingPlugins := make(map[ID]string)
 	for _, item := range items {
 		name := item.Name()
 		if !strings.HasPrefix(name, manifestPrefix) {
@@ -141,7 +141,8 @@ func findAllPluginMatches(pluginManifestDir string) (map[string]string, error) {
 		}
 		trimmedName := strings.TrimPrefix(name, manifestPrefix)
 		trimmedName = strings.TrimSuffix(trimmedName, manifestSuffix)
-		matchingPlugins[trimmedName] = name
+		id := ID(trimmedName)
+		matchingPlugins[id] = name
 	}
 	return matchingPlugins, nil
 }
@@ -158,11 +159,11 @@ func manifestMatchesType(manifest Manifest, pluginType string) bool {
 }
 
 // readManifestFile reads and parses the manifest from JSON.
-func readManifestFile(pluginName, manifestPath string) (Manifest, error) {
+func readManifestFile(pluginName ID, manifestPath string) (Manifest, error) {
 	manifestFile, err := os.Open(manifestPath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return Manifest{}, &ManifestNotFoundError{File: manifestPath, PluginID: pluginName}
+			return Manifest{}, &ManifestNotFoundError{File: manifestPath, PluginID: pluginName.String()}
 		}
 		return Manifest{}, err
 	}

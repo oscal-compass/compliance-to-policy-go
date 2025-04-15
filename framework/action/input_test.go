@@ -3,7 +3,7 @@
  SPDX-License-Identifier: Apache-2.0
 */
 
-package config
+package action
 
 import (
 	"os"
@@ -11,17 +11,19 @@ import (
 
 	oscalTypes "github.com/defenseunicorns/go-oscal/src/types/oscal-1-1-3"
 	"github.com/oscal-compass/oscal-sdk-go/models"
+	"github.com/oscal-compass/oscal-sdk-go/models/components"
 	"github.com/oscal-compass/oscal-sdk-go/validation"
 	"github.com/stretchr/testify/require"
 
 	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/plugin"
 )
 
 func TestGetPluginIDFromComponent(t *testing.T) {
 	tests := []struct {
 		name      string
 		component oscalTypes.DefinedComponent
-		expected  string
+		expected  plugin.ID
 		wantError string
 	}{
 		{
@@ -68,7 +70,8 @@ func TestGetPluginIDFromComponent(t *testing.T) {
 
 	for _, c := range tests {
 		t.Run(c.name, func(t *testing.T) {
-			id, err := GetPluginIDFromComponent(c.component)
+			compAdapter := components.NewDefinedComponentAdapter(c.component)
+			id, err := GetPluginIDFromComponent(compAdapter)
 			if c.wantError == "" {
 				require.NoError(t, err)
 				require.Equal(t, c.expected, id)
@@ -79,24 +82,21 @@ func TestGetPluginIDFromComponent(t *testing.T) {
 	}
 }
 
-func TestResolveOptions(t *testing.T) {
+// inputContextHelper to support other testing in the package
+func inputContextHelper(t *testing.T) *InputContext {
 	testDataPath := pkg.PathFromPkgDirectory("./testdata/oscal/component-definition-test.json")
-	testFile, err := os.Open(testDataPath)
+	file, err := os.Open(testDataPath)
 	require.NoError(t, err)
-	compDef, err := models.NewComponentDefinition(testFile, validation.NoopValidator{})
-	require.NoError(t, err)
-	config := &C2PConfig{
-		ComponentDefinitions: []oscalTypes.ComponentDefinition{
-			*compDef,
-		},
-	}
-
-	components, pluginMap, err := resolveOptions(config)
+	definition, err := models.NewComponentDefinition(file, validation.NoopValidator{})
 	require.NoError(t, err)
 
-	expectedPluginMap := map[string]string{
-		"mypvpvalidator": "MyPVPValidator",
+	var allComponents []components.Component
+	for _, component := range *definition.Components {
+		compAdapter := components.NewDefinedComponentAdapter(component)
+		allComponents = append(allComponents, compAdapter)
 	}
-	require.Len(t, components, 2)
-	require.Equal(t, expectedPluginMap, pluginMap)
+
+	inputContext, err := NewContext(allComponents)
+	require.NoError(t, err)
+	return inputContext
 }

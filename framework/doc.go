@@ -3,5 +3,5 @@
  SPDX-License-Identifier: Apache-2.0
 */
 
-// Package framework contains the high-level plugin workflow logic.
+// Package framework contains the high-level plugin workflow logic and configuration.
 package framework

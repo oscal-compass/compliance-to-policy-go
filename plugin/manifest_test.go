@@ -15,17 +15,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestMetadata_ValidateID(t *testing.T) {
-	passingMetadata := Metadata{
-		ID: "test-plugin",
-	}
-	require.True(t, passingMetadata.ValidateID())
-	failingMetadata := Metadata{
-		ID: "TEST-PLUGIN",
-	}
-	require.False(t, failingMetadata.ValidateID())
-}
-
 func TestManifest_ResolvePath(t *testing.T) {
 	tmpDir := t.TempDir()
 	copyPlugin(t, tmpDir, "testdata/plugins/testplugin")

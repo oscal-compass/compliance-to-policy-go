@@ -23,7 +23,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/oscal-compass/compliance-to-policy-go/v2/framework"
-	"github.com/oscal-compass/compliance-to-policy-go/v2/framework/config"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/framework/action"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/plugin"
 )
 
 func NewOSCAL2Policy(logger hclog.Logger) *cobra.Command {
@@ -65,22 +66,28 @@ func runOSCAL2Policy(ctx context.Context, option *Options) error {
 		return err
 	}
 
-	settings, err := Settings(frameworkConfig, option)
+	settings, err := Settings(option)
 	if err != nil {
 		return err
 	}
+
+	inputContext, err := Context(option)
+	if err != nil {
+		return err
+	}
+	inputContext.Settings = settings.AllSettings()
 
 	manager, err := framework.NewPluginManager(frameworkConfig)
 	if err != nil {
 		return err
 	}
-	foundPlugins, err := manager.FindRequestedPlugins()
+	foundPlugins, err := manager.FindRequestedPlugins(inputContext.RequestedProviders(), plugin.PVPPluginName)
 	if err != nil {
 		return err
 	}
 
-	var configSelections config.PluginConfig = func(pluginID string) map[string]string {
-		return option.Plugins[pluginID]
+	var configSelections framework.PluginConfig = func(pluginID plugin.ID) map[string]string {
+		return option.Plugins[pluginID.String()]
 	}
 	launchedPlugins, err := manager.LaunchPolicyPlugins(foundPlugins, configSelections)
 	if err != nil {
@@ -88,7 +95,7 @@ func runOSCAL2Policy(ctx context.Context, option *Options) error {
 	}
 	defer manager.Clean()
 
-	err = manager.GeneratePolicy(ctx, launchedPlugins, settings.AllSettings())
+	err = action.GeneratePolicy(ctx, launchedPlugins, inputContext)
 	if err != nil {
 		return err
 	}

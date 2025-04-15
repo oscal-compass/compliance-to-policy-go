@@ -3,7 +3,7 @@
  SPDX-License-Identifier: Apache-2.0
 */
 
-package framework
+package action
 
 import (
 	"context"
@@ -19,7 +19,6 @@ import (
 	"github.com/oscal-compass/oscal-sdk-go/rules"
 	"github.com/oscal-compass/oscal-sdk-go/settings"
 
-	"github.com/oscal-compass/compliance-to-policy-go/v2/framework/config"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/policy"
 )
@@ -29,19 +28,10 @@ type Reporter struct {
 	rulesStore rules.Store
 }
 
-func NewReporter(cfg *config.C2PConfig) (*Reporter, error) {
-	if err := cfg.Validate(); err != nil {
-		return nil, err
-	}
-
-	rulesStore, _, err := config.ResolveOptions(cfg)
-	if err != nil {
-		return nil, err
-	}
-
+func NewReporter(logger hclog.Logger, inputContext *InputContext) (*Reporter, error) {
 	return &Reporter{
-		log:        cfg.Logger.Named("reporter"),
-		rulesStore: rulesStore,
+		log:        logger.Named("reporter"),
+		rulesStore: inputContext.Store(),
 	}, nil
 }
 
@@ -272,7 +262,7 @@ func (r *Reporter) GenerateAssessmentResults(ctx context.Context, planHref strin
 	oscalResult := oscalTypes.Result{
 		UUID:             uuid.NewUUID(),
 		Title:            "Automated Assessment Result",
-		Description:      "Assessment Results Automatically Genererated from PVP Results",
+		Description:      "Assessment Results Automatically Generated from PVP Results",
 		Start:            time.Now(),
 		ReviewedControls: reviewedControls,
 		Observations:     &oscalObservations,

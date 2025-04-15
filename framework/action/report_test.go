@@ -3,7 +3,7 @@
  SPDX-License-Identifier: Apache-2.0
 */
 
-package framework
+package action
 
 import (
 	"context"
@@ -12,6 +12,7 @@ import (
 	"time"
 
 	oscalTypes "github.com/defenseunicorns/go-oscal/src/types/oscal-1-1-3"
+	"github.com/hashicorp/go-hclog"
 	"github.com/oscal-compass/oscal-sdk-go/models"
 	"github.com/oscal-compass/oscal-sdk-go/settings"
 	"github.com/oscal-compass/oscal-sdk-go/validation"
@@ -55,13 +56,12 @@ var (
 			},
 		},
 	}
-	testDataPath = pkg.PathFromPkgDirectory("./testdata/oscal/component-definition-test.json")
+	defaultLogger = hclog.NewNullLogger()
 )
 
 func TestReporter_GenereateAssessmentResults(t *testing.T) {
-
-	cfg := prepConfig(t)
-	r, err := NewReporter(cfg)
+	inputContext := inputContextHelper(t)
+	r, err := NewReporter(defaultLogger, inputContext)
 	require.NoError(t, err)
 
 	compDef := readCompDef(t)
@@ -85,8 +85,8 @@ func TestReporter_GenereateAssessmentResults(t *testing.T) {
 }
 
 func TestReporter_FindControls(t *testing.T) {
-	cfg := prepConfig(t)
-	r, err := NewReporter(cfg)
+	inputContext := inputContextHelper(t)
+	r, err := NewReporter(defaultLogger, inputContext)
 	require.NoError(t, err)
 
 	compDef := readCompDef(t)
@@ -99,8 +99,8 @@ func TestReporter_FindControls(t *testing.T) {
 }
 
 func TestReporter_ToOscalObservation(t *testing.T) {
-	cfg := prepConfig(t)
-	r, err := NewReporter(cfg)
+	inputContext := inputContextHelper(t)
+	r, err := NewReporter(defaultLogger, inputContext)
 	require.NoError(t, err)
 
 	observationByCheck := pvpResults[0].ObservationsByCheck[0]
@@ -140,8 +140,8 @@ func TestReporter_ToOscalObservation(t *testing.T) {
 }
 
 func TestReporter_GenerateFindings(t *testing.T) {
-	cfg := prepConfig(t)
-	r, err := NewReporter(cfg)
+	inputContext := inputContextHelper(t)
+	r, err := NewReporter(defaultLogger, inputContext)
 	require.NoError(t, err)
 
 	compDef := readCompDef(t)
@@ -229,6 +229,7 @@ func TestReporter_GenerateFindings(t *testing.T) {
 
 // Load test component definition JSON
 func readCompDef(t *testing.T) oscalTypes.ComponentDefinition {
+	testDataPath := pkg.PathFromPkgDirectory("./testdata/oscal/component-definition-test.json")
 	file, err := os.Open(testDataPath)
 	require.NoError(t, err)
 
@@ -254,5 +255,4 @@ func prepImplementationSettings(t *testing.T, testComp oscalTypes.ComponentDefin
 	require.NoError(t, err)
 
 	return *implementationSettings
-
 }

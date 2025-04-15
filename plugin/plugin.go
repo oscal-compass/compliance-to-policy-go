@@ -7,7 +7,6 @@ package plugin
 
 import (
 	"context"
-	"regexp"
 
 	"github.com/hashicorp/go-plugin"
 	"google.golang.org/grpc"
@@ -23,12 +22,6 @@ const (
 	// and plugins.
 	ProtocolVersion = 1
 )
-
-// IdentifierPattern defines criteria the plugin id must comply with.
-// It includes the following criteria:
-//  1. Consist of lowercase alphanumeric characters
-//  2. May contain underscore (_) or hyphen (-) characters.
-var IdentifierPattern = regexp.MustCompile("^[a-z0-9_-]+$")
 
 // Handshake is a common handshake that is shared by plugin and host.
 var Handshake = plugin.HandshakeConfig{
