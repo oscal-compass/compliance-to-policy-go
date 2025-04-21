@@ -294,35 +294,3 @@ Compose OCM Policy from policy resources from compliance information (for exampl
     ├── policy-generator.yaml
     └── policy-sets.yaml
     ```
-
-## C2P as controller (deprecated)
-1. Build image
-    ```
-    make docker-build docker-push IMG=<controller image>
-    ```
-2. Create KinD cluster
-    ```
-    kind create cluster
-    ```
-3. Install (if you use OCM, install-ocm-related-crds may fail since the required CRDs are already there.)
-    ```
-    make install
-    make install-ocm-related-crds
-    ```
-4. Deploy
-    ```
-    make deploy IMG=<controller image>
-    ```
-5. Create CR
-    ```
-    kubectl apply -f ./config/samples/compliance-to-policy_v1alpha1_compliancedeployment.yaml -n compliance-to-policy-system 
-    ```
-6. Check if Policy, PlacmenetBinding/Rule are created
-    ```
-    kubectl get policies,placementbindings,placementrules -n compliance-high
-    ```
-7. Cleanup
-    ```
-    make undeploy
-    make uninstall
-    ```
