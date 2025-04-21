@@ -13,8 +13,6 @@ Before embarking on a more ambitious contribution, please quickly [get in touch]
 requires extensive rework (by you or by us), sits in backlog for a long time, or
 cannot be accepted at all!**
 
-We have also adopted [Contributor Covenant Code of Conduct](/CODE_OF_CONDUCT.md).
-
 ### Proposing new features
 
 If you would like to implement a new feature, please [raise an issue](https://github.com/oscal-compass/compliance-to-policy/issues)
@@ -69,7 +67,7 @@ Software License 2.0. Using the SPDX format is the simplest approach.
 e.g.
 
 ```text
-# Copyright (c) 2020 IBM Corp. All rights reserved.
+# Copyright (c) 2025 The OSCAL Compass Authors. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -111,76 +109,30 @@ with a signed off commit before being accepted.
 
 ## Setup - Developing `C2P`
 
-### Does `C2P` run correctly on my platform
-
-- Setup a venv for python in .venv directory in the repository root directory.
-- Run `make install-dev`
-  - This will install all python dependencies.
-  - It will also checkout the submodules required for testing.
-- Run `make test`
-  - This *should* run on all platforms.
-
-### Setting up `vscode` for python.
-
-- Use the following commands to setup python:
-
-```bash
-python3 -m venv venv
-. ./venv/bin/activate
-make install-dev
+### Build at local
+```
+make build
+```
+```
+./bin/c2pcli_<version>_<os>_<arch> -h
 ```
 
-- Install vscode plugin [Python extension for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
-
-- Install vscode plugin [Formatter extension for Visual Studio Code using the Black formatter](https://marketplace.visualstudio.com/items?itemName=ms-python.black-formatter)
-
-- Configure vscode setting with the black-formatter enabled. The example setting.json is as follows:
-      ```
-      {
-        "[python]": {
-          "diffEditor.ignoreTrimWhitespace": false,
-          "gitlens.codeLens.symbolScopes": [
-            "!Module"
-          ],
-          "editor.formatOnType": true,
-          "editor.formatOnSave": true,
-          "editor.wordBasedSuggestions": "off",
-          "editor.defaultFormatter": "ms-python.black-formatter",
-          "editor.tabSize": 4,
-        },
-        "isort.args":["--profile", "black"],
-        "black-formatter.args": [
-          "--line-length=120",
-          "--skip-string-normalization"
-        ]
-      }
-      ```
-### Testing python
-
-Tests should be in the test subdirectory. Each file should be named test\_\*.py and each test function should be named test\_\*().
-Tests can be executed by `make test`.
-
-If you want to debug test, here is the example launch.json.
+### Test
 ```
-{
-  "version": "0.2.0",
-  "configurations": [{
-      "name": "Pytest current file",
-      "type": "debugpy",
-      "request": "launch",
-      "module": "pytest",
-      "console": "integratedTerminal",
-      "args": ["${file}"],
-      "justMyCode": false
-   }]
-}
+make test
 ```
+
+### Release
+1. Create a git tag of the following format `<version>` (e.g. `v0.1.2`)
+2. Run release command
+    ```
+    echo $PAT | gh auth login --with-token -h github.com
+    make release 
+    ```
 
 ### Code style and formating
 
-`C2P` uses [Black](https://black.readthedocs.io/en/stable/) for code formatting and [isort](https://pycqa.github.io/isort/) for sorting imports. `make format` runs both tools.
+`C2P` uses `go-fmt` for code formatting and `go vet` for linting. Run `make fmt` and `make vet` to execute these tools.
 
-`C2P` also uses [pre-commit](https://pre-commit.com/) hooks that are integrated into the development process with [detect-secrets](https://github.com/IBM/detect-secrets) to prevent from contaminating any confidential data.  
+`C2P` also uses [pre-commit](https://pre-commit.com/) hooks that are integrated into the development process with [detect-secrets](https://github.com/IBM/detect-secrets) to prevent from contaminating any confidential data.
 
-## For Go project
-Please refer to [go/README.md](/go)
