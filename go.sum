@@ -602,8 +602,8 @@ github.com/opencontainers/image-spec v1.1.0 h1:8SG7/vwALn54lVB/0yZ/MMwhFrPYtpEHQ
 github.com/opencontainers/image-spec v1.1.0/go.mod h1:W4s4sFTMaBeK1BQLXbG4AdM2szdn85PY75RI83NrTrM=
 github.com/opentracing/opentracing-go v1.2.0 h1:uEJPy/1a5RIPAJ0Ov+OIO8OxWu77jEv+1B0VhjKrZUs=
 github.com/opentracing/opentracing-go v1.2.0/go.mod h1:GxEUsuufX4nBwe+T+Wl9TAgYrxe9dPLANfrWvHYVTgc=
-github.com/oscal-compass/oscal-sdk-go v0.0.0-20250313133319-add7970ddf13 h1:Es8SOzynf2rMlccC9xMZ31cZo+hpkoNN2LMHc9LYbnE=
-github.com/oscal-compass/oscal-sdk-go v0.0.0-20250313133319-add7970ddf13/go.mod h1:ms2FUrHqqlVJ6K8RwaJNXfbyfOucOH96lt14HeRq/5w=
+github.com/oscal-compass/oscal-sdk-go v0.0.2 h1:Lemt0o+9MIWhNj5uif8ZzKyVWuUxyMXsMgX9Kmv8zBQ=
+github.com/oscal-compass/oscal-sdk-go v0.0.2/go.mod h1:D75S58qemUznO4weI2F1/RhxDc+VJc9FI3m9wHjHBXU=
 github.com/otiai10/copy v1.9.0 h1:7KFNiCgZ91Ru4qW4CWPf/7jqtxLagGRmIxWldPP9VY4=
 github.com/otiai10/copy v1.9.0/go.mod h1:hsfX19wcn0UWIHUQ3/4fHuehhk2UyArQ9dVFAn3FczI=
 github.com/otiai10/curr v0.0.0-20150429015615-9b4961190c95/go.mod h1:9qAhocn7zKJG+0mI8eUu6xqkFDYS2kb2saOteoSB3cE=

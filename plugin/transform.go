@@ -17,13 +17,14 @@ import (
 func PolicyToProto(p policy.Policy) *proto.PolicyRequest {
 	policyRequest := &proto.PolicyRequest{}
 	for _, rs := range p {
-		var parameter *proto.Parameter
-		if rs.Rule.Parameter != nil {
-			parameter = &proto.Parameter{
-				Name:          rs.Rule.Parameter.ID,
-				Description:   rs.Rule.Parameter.Description,
-				SelectedValue: rs.Rule.Parameter.Value,
+		var parameters []*proto.Parameter
+		for _, prm := range rs.Rule.Parameters {
+			protoPrm := &proto.Parameter{
+				Name:          prm.ID,
+				Description:   prm.Description,
+				SelectedValue: prm.Value,
 			}
+			parameters = append(parameters, protoPrm)
 		}
 
 		var checks []*proto.Check
@@ -38,7 +39,7 @@ func PolicyToProto(p policy.Policy) *proto.PolicyRequest {
 			Name:        rs.Rule.ID,
 			Description: rs.Rule.Description,
 			Checks:      checks,
-			Parameter:   parameter,
+			Parameters:  parameters,
 		}
 		policyRequest.Rule = append(policyRequest.Rule, ruleSet)
 	}
@@ -50,15 +51,15 @@ func NewPolicyFromProto(pb *proto.PolicyRequest) policy.Policy {
 	var p policy.Policy
 
 	for _, r := range pb.Rule {
-		var parameter *extensions.Parameter
-		if r.Parameter != nil {
-			parameter = &extensions.Parameter{
-				ID:          r.Parameter.Name,
-				Description: r.Parameter.Description,
-				Value:       r.Parameter.SelectedValue,
+		var parameters []extensions.Parameter
+		for _, prm := range r.Parameters {
+			parameter := extensions.Parameter{
+				ID:          prm.Name,
+				Description: prm.Description,
+				Value:       prm.SelectedValue,
 			}
+			parameters = append(parameters, parameter)
 		}
-
 		var checks []extensions.Check
 		for _, ch := range r.Checks {
 			check := extensions.Check{
@@ -72,7 +73,7 @@ func NewPolicyFromProto(pb *proto.PolicyRequest) policy.Policy {
 			Rule: extensions.Rule{
 				ID:          r.Name,
 				Description: r.Description,
-				Parameter:   parameter,
+				Parameters:  parameters,
 			},
 			Checks: checks,
 		}

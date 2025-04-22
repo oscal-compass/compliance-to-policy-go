@@ -24,10 +24,12 @@ var testPolicy = policy.Policy{
 		Rule: extensions.Rule{
 			ID:          "test-rule-1",
 			Description: "test rule 1",
-			Parameter: &extensions.Parameter{
-				ID:          "test-param-1",
-				Description: "test param 1",
-				Value:       "test param value",
+			Parameters: []extensions.Parameter{
+				{
+					ID:          "test-param-1",
+					Description: "test param 1",
+					Value:       "test param value",
+				},
 			},
 		},
 		Checks: []extensions.Check{
@@ -50,10 +52,12 @@ var testPolicyRequest = &proto.PolicyRequest{
 					Description: "test check 1",
 				},
 			},
-			Parameter: &proto.Parameter{
-				Name:          "test-param-1",
-				Description:   "test param 1",
-				SelectedValue: "test param value",
+			Parameters: []*proto.Parameter{
+				{
+					Name:          "test-param-1",
+					Description:   "test param 1",
+					SelectedValue: "test param value",
+				},
 			},
 		},
 	},

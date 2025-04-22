@@ -75,8 +75,8 @@ func (c *Composer) Compose(pl policy.Policy, config Config) error {
 	logger.Info("Start generating policy")
 	for idx, ruleObject := range pl {
 		policyListPerControlImple := []string{}
-		if ruleObject.Rule.Parameter != nil {
-			parameters[ruleObject.Rule.Parameter.ID] = ruleObject.Rule.Parameter.Value
+		for _, prm := range ruleObject.Rule.Parameters {
+			parameters[prm.ID] = prm.Value
 		}
 		for _, check := range ruleObject.Checks {
 			policyId := check.ID
