@@ -50,7 +50,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        uses: docker/build-push-action@c566248492c912e39910ac79e2f05a82260233a8
         with:
           context: ./scripts/docker
           platforms: linux/amd64,linux/arm64
