@@ -5,7 +5,7 @@
 
 ## C2P Overview
 Compliance-to-Policy (C2P) is designed to bridge Compliance as Code such as Open Security Controls Assessment Language (OSCAL) and Policy as Code used by Policy Validation Point (PVP).
-It generates policies in native format of PVP from OSCAL Component Definitions and produces OSCAL Assessment Results from the native assessment results of PVP.
+It generates policies in the native format of PVP from OSCAL Component Definitions and produces OSCAL Assessment Results from the native assessment results of PVP.
 C2P can be used both as a command-line tool and a library, making it easy and flexible to integrate into your Continuous Compliance pipelines, such as GitHub Actions, Tekton Pipelines, or Agile Authoring Pipelines.
 
 ![C2P Overview](/assets/architecture.png)
@@ -21,7 +21,7 @@ C2P can be used both as a command-line tool and a library, making it easy and fl
 7. C2P produces Compliance Assessment Results, for example OSCAL Assessment Results that represents the assessment results of each control
 
 ### C2P Goals
-Provide seamless integration with compliance frameworks and existing policy engines, and enable to use heterogeneous policy engines in compliance check operation
+Provide seamless integration with compliance frameworks and existing policy engines, and enables use of heterogeneous policy engines in compliance check operation
 - Flexibility in choice of policy engines and compliance frameworks
     - Provide plugins to cover various policy engines including proprietary/open source policy validation/enforcement engines, or in-house policy validation/enforcement program
     - Cover various compliance frameworks not only OSCAL but also other GRC frameworks and Cloud Security Posture Management services
