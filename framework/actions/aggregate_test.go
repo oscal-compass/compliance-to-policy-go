@@ -3,7 +3,7 @@
  SPDX-License-Identifier: Apache-2.0
 */
 
-package action
+package actions
 
 import (
 	"context"
@@ -83,7 +83,7 @@ func TestAggregateResults(t *testing.T) {
 	testSettings := settings.NewSettings(map[string]struct{}{"etcd_key_file": {}}, map[string]string{"file_name": "my_file"})
 	inputContext.Settings = testSettings
 
-	gotResults, err := AggregateResults(context.TODO(), pluginSet, inputContext)
+	gotResults, err := AggregateResults(context.TODO(), inputContext, pluginSet)
 	require.NoError(t, err)
 	providerTestObj.AssertExpectations(t)
 	require.Len(t, gotResults, 1)

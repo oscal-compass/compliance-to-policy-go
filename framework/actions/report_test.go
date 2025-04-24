@@ -3,7 +3,7 @@
  SPDX-License-Identifier: Apache-2.0
 */
 
-package action
+package actions
 
 import (
 	"context"
@@ -14,7 +14,8 @@ import (
 	oscalTypes "github.com/defenseunicorns/go-oscal/src/types/oscal-1-1-3"
 	"github.com/hashicorp/go-hclog"
 	"github.com/oscal-compass/oscal-sdk-go/models"
-	"github.com/oscal-compass/oscal-sdk-go/settings"
+	"github.com/oscal-compass/oscal-sdk-go/models/components"
+	"github.com/oscal-compass/oscal-sdk-go/transformers"
 	"github.com/oscal-compass/oscal-sdk-go/validation"
 	"github.com/stretchr/testify/require"
 
@@ -59,55 +60,29 @@ var (
 	defaultLogger = hclog.NewNullLogger()
 )
 
-func TestReporter_GenereateAssessmentResults(t *testing.T) {
-	inputContext := inputContextHelper(t)
-	r, err := NewReporter(defaultLogger, inputContext)
-	require.NoError(t, err)
+func TestReport(t *testing.T) {
+	inputContext, plan := inputContextHelperPlan(t)
 
-	compDef := readCompDef(t)
-	implementationSettings := prepImplementationSettings(t, compDef)
-
-	testTitle := "test-title"
 	planHref := "https://test-plan-href"
-	opts := WithTitle(testTitle)
-
-	ar, err := r.GenerateAssessmentResults(context.TODO(), planHref, &implementationSettings, pvpResults, opts)
+	ar, err := Report(context.TODO(), inputContext, planHref, plan, pvpResults)
 	require.NoError(t, err)
-	require.Equal(t, ar.Metadata.Title, testTitle)
 	require.Equal(t, ar.ImportAp.Href, planHref)
 
-	// verify lenght of Results attributes
+	// verify length of Results attributes
 	require.Len(t, ar.Results, 1)
-	require.Len(t, *ar.Results[0].Observations, 1)
+	require.Len(t, *ar.Results[0].Observations, 2)
 	require.Len(t, *ar.Results[0].Findings, 1)
-	require.Len(t, ar.Results[0].ReviewedControls.ControlSelections, 1)
-
 }
 
-func TestReporter_FindControls(t *testing.T) {
+func TestToOscalObservation(t *testing.T) {
 	inputContext := inputContextHelper(t)
-	r, err := NewReporter(defaultLogger, inputContext)
-	require.NoError(t, err)
-
-	compDef := readCompDef(t)
-	implementationSettings := prepImplementationSettings(t, compDef)
-	foundControls := r.findControls(implementationSettings)
-	includeControls := *foundControls.ControlSelections[0].IncludeControls
-
-	require.Len(t, foundControls.ControlSelections, 1)
-	require.Equal(t, includeControls[0], implementationSettings.AllControls()[0])
-}
-
-func TestReporter_ToOscalObservation(t *testing.T) {
-	inputContext := inputContextHelper(t)
-	r, err := NewReporter(defaultLogger, inputContext)
-	require.NoError(t, err)
+	rulesStore := inputContext.Store()
 
 	observationByCheck := pvpResults[0].ObservationsByCheck[0]
-	ruleSet, err := r.rulesStore.GetByCheckID(context.TODO(), observationByCheck.CheckID)
+	ruleSet, err := rulesStore.GetByCheckID(context.TODO(), observationByCheck.CheckID)
 	require.NoError(t, err)
 
-	oscalObs := r.toOscalObservation(observationByCheck, ruleSet)
+	oscalObs := toOscalObservation(observationByCheck, ruleSet)
 	require.Equal(t, oscalObs.Title, pvpResults[0].ObservationsByCheck[0].Title)
 	require.Equal(t, oscalObs.Description, pvpResults[0].ObservationsByCheck[0].Description)
 
@@ -139,19 +114,15 @@ func TestReporter_ToOscalObservation(t *testing.T) {
 
 }
 
-func TestReporter_GenerateFindings(t *testing.T) {
+func TestGenerateFindings(t *testing.T) {
 	inputContext := inputContextHelper(t)
-	r, err := NewReporter(defaultLogger, inputContext)
-	require.NoError(t, err)
-
-	compDef := readCompDef(t)
-	implementationSettings := prepImplementationSettings(t, compDef)
+	rulesStore := inputContext.Store()
 
 	observationByCheck := pvpResults[0].ObservationsByCheck[0]
-	ruleSet, err := r.rulesStore.GetByCheckID(context.TODO(), observationByCheck.CheckID)
+	ruleSet, err := rulesStore.GetByCheckID(context.TODO(), observationByCheck.CheckID)
 	require.NoError(t, err)
 
-	oscalObservation := r.toOscalObservation(observationByCheck, ruleSet)
+	oscalObservation := toOscalObservation(observationByCheck, ruleSet)
 
 	tests := []struct {
 		name         string
@@ -221,38 +192,35 @@ func TestReporter_GenerateFindings(t *testing.T) {
 	}
 
 	for _, c := range tests {
-		findings, err := r.generateFindings(c.initFindings, oscalObservation, ruleSet, implementationSettings)
+		findings, err := generateFindings(c.initFindings, oscalObservation, []string{"CIS-2.1_smt"})
 		require.NoError(t, err)
 		c.assertFunc(t, findings)
 	}
 }
 
-// Load test component definition JSON
-func readCompDef(t *testing.T) oscalTypes.ComponentDefinition {
+// inputContextHelperPlan created input context from a plan.
+func inputContextHelperPlan(t *testing.T) (*InputContext, oscalTypes.AssessmentPlan) {
 	testDataPath := pkg.PathFromPkgDirectory("./testdata/oscal/component-definition-test.json")
 	file, err := os.Open(testDataPath)
 	require.NoError(t, err)
-
 	definition, err := models.NewComponentDefinition(file, validation.NoopValidator{})
 	require.NoError(t, err)
 	require.NotNil(t, definition)
 
-	return *definition
-}
-
-// Create implementation settings using test compdef
-func prepImplementationSettings(t *testing.T, testComp oscalTypes.ComponentDefinition) settings.ImplementationSettings {
-
-	var allImplementations []oscalTypes.ControlImplementationSet
-	for _, component := range *testComp.Components {
-		if component.ControlImplementations == nil {
-			continue
-		}
-		allImplementations = append(allImplementations, *component.ControlImplementations...)
-	}
-
-	implementationSettings, err := settings.Framework("cis", allImplementations)
+	ap, err := transformers.ComponentDefinitionsToAssessmentPlan(context.TODO(), []oscalTypes.ComponentDefinition{*definition}, "cis")
 	require.NoError(t, err)
 
-	return *implementationSettings
+	if ap.LocalDefinitions == nil || ap.LocalDefinitions.Activities == nil || ap.AssessmentAssets.Components == nil {
+		t.Error("error converting component definition to assessment plan")
+	}
+
+	var allComponents []components.Component
+	for _, component := range *ap.AssessmentAssets.Components {
+		compAdapter := components.NewSystemComponentAdapter(component)
+		allComponents = append(allComponents, compAdapter)
+	}
+
+	inputContext, err := NewContext(allComponents)
+	require.NoError(t, err)
+	return inputContext, *ap
 }

@@ -3,10 +3,11 @@
  SPDX-License-Identifier: Apache-2.0
 */
 
-package action
+package actions
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/oscal-compass/oscal-sdk-go/settings"
@@ -16,29 +17,31 @@ import (
 	"github.com/oscal-compass/compliance-to-policy-go/v2/policy"
 )
 
-// AggregateResults identifies policy configuration for each provider in the given pluginSet to execute the GetResults() method
-// each policy.Aggregator.
+// GeneratePolicy action identifies policy configuration for each provider in the given pluginSet to execute the Generate() method
+// each policy.Provider.
 //
 // The rule set passed to each plugin can be configured with compliance specific settings based on the InputContext.
-func AggregateResults(ctx context.Context, pluginSet map[plugin.ID]policy.Provider, inputContext *InputContext) ([]policy.PVPResult, error) {
-	var allResults []policy.PVPResult
+func GeneratePolicy(ctx context.Context, inputContext *InputContext, pluginSet map[plugin.ID]policy.Provider) error {
 	log := logging.GetLogger("aggregator")
+
 	for providerId, policyPlugin := range pluginSet {
 		componentTitle, err := inputContext.ProviderTitle(providerId)
 		if err != nil {
-			return nil, err
+			if errors.Is(err, ErrMissingProvider) {
+				log.Warn(fmt.Sprintf("skipping %s provider: missing validation component", providerId))
+				continue
+			}
+			return err
 		}
-		log.Debug(fmt.Sprintf("Aggregating results for provider %s", providerId))
+		log.Debug(fmt.Sprintf("Generating policy for provider %s", providerId))
+
 		appliedRuleSet, err := settings.ApplyToComponent(ctx, componentTitle, inputContext.Store(), inputContext.Settings)
 		if err != nil {
-			return allResults, fmt.Errorf("failed to get rule sets for component %s: %w", componentTitle, err)
+			return fmt.Errorf("failed to get rule sets for component %s: %w", componentTitle, err)
 		}
-
-		pluginResults, err := policyPlugin.GetResults(appliedRuleSet)
-		if err != nil {
-			return allResults, fmt.Errorf("plugin %s: %w", providerId, err)
+		if err := policyPlugin.Generate(appliedRuleSet); err != nil {
+			return fmt.Errorf("plugin %s: %w", providerId, err)
 		}
-		allResults = append(allResults, pluginResults)
 	}
-	return allResults, nil
+	return nil
 }

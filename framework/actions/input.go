@@ -3,7 +3,7 @@
  SPDX-License-Identifier: Apache-2.0
 */
 
-package action
+package actions
 
 import (
 	"errors"
@@ -21,7 +21,7 @@ const pluginComponentType = "validation"
 
 var ErrMissingProvider = errors.New("missing title for provider")
 
-// InputContext is used to configure action behavior.
+// InputContext is used to configure action behavior from parsed OSCAL documents.
 type InputContext struct {
 	// requestedProviders stores resolved provider IDs to the original component title from
 	// parsed OSCAL Components.
@@ -37,7 +37,7 @@ type InputContext struct {
 	Settings settings.Settings
 }
 
-// NewContext return an InputContext for the given OSCAL Components.
+// NewContext returns an InputContext for the given OSCAL Components.
 func NewContext(components []components.Component) (*InputContext, error) {
 	inputCtx := &InputContext{
 		requestedProviders: make(map[plugin.ID]string),

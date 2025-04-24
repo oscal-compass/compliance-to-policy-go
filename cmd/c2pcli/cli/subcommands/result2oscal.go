@@ -26,7 +26,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/oscal-compass/compliance-to-policy-go/v2/framework"
-	"github.com/oscal-compass/compliance-to-policy-go/v2/framework/action"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/framework/actions"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/plugin"
 )
@@ -74,16 +74,10 @@ func runResult2Policy(ctx context.Context, option *Options) error {
 		return err
 	}
 
-	settings, err := Settings(option)
+	inputContext, plan, err := Context(ctx, option)
 	if err != nil {
 		return err
 	}
-
-	inputContext, err := Context(option)
-	if err != nil {
-		return err
-	}
-	inputContext.Settings = settings.AllSettings()
 
 	manager, err := framework.NewPluginManager(frameworkConfig)
 	if err != nil {
@@ -103,19 +97,18 @@ func runResult2Policy(ctx context.Context, option *Options) error {
 	}
 	defer manager.Clean()
 
-	results, err := action.AggregateResults(ctx, launchedPlugins, inputContext)
+	results, err := actions.AggregateResults(ctx, inputContext, launchedPlugins)
 	if err != nil {
 		return err
 	}
 
-	reporter, err := action.NewReporter(option.logger, inputContext)
+	assessmentResults, err := actions.Report(ctx, inputContext, "REPLACE_ME", plan, results)
 	if err != nil {
 		return err
 	}
 
-	assessmentResults, err := reporter.GenerateAssessmentResults(ctx, "REPLACE_ME", settings, results)
 	oscalModels := oscalTypes.OscalModels{
-		AssessmentResults: &assessmentResults,
+		AssessmentResults: assessmentResults,
 	}
 
 	// Validate before writing out

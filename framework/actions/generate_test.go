@@ -3,7 +3,7 @@
  SPDX-License-Identifier: Apache-2.0
 */
 
-package action
+package actions
 
 import (
 	"context"
@@ -29,7 +29,7 @@ func TestGeneratePolicy(t *testing.T) {
 	testSettings := settings.NewSettings(map[string]struct{}{"etcd_cert_file": {}}, map[string]string{})
 	inputContext.Settings = testSettings
 
-	err := GeneratePolicy(context.TODO(), pluginSet, inputContext)
+	err := GeneratePolicy(context.TODO(), inputContext, pluginSet)
 	require.NoError(t, err)
 	providerTestObj.AssertExpectations(t)
 }

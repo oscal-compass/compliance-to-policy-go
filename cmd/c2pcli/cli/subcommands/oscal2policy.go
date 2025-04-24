@@ -23,7 +23,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/oscal-compass/compliance-to-policy-go/v2/framework"
-	"github.com/oscal-compass/compliance-to-policy-go/v2/framework/action"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/framework/actions"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/plugin"
 )
 
@@ -66,16 +66,10 @@ func runOSCAL2Policy(ctx context.Context, option *Options) error {
 		return err
 	}
 
-	settings, err := Settings(option)
+	inputContext, _, err := Context(ctx, option)
 	if err != nil {
 		return err
 	}
-
-	inputContext, err := Context(option)
-	if err != nil {
-		return err
-	}
-	inputContext.Settings = settings.AllSettings()
 
 	manager, err := framework.NewPluginManager(frameworkConfig)
 	if err != nil {
@@ -95,7 +89,7 @@ func runOSCAL2Policy(ctx context.Context, option *Options) error {
 	}
 	defer manager.Clean()
 
-	err = action.GeneratePolicy(ctx, launchedPlugins, inputContext)
+	err = actions.GeneratePolicy(ctx, inputContext, launchedPlugins)
 	if err != nil {
 		return err
 	}
