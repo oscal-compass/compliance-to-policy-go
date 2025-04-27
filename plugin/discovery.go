@@ -51,13 +51,13 @@ func WithPluginType(pluginType string) FindOption {
 //   - `WithPluginType`: Filters by plugin type.
 //
 // If no filters are applied, all discovered plugins are returned.
-func FindPlugins(pluginDir string, opts ...FindOption) (Manifests, error) {
+func FindPlugins(pluginDir string, pluginManifestDir string, opts ...FindOption) (Manifests, error) {
 	config := &findOptions{}
 	for _, opt := range opts {
 		opt(config)
 	}
 
-	matchingPlugins, err := findAllPluginMatches(pluginDir)
+	matchingPlugins, err := findAllPluginMatches(pluginManifestDir)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +88,7 @@ func FindPlugins(pluginDir string, opts ...FindOption) (Manifests, error) {
 
 	// Process remaining plugins, filtering by plugin type if necessary
 	for id, manifestName := range matchingPlugins {
-		manifestPath := filepath.Join(pluginDir, manifestName)
+		manifestPath := filepath.Join(pluginManifestDir, manifestName)
 		manifest, err := readManifestFile(id, manifestPath)
 		if err != nil {
 			errs = append(errs, err)
@@ -125,10 +125,10 @@ func FindPlugins(pluginDir string, opts ...FindOption) (Manifests, error) {
 	return collectedManifests, nil
 }
 
-// findAllPluginsMatches locates the manifests in the plugin directory that match
+// findAllPluginsMatches locates the manifests in the plugin manifest directory that match
 // the prefix naming scheme and returns the plugin ID and file name.
-func findAllPluginMatches(pluginDir string) (map[string]string, error) {
-	items, err := os.ReadDir(pluginDir)
+func findAllPluginMatches(pluginManifestDir string) (map[string]string, error) {
+	items, err := os.ReadDir(pluginManifestDir)
 	if err != nil {
 		return nil, err
 	}

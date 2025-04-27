@@ -111,7 +111,7 @@ func TestFindPlugins(t *testing.T) {
 
 	for _, c := range tests {
 		t.Run(c.name, func(t *testing.T) {
-			manifests, err := FindPlugins(c.testDataPath, c.options...)
+			manifests, err := FindPlugins(c.testDataPath, c.testDataPath, c.options...)
 			if c.wantError != "" {
 				require.EqualError(t, err, c.wantError)
 			} else {

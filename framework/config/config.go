@@ -20,7 +20,8 @@ const (
 	// Only validation components are plugins
 	pluginComponentType = "validation"
 	// DefaultPluginPath default location c2p will look for plugins
-	DefaultPluginPath = "c2p-plugins"
+	DefaultPluginPath         = "c2p-plugins"
+	DefaultPluginManifestPath = "c2p-plugins"
 )
 
 // C2PConfig represents configuration options for the C2P framework.PluginManager.
@@ -28,6 +29,9 @@ type C2PConfig struct {
 	// PluginDir is the directory where the PluginManager searches
 	// for installed plugins.
 	PluginDir string
+	// PluginManifestDir is the directory where the PluginManager searches
+	// for installed plugin manifests.
+	PluginManifestDir string
 	// Logger is the logging implementation used in the PluginManager and
 	// plugin clients.
 	Logger               hclog.Logger
@@ -44,6 +48,7 @@ var defaultLogger = hclog.New(&hclog.LoggerOptions{
 func DefaultConfig() *C2PConfig {
 	return &C2PConfig{
 		PluginDir:            DefaultPluginPath,
+		PluginManifestDir:    DefaultPluginManifestPath,
 		Logger:               defaultLogger,
 		ComponentDefinitions: make([]oscalTypes.ComponentDefinition, 0),
 	}

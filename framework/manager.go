@@ -23,6 +23,8 @@ import (
 type PluginManager struct {
 	// pluginDir is the location to search for plugins.
 	pluginDir string
+	// pluginManifestDir is the location to search for plugin manifests.
+	pluginManifestDir string
 	// rulesStore contains indexed information about available RuleSets
 	// which can be searched for the component title.
 	rulesStore rules.Store
@@ -60,11 +62,12 @@ func NewPluginManager(cfg *config.C2PConfig) (*PluginManager, error) {
 	}
 
 	return &PluginManager{
-		pluginDir:     cfg.PluginDir,
-		rulesStore:    rulesStore,
-		clientFactory: plugin.ClientFactory(cfg.Logger),
-		pluginIdMap:   pluginIDMap,
-		log:           cfg.Logger,
+		pluginDir:         cfg.PluginDir,
+		pluginManifestDir: cfg.PluginManifestDir,
+		rulesStore:        rulesStore,
+		clientFactory:     plugin.ClientFactory(cfg.Logger),
+		pluginIdMap:       pluginIDMap,
+		log:               cfg.Logger,
 	}, nil
 }
 
@@ -80,6 +83,7 @@ func (m *PluginManager) FindRequestedPlugins() (plugin.Manifests, error) {
 
 	pluginManifests, err := plugin.FindPlugins(
 		m.pluginDir,
+		m.pluginManifestDir,
 		plugin.WithProviderIds(providerIds),
 		plugin.WithPluginType(plugin.PVPPluginName),
 	)

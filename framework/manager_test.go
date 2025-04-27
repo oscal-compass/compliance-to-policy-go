@@ -61,7 +61,8 @@ func TestNewPluginManager(t *testing.T) {
 	compDef, err := models.NewComponentDefinition(testFile, validation.NoopValidator{})
 	require.NoError(t, err)
 	cfg := &config.C2PConfig{
-		PluginDir: ".",
+		PluginDir:         ".",
+		PluginManifestDir: ".",
 		ComponentDefinitions: []oscalTypes.ComponentDefinition{
 			*compDef,
 		},
@@ -173,6 +174,7 @@ func TestPluginManager_Configure(t *testing.T) {
 func prepConfig(t *testing.T) *config.C2PConfig {
 	cfg := config.DefaultConfig()
 	cfg.PluginDir = "."
+	cfg.PluginManifestDir = "."
 	file, err := os.Open(testDataPath)
 	require.NoError(t, err)
 	definition, err := models.NewComponentDefinition(file, validation.NoopValidator{})
