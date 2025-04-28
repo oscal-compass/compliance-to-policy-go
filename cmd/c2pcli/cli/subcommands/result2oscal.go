@@ -42,7 +42,7 @@ func NewResult2OSCAL(logger hclog.Logger) *cobra.Command {
 			if err := options.Complete(cmd); err != nil {
 				return err
 			}
-			if err := validateResult2OSCAL(options); err != nil {
+			if err := options.Validate(); err != nil {
 				return err
 			}
 			return runResult2Policy(cmd.Context(), options)
@@ -56,25 +56,17 @@ func NewResult2OSCAL(logger hclog.Logger) *cobra.Command {
 	return command
 }
 
-// validateResult2OSCAL required options with no defaults
-// are in place.
-func validateResult2OSCAL(options *Options) error {
-	if options.Name == "" {
-		return &ConfigError{Option: Name}
-	}
-	if options.Definition == "" {
-		return &ConfigError{Option: ComponentDefinition}
-	}
-	return nil
-}
-
 func runResult2Policy(ctx context.Context, option *Options) error {
 	frameworkConfig, err := Config(option)
 	if err != nil {
 		return err
 	}
 
-	inputContext, plan, err := Context(ctx, option)
+	plan, href, err := createOrGetPlan(ctx, option)
+	if err != nil {
+		return err
+	}
+	inputContext, err := Context(plan)
 	if err != nil {
 		return err
 	}
@@ -92,17 +84,18 @@ func runResult2Policy(ctx context.Context, option *Options) error {
 		return option.Plugins[pluginID.String()]
 	}
 	launchedPlugins, err := manager.LaunchPolicyPlugins(foundPlugins, configSelections)
+	// Defer clean before returning an error to avoid unterminated processes
+	defer manager.Clean()
 	if err != nil {
 		return err
 	}
-	defer manager.Clean()
 
 	results, err := actions.AggregateResults(ctx, inputContext, launchedPlugins)
 	if err != nil {
 		return err
 	}
 
-	assessmentResults, err := actions.Report(ctx, inputContext, "REPLACE_ME", plan, results)
+	assessmentResults, err := actions.Report(ctx, inputContext, href, *plan, results)
 	if err != nil {
 		return err
 	}

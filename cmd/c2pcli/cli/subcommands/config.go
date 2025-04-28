@@ -8,6 +8,7 @@ package subcommands
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
 
 	oscalTypes "github.com/defenseunicorns/go-oscal/src/types/oscal-1-1-3"
@@ -34,19 +35,9 @@ func Config(option *Options) (*framework.C2PConfig, error) {
 	return c2pConfig, nil
 }
 
-func Context(ctx context.Context, option *Options) (*actions.InputContext, oscalTypes.AssessmentPlan, error) {
-	compDef, err := loadCompDef(option.Definition)
-	if err != nil {
-		return nil, oscalTypes.AssessmentPlan{}, err
-	}
-
-	ap, err := transformers.ComponentDefinitionsToAssessmentPlan(ctx, []oscalTypes.ComponentDefinition{compDef}, option.Name)
-	if err != nil {
-		return nil, oscalTypes.AssessmentPlan{}, err
-	}
-
+func Context(ap *oscalTypes.AssessmentPlan) (*actions.InputContext, error) {
 	if ap.LocalDefinitions == nil || ap.LocalDefinitions.Activities == nil || ap.AssessmentAssets.Components == nil {
-		return nil, oscalTypes.AssessmentPlan{}, errors.New("error converting component definition to assessment plan")
+		return nil, errors.New("error converting component definition to assessment plan")
 	}
 
 	var allComponents []components.Component
@@ -57,13 +48,36 @@ func Context(ctx context.Context, option *Options) (*actions.InputContext, oscal
 
 	inputCtx, err := actions.NewContext(allComponents)
 	if err != nil {
-		return nil, oscalTypes.AssessmentPlan{}, err
+		return nil, err
 	}
 
 	apSettings := settings.NewAssessmentActivitiesSettings(*ap.LocalDefinitions.Activities)
 	inputCtx.Settings = apSettings
 
-	return inputCtx, *ap, nil
+	return inputCtx, nil
+}
+
+// createOrGetPlan will load an OSCAL Assessment Plan if detected from the options for return the loaded plan and file location.
+// If no plan is detected, it is created from an OSCAL Component Definition for a given framework name.
+func createOrGetPlan(ctx context.Context, option *Options) (*oscalTypes.AssessmentPlan, string, error) {
+	if option.Plan != "" {
+		plan, err := loadPlan(option.Plan)
+		if err != nil {
+			return nil, "", fmt.Errorf("error loading assessment plan: %w", err)
+		}
+		return plan, option.Plan, nil
+	}
+	compDef, err := loadCompDef(option.Definition)
+	if err != nil {
+		return nil, "", fmt.Errorf("error loading component definition: %w", err)
+	}
+
+	ap, err := transformers.ComponentDefinitionsToAssessmentPlan(ctx, []oscalTypes.ComponentDefinition{compDef}, option.Name)
+	if err != nil {
+		return nil, "", err
+	}
+
+	return ap, "REPLACE_ME", nil
 }
 
 func loadCompDef(path string) (oscalTypes.ComponentDefinition, error) {
@@ -81,4 +95,17 @@ func loadCompDef(path string) (oscalTypes.ComponentDefinition, error) {
 		return oscalTypes.ComponentDefinition{}, errors.New("component definition cannot be nil")
 	}
 	return *compDef, nil
+}
+
+func loadPlan(path string) (*oscalTypes.AssessmentPlan, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+	plan, err := models.NewAssessmentPlan(file, validation.NewSchemaValidator())
+	if err != nil {
+		return nil, err
+	}
+	return plan, nil
 }

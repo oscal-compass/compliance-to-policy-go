@@ -38,7 +38,7 @@ func NewOSCAL2Policy(logger hclog.Logger) *cobra.Command {
 			if err := options.Complete(cmd); err != nil {
 				return err
 			}
-			if err := validateOSCAL2Policy(options); err != nil {
+			if err := options.Validate(); err != nil {
 				return err
 			}
 			return runOSCAL2Policy(cmd.Context(), options)
@@ -48,25 +48,18 @@ func NewOSCAL2Policy(logger hclog.Logger) *cobra.Command {
 	return command
 }
 
-// validateOSCAL2Policy required options with no defaults
-// are in place.
-func validateOSCAL2Policy(options *Options) error {
-	if options.Name == "" {
-		return &ConfigError{Option: Name}
-	}
-	if options.Definition == "" {
-		return &ConfigError{Option: ComponentDefinition}
-	}
-	return nil
-}
-
 func runOSCAL2Policy(ctx context.Context, option *Options) error {
 	frameworkConfig, err := Config(option)
 	if err != nil {
 		return err
 	}
 
-	inputContext, _, err := Context(ctx, option)
+	plan, _, err := createOrGetPlan(ctx, option)
+	if err != nil {
+		return err
+	}
+
+	inputContext, err := Context(plan)
 	if err != nil {
 		return err
 	}
@@ -84,10 +77,11 @@ func runOSCAL2Policy(ctx context.Context, option *Options) error {
 		return option.Plugins[pluginID.String()]
 	}
 	launchedPlugins, err := manager.LaunchPolicyPlugins(foundPlugins, configSelections)
+	// Defer clean before returning an error to avoid unterminated processes
+	defer manager.Clean()
 	if err != nil {
 		return err
 	}
-	defer manager.Clean()
 
 	err = actions.GeneratePolicy(ctx, inputContext, launchedPlugins)
 	if err != nil {

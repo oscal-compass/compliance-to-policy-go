@@ -6,6 +6,7 @@
 package subcommands
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -42,15 +43,16 @@ func NewOSCAL2Posture(logger hclog.Logger) *cobra.Command {
 	return command
 }
 
-// validateOSCAL2Posture required options with no defaults
-// are in place.
+// validateOSCAL2Posture runs validation specific to the OSCAL2Posture command.
 func validateOSCAL2Posture(options *Options) error {
+	var errs []error
 	if options.Catalog == "" {
-		return &ConfigError{
-			Option: Catalog,
-		}
+		errs = append(errs, &ConfigError{Option: Catalog})
 	}
-	return nil
+	if options.Definition == "" {
+		errs = append(errs, &ConfigError{Option: ComponentDefinition})
+	}
+	return errors.Join(errs...)
 }
 
 func runOSCAL2Posture(option *Options) error {

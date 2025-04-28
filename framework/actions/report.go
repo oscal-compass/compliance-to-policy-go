@@ -31,7 +31,7 @@ func Report(ctx context.Context, inputContext *InputContext, planHref string, pl
 	oscalFindings := make([]oscalTypes.Finding, 0)
 	store := inputContext.Store()
 
-	// Get all the control mappings based on the assessment activities
+	// Get all the control mappings based on the assessment plan activities
 	rulesByControls := make(map[string][]string)
 	for _, act := range *plan.LocalDefinitions.Activities {
 		var controlSet []string
