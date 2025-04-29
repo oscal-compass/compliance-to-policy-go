@@ -45,9 +45,9 @@ var defaultLogger = hclog.New(&hclog.LoggerOptions{
 // DefaultConfig returns the default configuration.
 func DefaultConfig() *C2PConfig {
 	return &C2PConfig{
-		PluginDir:            DefaultPluginPath,
-		PluginManifestDir:    DefaultPluginManifestPath,
-		Logger:               defaultLogger,
+		PluginDir:         DefaultPluginPath,
+		PluginManifestDir: DefaultPluginManifestPath,
+		Logger:            defaultLogger,
 	}
 }
 
