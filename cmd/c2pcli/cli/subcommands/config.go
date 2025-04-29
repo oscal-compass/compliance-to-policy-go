@@ -23,6 +23,7 @@ func Config(option *Options) (*config.C2PConfig, error) {
 	pluginsPath := option.PluginDir
 	if pluginsPath != "" {
 		c2pConfig.PluginDir = pluginsPath
+		c2pConfig.PluginManifestDir = pluginsPath
 	}
 
 	// Set logger

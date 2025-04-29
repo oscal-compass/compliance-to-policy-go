@@ -28,5 +28,6 @@ func TestC2PConfig_Validate(t *testing.T) {
 func TestDefaultConfig(t *testing.T) {
 	defaultConfig := DefaultConfig()
 	require.Equal(t, defaultConfig.PluginDir, DefaultPluginPath)
+	require.Equal(t, defaultConfig.PluginManifestDir, DefaultPluginManifestPath)
 	require.NotNil(t, defaultConfig.Logger)
 }
