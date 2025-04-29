@@ -16,7 +16,7 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/onsi/ginkgo/v2 v2.19.0
 	github.com/onsi/gomega v1.34.1
-	github.com/oscal-compass/oscal-sdk-go v0.0.0-20250313133319-add7970ddf13
+	github.com/oscal-compass/oscal-sdk-go v0.0.2
 	github.com/otiai10/copy v1.9.0
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.5

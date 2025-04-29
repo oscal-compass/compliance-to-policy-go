@@ -22,7 +22,7 @@ import (
 	"time"
 
 	"github.com/defenseunicorns/go-oscal/src/pkg/uuid"
-	oscalTypes "github.com/defenseunicorns/go-oscal/src/types/oscal-1-1-2"
+	oscalTypes "github.com/defenseunicorns/go-oscal/src/types/oscal-1-1-3"
 	"github.com/oscal-compass/oscal-sdk-go/extensions"
 	sigyaml "sigs.k8s.io/yaml"
 

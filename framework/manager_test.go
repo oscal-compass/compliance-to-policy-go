@@ -11,7 +11,7 @@ import (
 	"sort"
 	"testing"
 
-	oscalTypes "github.com/defenseunicorns/go-oscal/src/types/oscal-1-1-2"
+	oscalTypes "github.com/defenseunicorns/go-oscal/src/types/oscal-1-1-3"
 	"github.com/oscal-compass/oscal-sdk-go/extensions"
 	"github.com/oscal-compass/oscal-sdk-go/models"
 	"github.com/oscal-compass/oscal-sdk-go/settings"
@@ -41,9 +41,11 @@ var (
 		Rule: extensions.Rule{
 			ID:          "etcd_key_file",
 			Description: "Ensure that the --key-file argument is set as appropriate",
-			Parameter: &extensions.Parameter{
-				ID:          "file_name",
-				Description: "A parameter for a file name",
+			Parameters: []extensions.Parameter{
+				{
+					ID:          "file_name",
+					Description: "A parameter for a file name",
+				},
 			},
 		},
 		Checks: []extensions.Check{
@@ -106,14 +108,14 @@ func TestPluginManager_AggregateResults(t *testing.T) {
 		},
 	}
 
-	updatedParam := &extensions.Parameter{
+	updatedParam := extensions.Parameter{
 		ID:          "file_name",
 		Description: "A parameter for a file name",
 		Value:       "my_file",
 	}
 
 	updatedKeyFileRule := expectedKeyFileRule
-	updatedKeyFileRule.Rule.Parameter = updatedParam
+	updatedKeyFileRule.Rule.Parameters[0] = updatedParam
 
 	// Create pluginSet
 	providerTestObj := new(policyProvider)
