@@ -17,7 +17,7 @@ import (
 )
 
 // AggregateResults action identifies policy configuration for each provider in the given pluginSet to execute the GetResults() method
-// each policy.Aggregator.
+// each policy.Provider.
 //
 // The rule set passed to each plugin can be configured with compliance specific settings based on the InputContext.
 func AggregateResults(ctx context.Context, inputContext *InputContext, pluginSet map[plugin.ID]policy.Provider) ([]policy.PVPResult, error) {

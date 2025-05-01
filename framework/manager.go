@@ -33,7 +33,7 @@ type PluginManager struct {
 //
 // It supports the plugin lifecycle with the following methods:
 //   - Discover plugins: FindRequestedPlugins()
-//   - Launching and initializing plugins: LaunchAggregatorPlugins() and LaunchGeneratorPlugins()
+//   - Launching and initializing plugins: LaunchPolicyPlugins()
 //   - Clean/Stop - Clean()
 func NewPluginManager(cfg *C2PConfig) (*PluginManager, error) {
 	if err := cfg.Validate(); err != nil {
@@ -49,7 +49,7 @@ func NewPluginManager(cfg *C2PConfig) (*PluginManager, error) {
 }
 
 // FindRequestedPlugins retrieves information for the plugins that have been requested
-// in the C2PConfig and returns the plugin manifests for use with LaunchAggregatorPlugins().
+// returns the plugin manifests for use with LaunchPolicyPlugins().
 func (m *PluginManager) FindRequestedPlugins(requestedPlugins []plugin.ID, pluginType string) (plugin.Manifests, error) {
 	m.log.Info(fmt.Sprintf("Searching for plugins in %s", m.pluginDir))
 
@@ -106,7 +106,7 @@ func (m *PluginManager) configurePlugin(policyPlugin policy.Provider, manifest p
 	return nil
 }
 
-// Clean deletes managed instances of plugin clients that have been created using LaunchAggregatorPlugins.
+// Clean deletes managed instances of plugin clients that have been created using LaunchPolicyPlugins.
 // This will remove all clients launched with the plugin.ClientFactoryFunc.
 func (m *PluginManager) Clean() {
 	m.log.Debug("Cleaning launched plugins")
