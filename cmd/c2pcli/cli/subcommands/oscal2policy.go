@@ -68,7 +68,7 @@ func runOSCAL2Policy(ctx context.Context, option *Options) error {
 	if err != nil {
 		return err
 	}
-	foundPlugins, err := manager.FindRequestedPlugins(inputContext.RequestedProviders(), plugin.PVPPluginName)
+	foundPlugins, err := manager.FindRequestedPlugins(inputContext.RequestedProviders())
 	if err != nil {
 		return err
 	}

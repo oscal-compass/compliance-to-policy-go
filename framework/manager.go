@@ -50,14 +50,14 @@ func NewPluginManager(cfg *C2PConfig) (*PluginManager, error) {
 
 // FindRequestedPlugins retrieves information for the plugins that have been requested
 // returns the plugin manifests for use with LaunchPolicyPlugins().
-func (m *PluginManager) FindRequestedPlugins(requestedPlugins []plugin.ID, pluginType string) (plugin.Manifests, error) {
+func (m *PluginManager) FindRequestedPlugins(requestedPlugins []plugin.ID) (plugin.Manifests, error) {
 	m.log.Info(fmt.Sprintf("Searching for plugins in %s", m.pluginDir))
 
 	pluginManifests, err := plugin.FindPlugins(
 		m.pluginDir,
 		m.pluginManifestDir,
 		plugin.WithProviderIds(requestedPlugins),
-		plugin.WithPluginType(pluginType),
+		plugin.WithPluginType(plugin.PVPPluginName),
 	)
 	if err != nil {
 		return pluginManifests, err
