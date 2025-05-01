@@ -1,0 +1,38 @@
+# Add 'root' label to any root file changes
+# Quotation marks are required for the leading asterisk
+root:
+- changed-files:
+  - any-glob-to-any-file: '*'
+
+docs:
+- changed-files:
+  - any-glob-to-any-file:
+    - 'docs/**'
+    - '**/*.md'
+    - 'LICENSE'
+    - 'PROJECT'
+
+ci/cd:
+- changed-files:
+  - any-glob-to-any-file:
+    - '.github/**/*'
+    - '/*.yaml'
+
+scripts:
+- changed-files:
+  - 'Makefile'
+  - 'Dockerfile'
+  - 'scripts/**'
+  - 'hack/**'
+
+source:
+- changed-files:
+  - any-glob-to-any-file:
+      - '**/*.go'
+      - 'go.mod'
+      - 'go.sum'
+  - all-globs-to-all-files: '!docs/*'
+
+feature:
+ - head-branch: ['^feat', 'feat']
+
