@@ -43,7 +43,7 @@ func TestFindPlugins(t *testing.T) {
 			name:         "Valid/MatchingPlugins",
 			testDataPath: "testdata/plugins",
 			options: []FindOption{
-				WithProviderIds([]string{"testplugin"}),
+				WithProviderIds([]ID{"testplugin"}),
 			},
 			wantMeta: []Metadata{
 				{
@@ -73,7 +73,7 @@ func TestFindPlugins(t *testing.T) {
 			name:         "InValid/PluginNameInvalid",
 			testDataPath: "testdata/invalid-plugins",
 			options: []FindOption{
-				WithProviderIds([]string{"INVALID"}),
+				WithProviderIds([]ID{"INVALID"}),
 			},
 			wantError: "invalid plugin id \"INVALID\" in manifest c2p-INVALID-manifest.json",
 		},
@@ -81,7 +81,7 @@ func TestFindPlugins(t *testing.T) {
 			name:         "InValid/PluginNameMismatch",
 			testDataPath: "testdata/invalid-plugins",
 			options: []FindOption{
-				WithProviderIds([]string{"testplugin"}),
+				WithProviderIds([]ID{"testplugin"}),
 			},
 			wantError: "invalid plugin id \"testplugin2\" in manifest c2p-testplugin-manifest.json",
 		},
@@ -94,7 +94,7 @@ func TestFindPlugins(t *testing.T) {
 			name:         "Failure/NoMatchingPlugins",
 			testDataPath: "testdata/plugins",
 			options: []FindOption{
-				WithProviderIds([]string{"example"}),
+				WithProviderIds([]ID{"example"}),
 			},
 			wantError: "failed to find plugin \"example\" in plugin installation location",
 		},
@@ -102,7 +102,7 @@ func TestFindPlugins(t *testing.T) {
 			name:         "Failure/NoPluginsOfType",
 			testDataPath: "testdata/plugins",
 			options: []FindOption{
-				WithProviderIds([]string{"testplugin"}),
+				WithProviderIds([]ID{"testplugin"}),
 				WithPluginType("remediation"),
 			},
 			wantError: "no plugins found in testdata/plugins with matching criteria",

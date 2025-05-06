@@ -23,7 +23,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/oscal-compass/compliance-to-policy-go/v2/framework"
-	"github.com/oscal-compass/compliance-to-policy-go/v2/framework/config"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/framework/actions"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/plugin"
 )
 
 func NewOSCAL2Policy(logger hclog.Logger) *cobra.Command {
@@ -37,7 +38,7 @@ func NewOSCAL2Policy(logger hclog.Logger) *cobra.Command {
 			if err := options.Complete(cmd); err != nil {
 				return err
 			}
-			if err := validateOSCAL2Policy(options); err != nil {
+			if err := options.Validate(); err != nil {
 				return err
 			}
 			return runOSCAL2Policy(cmd.Context(), options)
@@ -47,25 +48,18 @@ func NewOSCAL2Policy(logger hclog.Logger) *cobra.Command {
 	return command
 }
 
-// validateOSCAL2Policy required options with no defaults
-// are in place.
-func validateOSCAL2Policy(options *Options) error {
-	if options.Name == "" {
-		return &ConfigError{Option: Name}
-	}
-	if options.Definition == "" {
-		return &ConfigError{Option: ComponentDefinition}
-	}
-	return nil
-}
-
 func runOSCAL2Policy(ctx context.Context, option *Options) error {
 	frameworkConfig, err := Config(option)
 	if err != nil {
 		return err
 	}
 
-	settings, err := Settings(frameworkConfig, option)
+	plan, _, err := createOrGetPlan(ctx, option)
+	if err != nil {
+		return err
+	}
+
+	inputContext, err := Context(plan)
 	if err != nil {
 		return err
 	}
@@ -74,21 +68,22 @@ func runOSCAL2Policy(ctx context.Context, option *Options) error {
 	if err != nil {
 		return err
 	}
-	foundPlugins, err := manager.FindRequestedPlugins()
+	foundPlugins, err := manager.FindRequestedPlugins(inputContext.RequestedProviders())
 	if err != nil {
 		return err
 	}
 
-	var configSelections config.PluginConfig = func(pluginID string) map[string]string {
-		return option.Plugins[pluginID]
+	var configSelections framework.PluginConfig = func(pluginID plugin.ID) map[string]string {
+		return option.Plugins[pluginID.String()]
 	}
 	launchedPlugins, err := manager.LaunchPolicyPlugins(foundPlugins, configSelections)
+	// Defer clean before returning an error to avoid unterminated processes
+	defer manager.Clean()
 	if err != nil {
 		return err
 	}
-	defer manager.Clean()
 
-	err = manager.GeneratePolicy(ctx, launchedPlugins, settings.AllSettings())
+	err = actions.GeneratePolicy(ctx, inputContext, launchedPlugins)
 	if err != nil {
 		return err
 	}

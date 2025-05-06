@@ -97,7 +97,7 @@ func (m *Manifest) ResolveOptions(configSelections map[string]string) (map[strin
 type Metadata struct {
 	// ID is the name of the plugin. This is the information used
 	// when a plugin is requested.
-	ID string `json:"id"`
+	ID ID `json:"id"`
 	// Description is a short description for the plugin.
 	Description string `json:"description"`
 	// Version is the semantic version of the
@@ -121,11 +121,5 @@ type ConfigurationOption struct {
 	Default *string `json:"default,omitempty"`
 }
 
-// ValidateID ensure the plugin id is valid based on the
-// plugin IdentifierPattern.
-func (m Metadata) ValidateID() bool {
-	return IdentifierPattern.MatchString(m.ID)
-}
-
 // Manifests defines the Manifest by plugin id.
-type Manifests map[string]Manifest
+type Manifests map[ID]Manifest

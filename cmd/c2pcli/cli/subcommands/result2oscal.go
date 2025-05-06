@@ -26,8 +26,9 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/oscal-compass/compliance-to-policy-go/v2/framework"
-	"github.com/oscal-compass/compliance-to-policy-go/v2/framework/config"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/framework/actions"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/plugin"
 )
 
 func NewResult2OSCAL(logger hclog.Logger) *cobra.Command {
@@ -41,7 +42,7 @@ func NewResult2OSCAL(logger hclog.Logger) *cobra.Command {
 			if err := options.Complete(cmd); err != nil {
 				return err
 			}
-			if err := validateResult2OSCAL(options); err != nil {
+			if err := options.Validate(); err != nil {
 				return err
 			}
 			return runResult2Policy(cmd.Context(), options)
@@ -55,25 +56,17 @@ func NewResult2OSCAL(logger hclog.Logger) *cobra.Command {
 	return command
 }
 
-// validateResult2OSCAL required options with no defaults
-// are in place.
-func validateResult2OSCAL(options *Options) error {
-	if options.Name == "" {
-		return &ConfigError{Option: Name}
-	}
-	if options.Definition == "" {
-		return &ConfigError{Option: ComponentDefinition}
-	}
-	return nil
-}
-
 func runResult2Policy(ctx context.Context, option *Options) error {
 	frameworkConfig, err := Config(option)
 	if err != nil {
 		return err
 	}
 
-	settings, err := Settings(frameworkConfig, option)
+	plan, href, err := createOrGetPlan(ctx, option)
+	if err != nil {
+		return err
+	}
+	inputContext, err := Context(plan)
 	if err != nil {
 		return err
 	}
@@ -82,33 +75,33 @@ func runResult2Policy(ctx context.Context, option *Options) error {
 	if err != nil {
 		return err
 	}
-	foundPlugins, err := manager.FindRequestedPlugins()
+	foundPlugins, err := manager.FindRequestedPlugins(inputContext.RequestedProviders())
 	if err != nil {
 		return err
 	}
 
-	var configSelections config.PluginConfig = func(pluginID string) map[string]string {
-		return option.Plugins[pluginID]
+	var configSelections framework.PluginConfig = func(pluginID plugin.ID) map[string]string {
+		return option.Plugins[pluginID.String()]
 	}
 	launchedPlugins, err := manager.LaunchPolicyPlugins(foundPlugins, configSelections)
-	if err != nil {
-		return err
-	}
+	// Defer clean before returning an error to avoid unterminated processes
 	defer manager.Clean()
-
-	results, err := manager.AggregateResults(ctx, launchedPlugins, settings.AllSettings())
 	if err != nil {
 		return err
 	}
 
-	reporter, err := framework.NewReporter(frameworkConfig)
+	results, err := actions.AggregateResults(ctx, inputContext, launchedPlugins)
 	if err != nil {
 		return err
 	}
 
-	assessmentResults, err := reporter.GenerateAssessmentResults(ctx, "REPLACE_ME", settings, results)
+	assessmentResults, err := actions.Report(ctx, inputContext, href, *plan, results)
+	if err != nil {
+		return err
+	}
+
 	oscalModels := oscalTypes.OscalModels{
-		AssessmentResults: &assessmentResults,
+		AssessmentResults: assessmentResults,
 	}
 
 	// Validate before writing out
