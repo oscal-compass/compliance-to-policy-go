@@ -72,6 +72,21 @@ func TestReport(t *testing.T) {
 	require.Len(t, ar.Results, 1)
 	require.Len(t, *ar.Results[0].Observations, 2)
 	require.Len(t, *ar.Results[0].Findings, 1)
+	findings := *ar.Results[0].Findings
+	relatedObs := *findings[0].RelatedObservations
+
+	// require that the observation is properly linked to the finding
+	require.Len(t, relatedObs, 1)
+	observationUUID := relatedObs[0].ObservationUuid
+
+	var found bool
+	for _, obs := range *ar.Results[0].Observations {
+		if obs.UUID == observationUUID {
+			found = true
+			break
+		}
+	}
+	require.True(t, found)
 }
 
 func TestToOscalObservation(t *testing.T) {
