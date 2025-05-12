@@ -5,11 +5,15 @@ on:
     branches:
       - main
 
+permissions: {}
+
 jobs:
   project:
     name: Project Checks
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -18,13 +22,10 @@ jobs:
       - uses: actions/setup-go@v4
         with:
           go-version-file: './go.mod'
-      - name: Linting and formatting
-        run: |
-          go mod tidy
-          go mod verify
-          make fmt
-          make vet
-          git diff --exit-code
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@2226d7cb06a077cd73e56eedd38eecad18e5d837 # v6.5.0
+        with:
+          version: v2.1
       - name: Install Prerequisites
         run: |
           curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash

@@ -1,24 +1,26 @@
-linters-settings:
-  misspell:
-    ignore-words:
-    - creater
+version: "2"
+run:
+  # disallows implicit automatic updating of go.mod and fails when any changes to go.mod are needed
+  modules-download-mode: readonly
 
 linters:
   enable:
-  - asciicheck
-  - bidichk
-  - durationcheck
-  - errname
-  - errorlint
-  - exportloopref
-  - gofmt
-  - gosimple
-  - govet
-  - importas
-  - ineffassign
-  - misspell
-  - nilerr
-  - unconvert
-  - unused
-  - errcheck
-  - nolintlint
+    - asciicheck
+    - bidichk
+    - durationcheck
+    - errname
+    - errorlint
+    - exportloopref
+    - gofmt
+    - gosimple
+    - govet
+    - importas
+    - ineffassign
+    - misspell
+    - nilerr
+    - unconvert
+    - unused
+    - errcheck
+    - nolintlint
+    - staticcheck
+    - goimports
