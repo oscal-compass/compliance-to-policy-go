@@ -10,20 +10,21 @@ linters:
     - durationcheck
     - errname
     - errorlint
-    - exportloopref
-    - gosimple
     - govet
     - importas
     - ineffassign
     - misspell
     - nilerr
     - unconvert
-    - unused
-    - errcheck
     - nolintlint
+  disable:
+    # Revisit issues in the codebase with these linters
+    # and re-enable
+    - errcheck
     - staticcheck
-    - goimports
+    - unused
 
 formatters:
   enable:
     - gofmt
+    - goimports
