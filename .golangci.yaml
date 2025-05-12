@@ -11,7 +11,6 @@ linters:
     - errname
     - errorlint
     - exportloopref
-    - gofmt
     - gosimple
     - govet
     - importas
@@ -24,3 +23,7 @@ linters:
     - nolintlint
     - staticcheck
     - goimports
+
+formatters:
+  enable:
+    - gofmt
