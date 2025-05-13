@@ -20,10 +20,11 @@ ci/cd:
 
 scripts:
 - changed-files:
-  - 'Makefile'
-  - 'Dockerfile'
-  - 'scripts/**'
-  - 'hack/**'
+  - any-glob-to-any-file:
+    - 'Makefile'
+    - 'Dockerfile'
+    - 'scripts/**'
+    - 'hack/**'
 
 source:
 - changed-files:
