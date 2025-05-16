@@ -41,5 +41,5 @@ v2:
 - base-branch: ['^(?!v1)']
 
 feature:
- - head-branch: ['^feat', 'feat']
+- head-branch: ['^feat', 'feat']
 
