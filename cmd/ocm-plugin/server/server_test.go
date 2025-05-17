@@ -176,7 +176,7 @@ func createPolicy(t *testing.T) []extensions.RuleSet {
 	defer file.Close()
 
 	compDef, err := models.NewComponentDefinition(file, validation.NoopValidator{})
-
+	require.NoError(t, err)
 	require.NotNil(t, compDef)
 	require.NotNil(t, compDef.Components)
 
