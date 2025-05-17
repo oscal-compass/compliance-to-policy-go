@@ -59,30 +59,6 @@ func Report(ctx context.Context, inputContext *InputContext, planHref string, pl
 			}
 			obs := toOscalObservation(observationByCheck, rule)
 			oscalObservations = append(oscalObservations, obs)
-
-			targets, found := rulesByControls[rule.Rule.ID]
-			if !found {
-				continue
-			}
-
-			// if the observation subject result prop is not "pass" then create relevant findings
-			if obs.Subjects != nil {
-				for _, subject := range *obs.Subjects {
-					for _, prop := range *subject.Props {
-						if prop.Name == "result" {
-							if prop.Value != policy.ResultPass.String() {
-								oscalFindings, err = generateFindings(oscalFindings, obs, targets)
-								if err != nil {
-									return nil, fmt.Errorf("failed to create finding for check: %w", err)
-								}
-								log.Info(fmt.Sprintf("generated finding for rule %s for subject %s", rule.Rule.ID, subject.Title))
-								break
-							}
-						}
-					}
-				}
-			}
-
 		}
 	}
 
@@ -95,6 +71,43 @@ func Report(ctx context.Context, inputContext *InputContext, planHref string, pl
 	if len(assessmentResults.Results) != 1 {
 		return nil, errors.New("bug: assessment results should only have one result")
 	}
+
+	// Create findings after initial observations are added to ensure only observations
+	// in-scope of the plan are checked for failure.
+	for _, obs := range *assessmentResults.Results[0].Observations {
+		// TODO: Empty props indicates that an activity was in scope that results were not received for.
+		// We should generate a finding here.
+		if obs.Props == nil {
+			continue
+		}
+		rule, found := extensions.GetTrestleProp(extensions.AssessmentRuleIdProp, *obs.Props)
+		if !found {
+			continue
+		}
+		targets, found := rulesByControls[rule.Value]
+		if !found {
+			continue
+		}
+
+		// if the observation subject result prop is not "pass" then create relevant findings
+		if obs.Subjects != nil {
+			for _, subject := range *obs.Subjects {
+				result, found := extensions.GetTrestleProp("result", *subject.Props)
+				if !found {
+					continue
+				}
+				if result.Value != policy.ResultPass.String() {
+					oscalFindings, err = generateFindings(oscalFindings, obs, targets)
+					if err != nil {
+						return nil, fmt.Errorf("failed to create finding for check: %w", err)
+					}
+					log.Info(fmt.Sprintf("generated finding for rule %s for subject %s", rule.Value, subject.Title))
+					break
+				}
+			}
+		}
+	}
+
 	assessmentResults.Results[0].Findings = pkg.NilIfEmpty(&oscalFindings)
 
 	return assessmentResults, nil
@@ -191,8 +204,11 @@ func toOscalObservation(observationByCheck policy.ObservationByCheck, ruleSet ex
 	}
 
 	oscalObservation := oscalTypes.Observation{
-		UUID:             uuid.NewUUID(),
-		Title:            observationByCheck.Title,
+		UUID: uuid.NewUUID(),
+		// Overriding the title for now to ensure correct functionality.
+		// This will be addressed by
+		// https://github.com/oscal-compass/oscal-sdk-go/issues/72
+		Title:            observationByCheck.CheckID,
 		Description:      observationByCheck.Description,
 		Methods:          observationByCheck.Methods,
 		Collected:        observationByCheck.Collected,
@@ -202,7 +218,7 @@ func toOscalObservation(observationByCheck policy.ObservationByCheck, ruleSet ex
 
 	props := []oscalTypes.Property{
 		{
-			Name:  "assessment-rule-id",
+			Name:  extensions.AssessmentRuleIdProp,
 			Value: ruleSet.Rule.ID,
 			Ns:    extensions.TrestleNameSpace,
 		},
