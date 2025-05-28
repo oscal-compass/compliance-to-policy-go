@@ -5,7 +5,7 @@
 
 ## Component: {{.Component}}
 {{- range $index, $result := .AssessmentResults.Results}}
-{{- if gt (len $result.Findings) 0}}
+{{- if $result.Findings}}
 {{- range $findingIndex, $finding := $result.Findings}}
 
 -------------------------------------------------------
@@ -41,5 +41,8 @@ Rule ID: {{extractRuleId $obs $reobs.ObservationUuid}}
 {{- end}}
 {{- end}}
 {{- end}}
+{{- else}}
+
+No Findings.
 {{- end}}
 {{- end}}
