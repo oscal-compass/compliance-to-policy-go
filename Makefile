@@ -10,8 +10,8 @@ endif
 SHELL = /usr/bin/env bash -o pipefail
 .SHELLFLAGS = -ec
 
-GOOS ?= darwin
-GOARCH ?= arm64
+GOOS ?= $(shell go env GOOS)
+GOARCH ?= $(shell go env GOARCH)
 GIT_TAG := $(shell git describe --tags --abbrev=0)
 VERSION_FROM_GIT_TAG := $(shell echo "$(GIT_TAG)" | sed 's/^go\///')
 DIRTY := $(shell [ -n "$(git status -s)" ] && echo '-snapshot')
