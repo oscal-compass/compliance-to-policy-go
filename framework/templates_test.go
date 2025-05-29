@@ -189,18 +189,6 @@ func TestGenerateAssessmentResultsMd(t *testing.T) {
 	assessmentResults := oscalTypes.AssessmentResults{
 		Results: []oscalTypes.Result{
 			{
-				Findings: &[]oscalTypes.Finding{
-					{
-						Target: oscalTypes.FindingTarget{
-							TargetId: "control-1_smt",
-						},
-						RelatedObservations: &[]oscalTypes.RelatedObservation{
-							{
-								ObservationUuid: "observationuuid",
-							},
-						},
-					},
-				},
 				Observations: &[]oscalTypes.Observation{
 					{
 						UUID: "observationuuid",
@@ -239,9 +227,9 @@ func TestGenerateAssessmentResultsMd(t *testing.T) {
 	}
 
 	// Read the expected markdown file before running the test
-	expectedmd, err := os.ReadFile("./testdata/assessment-results.md")
+	expectedmd, err := os.ReadFile("./testdata/assessment-results-without-findings.md")
 	if err != nil {
-		t.Fatalf("Failed to read file %s: %v", "../test/testdata/assessment-results.md", err)
+		t.Fatalf("Failed to read file %s: %v", "../test/testdata/assessment-results-without-findings.md", err)
 	}
 
 	// Run test
@@ -251,6 +239,40 @@ func TestGenerateAssessmentResultsMd(t *testing.T) {
 	}
 
 	// Compare the generated markdown with the expected markdown contents
+	if !bytes.Equal(expectedmd, assessmentResultsMd) {
+		t.Errorf("The generated markdown file is not equal to expected markdown")
+	}
+
+	// Check Findings could be rendered in markdown as expected
+	findings := &[]oscalTypes.Finding{
+		{
+			Target: oscalTypes.FindingTarget{
+				TargetId: "control-1_smt",
+			},
+			RelatedObservations: &[]oscalTypes.RelatedObservation{
+				{
+					ObservationUuid: "observationuuid",
+				},
+			},
+		},
+	}
+	assessmentResults.Results[0].Findings = findings
+	templateValues = &ResultsTemplateValues{
+		Catalog:           "Catalog Title",
+		Component:         "Component Title",
+		AssessmentResults: assessmentResults,
+	}
+
+	expectedmd, err = os.ReadFile("./testdata/assessment-results.md")
+	if err != nil {
+		t.Fatalf("Failed to read file %s: %v", "../test/testdata/assessment-results.md", err)
+	}
+
+	assessmentResultsMd, err = templateValues.GenerateAssessmentResultsMd("assessment-results.md")
+	if err != nil {
+		t.Errorf("Error generating markdown: %v", err)
+	}
+
 	if !bytes.Equal(expectedmd, assessmentResultsMd) {
 		t.Errorf("The generated markdown file is not equal to expected markdown")
 	}
