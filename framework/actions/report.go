@@ -176,11 +176,13 @@ func Report(ctx context.Context, inputContext *InputContext, planHref string, pl
 
 	// If resources were created then add to result
 	if len(resourceItemMap) > 0 {
+		backmatter := oscalTypes.BackMatter{}
 		resources := make([]oscalTypes.Resource, 0, len(resourceItemMap))
 		for _, r := range resourceItemMap {
 			resources = append(resources, r)
 		}
-		assessmentResults.BackMatter.Resources = &resources
+		backmatter.Resources = &resources
+		assessmentResults.BackMatter = &backmatter
 	}
 	return assessmentResults, nil
 }
