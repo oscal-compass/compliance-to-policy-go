@@ -204,11 +204,8 @@ func toOscalObservation(observationByCheck policy.ObservationByCheck, ruleSet ex
 	}
 
 	oscalObservation := oscalTypes.Observation{
-		UUID: uuid.NewUUID(),
-		// Overriding the title for now to ensure correct functionality.
-		// This will be addressed by
-		// https://github.com/oscal-compass/oscal-sdk-go/issues/72
-		Title:            observationByCheck.CheckID,
+		UUID:             uuid.NewUUID(),
+		Title:            observationByCheck.Title,
 		Description:      observationByCheck.Description,
 		Methods:          observationByCheck.Methods,
 		Collected:        observationByCheck.Collected,
@@ -220,6 +217,11 @@ func toOscalObservation(observationByCheck policy.ObservationByCheck, ruleSet ex
 		{
 			Name:  extensions.AssessmentRuleIdProp,
 			Value: ruleSet.Rule.ID,
+			Ns:    extensions.TrestleNameSpace,
+		},
+		{
+			Name:  extensions.AssessmentCheckIdProp,
+			Value: observationByCheck.CheckID,
 			Ns:    extensions.TrestleNameSpace,
 		},
 	}
