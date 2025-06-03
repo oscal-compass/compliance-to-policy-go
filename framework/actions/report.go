@@ -9,6 +9,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 
 	"github.com/defenseunicorns/go-oscal/src/pkg/uuid"
 	oscalTypes "github.com/defenseunicorns/go-oscal/src/types/oscal-1-1-3"
@@ -21,6 +22,13 @@ import (
 	"github.com/oscal-compass/compliance-to-policy-go/v2/policy"
 )
 
+const (
+	InventoryItem = "inventory-item"
+	Resource      = "resource"
+)
+
+var validSubjectTypes = []string{InventoryItem, Resource}
+
 // Report action generates an Assessment Results from an Assessment Plan and Context.
 func Report(ctx context.Context, inputContext *InputContext, planHref string, plan oscalTypes.AssessmentPlan, results []policy.PVPResult) (*oscalTypes.AssessmentResults, error) {
 	log := logging.GetLogger("reporter")
@@ -30,6 +38,18 @@ func Report(ctx context.Context, inputContext *InputContext, planHref string, pl
 	oscalObservations := make([]oscalTypes.Observation, 0)
 	oscalFindings := make([]oscalTypes.Finding, 0)
 	store := inputContext.Store()
+
+	// Maps resourceIds from observation subjects to subject UUIDs
+	// to avoid duplicating subjects for a single resource.
+	// This is passed to toOscalObservation to maintain a global
+	// state across results.
+	subjectUuidMap := make(map[string]string)
+
+	// maps inventory items to subject UUIDs
+	invItemMap := make(map[string]oscalTypes.InventoryItem)
+
+	// maps resource items to subject UUIDs
+	resourceItemMap := make(map[string]oscalTypes.Resource)
 
 	// Get all the control mappings based on the assessment plan activities
 	rulesByControls := make(map[string][]string)
@@ -57,8 +77,38 @@ func Report(ctx context.Context, inputContext *InputContext, planHref string, pl
 					continue
 				}
 			}
-			obs := toOscalObservation(observationByCheck, rule)
+			obs, err := toOscalObservation(observationByCheck, rule, &subjectUuidMap)
+			if err != nil {
+				return nil, fmt.Errorf("failed to convert observation for check %v: %w", observationByCheck.CheckID, err)
+			}
 			oscalObservations = append(oscalObservations, obs)
+
+			if obs.Subjects != nil {
+				for _, subject := range *obs.Subjects {
+
+					// Create a new InventoryItem or Resource for this subject if one doesn't already exist
+					switch subject.Type {
+					case InventoryItem:
+						_, ok := invItemMap[subject.SubjectUuid]
+						if ok {
+							log.Debug(fmt.Sprintf("inventory item already exists for subject %s", subject.SubjectUuid))
+						} else {
+							invItem := generateInventoryItem(&subject)
+							log.Debug(fmt.Sprintf("creating new inventory item for subject %s", subject.SubjectUuid))
+							invItemMap[subject.SubjectUuid] = invItem
+						}
+					case Resource:
+						_, ok := resourceItemMap[subject.SubjectUuid]
+						if ok {
+							log.Debug(fmt.Sprintf("resource %s already exists for subject", subject.SubjectUuid))
+						} else {
+							resource := generateResource(&subject)
+							log.Debug(fmt.Sprintf("creating new resource for subject %s", subject.SubjectUuid))
+							resourceItemMap[subject.SubjectUuid] = resource
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -110,7 +160,74 @@ func Report(ctx context.Context, inputContext *InputContext, planHref string, pl
 
 	assessmentResults.Results[0].Findings = pkg.NilIfEmpty(&oscalFindings)
 
+	// If inventory items were created then add to result
+	if len(invItemMap) > 0 {
+		invItems := make([]oscalTypes.InventoryItem, 0, len(invItemMap))
+
+		for _, invItem := range invItemMap {
+			invItems = append(invItems, invItem)
+		}
+
+		localDefs := oscalTypes.LocalDefinitions{
+			InventoryItems: &invItems,
+		}
+		assessmentResults.Results[0].LocalDefinitions = &localDefs
+	}
+
+	// If resources were created then add to result
+	if len(resourceItemMap) > 0 {
+		backmatter := oscalTypes.BackMatter{}
+		resources := make([]oscalTypes.Resource, 0, len(resourceItemMap))
+		for _, r := range resourceItemMap {
+			resources = append(resources, r)
+		}
+		backmatter.Resources = &resources
+		assessmentResults.BackMatter = &backmatter
+	}
 	return assessmentResults, nil
+}
+
+// Generate an OSCAL Inventory Item from a given Subject reference
+func generateInventoryItem(subject *oscalTypes.SubjectReference) oscalTypes.InventoryItem {
+
+	// List of props to copy from Subject onto Inventory Item
+	invItemPropNames := []string{
+		"fqdn",
+		"hostname",
+		"ipv4-address",
+		"ipv6-address",
+		"software-name",
+		"software-version",
+		"uri",
+	}
+
+	invItem := oscalTypes.InventoryItem{
+		UUID:        subject.SubjectUuid,
+		Description: subject.Title,
+		Props:       &[]oscalTypes.Property{},
+	}
+
+	invItemProps := []oscalTypes.Property{}
+	for _, prop := range *subject.Props {
+		if slices.Contains(invItemPropNames, prop.Name) {
+			invItemProps = append(invItemProps, prop)
+		}
+	}
+
+	if len(invItemProps) > 0 {
+		invItem.Props = &invItemProps
+	}
+	return invItem
+}
+
+// Generate an OSCAL Resource from a given Subject reference
+func generateResource(subject *oscalTypes.SubjectReference) oscalTypes.Resource {
+
+	resource := oscalTypes.Resource{
+		UUID:  subject.SubjectUuid,
+		Title: subject.Title,
+	}
+	return resource
 }
 
 // getFindingForTarget returns an existing finding that matches the targetId if one exists in findings
@@ -156,9 +273,14 @@ func generateFindings(findings []oscalTypes.Finding, observation oscalTypes.Obse
 }
 
 // Convert a PVP ObservationByCheck to an OSCAL Observation
-func toOscalObservation(observationByCheck policy.ObservationByCheck, ruleSet extensions.RuleSet) oscalTypes.Observation {
+func toOscalObservation(observationByCheck policy.ObservationByCheck, ruleSet extensions.RuleSet, subjectUuidMap *map[string]string) (oscalTypes.Observation, error) {
 	subjects := make([]oscalTypes.SubjectReference, 0)
 	for _, subject := range observationByCheck.Subjects {
+
+		// Verify subject type is allowed
+		if !slices.Contains(validSubjectTypes, subject.Type) {
+			return oscalTypes.Observation{}, fmt.Errorf("failed to create observation, subject type '%s' is not allowed", subject.Type)
+		}
 
 		props := []oscalTypes.Property{
 			{
@@ -183,8 +305,25 @@ func toOscalObservation(observationByCheck policy.ObservationByCheck, ruleSet ex
 			},
 		}
 
+		for _, p := range subject.Props {
+			prop := oscalTypes.Property{
+				Name:  p.Name,
+				Value: p.Value,
+				Ns:    extensions.TrestleNameSpace,
+			}
+			props = append(props, prop)
+		}
+
+		// If a subject UUID has already been generated for the
+		// given resource ID then do not create a new UUID.
+		subjectUuid, ok := (*subjectUuidMap)[subject.ResourceID]
+		if !ok {
+			subjectUuid = uuid.NewUUID()
+			(*subjectUuidMap)[subject.ResourceID] = subjectUuid
+		}
+
 		s := oscalTypes.SubjectReference{
-			SubjectUuid: uuid.NewUUID(),
+			SubjectUuid: subjectUuid,
 			Title:       subject.Title,
 			Type:        subject.Type,
 			Props:       &props,
@@ -227,5 +366,5 @@ func toOscalObservation(observationByCheck policy.ObservationByCheck, ruleSet ex
 	}
 	oscalObservation.Props = &props
 
-	return oscalObservation
+	return oscalObservation, nil
 }
