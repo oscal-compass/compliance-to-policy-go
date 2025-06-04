@@ -10,15 +10,16 @@ Usage:
   c2pcli [command]
 
 Available Commands:
-  completion   Generate the autocompletion script for the specified shell
-  help         Help about any command
-  oscal2policy Transform OSCAL to policy artifacts.
-  result2oscal Transform policy result artifact to OSCAL Assessment Results.
-  tools        Tools for working with OSCAL Documents
-  version      Display version
+  completion    Generate the autocompletion script for the specified shell
+  help          Help about any command
+  oscal2policy  Transform OSCAL to policy artifacts.
+  oscal2posture Generate Compliance Posture from OSCAL artifacts.
+  result2oscal  Transform policy result artifacts to OSCAL Assessment Results.
+  version       Display version
 
 Flags:
-  -h, --help   help for c2pcli
+      --debug   Run with debug log level
+  -h, --help    help for c2pcli
 
 Use "c2pcli [command] --help" for more information about a command.
 ```
@@ -31,7 +32,7 @@ Use "c2pcli [command] --help" for more information about a command.
 ## Set up the C2P CLI workspace
 
 
-1. Build the C2P CLI and artifacts
+1. Build the C2P CLI and plugins
     ```bash
     # move c2pcli into your path from ./bin 
     make build
@@ -66,8 +67,8 @@ Use "c2pcli [command] --help" for more information about a command.
    **Note on --name**  
    --name or -n is the short name for the control source for a particular control
    implementation. This helps you select which baseline to run. It could be the
-   same short name used with `compliance-trestle` if using the `trestle://` prefix, or it is documented in the
-   separate property on the control implementation(example below)
+   same short name used with `compliance-trestle` if using the `trestle://` prefix, or it is documented in a
+   separate property on the control implementation (example below)
    
    ```json
         {
