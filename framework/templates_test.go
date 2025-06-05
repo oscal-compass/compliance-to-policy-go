@@ -6,12 +6,13 @@ SPDX-License-Identifier: Apache-2.0
 package framework
 
 import (
-	"bytes"
-	"os"
 	"testing"
 
 	oscalTypes "github.com/defenseunicorns/go-oscal/src/types/oscal-1-1-3"
+	"github.com/hashicorp/go-hclog"
 	"github.com/stretchr/testify/require"
+
+	tp "github.com/oscal-compass/compliance-to-policy-go/v2/framework/template"
 )
 
 func TestGetCatalogTitle(t *testing.T) {
@@ -54,49 +55,6 @@ func TestGetCatalogTitle(t *testing.T) {
 	}
 }
 
-func TestGetComponentTitle(t *testing.T) {
-	tests := []struct {
-		assessmentPlan oscalTypes.AssessmentPlan
-		expected       string
-		hasError       bool
-	}{
-		{
-			assessmentPlan: oscalTypes.AssessmentPlan{
-				LocalDefinitions: &oscalTypes.LocalDefinitions{
-					Components: &[]oscalTypes.SystemComponent{
-						{
-							Title: "Component Title",
-						},
-					},
-				},
-			},
-			expected: "Component Title",
-			hasError: false,
-		},
-		{
-			assessmentPlan: oscalTypes.AssessmentPlan{
-				LocalDefinitions: &oscalTypes.LocalDefinitions{
-					Components: &[]oscalTypes.SystemComponent{},
-				},
-			},
-			expected: "",
-			hasError: true,
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.expected, func(t *testing.T) {
-			result, err := getComponentTitle(test.assessmentPlan)
-			if test.hasError {
-				require.Error(t, err)
-			} else {
-				require.NoError(t, err)
-				require.Equal(t, test.expected, result)
-			}
-		})
-	}
-}
-
 func TestExtractControlId(t *testing.T) {
 	test := struct {
 		targetId string
@@ -109,56 +67,12 @@ func TestExtractControlId(t *testing.T) {
 	require.Equal(t, test.expected, result)
 }
 
-func TestExtractRuleId(t *testing.T) {
-	// Setup mock data
-	ob := oscalTypes.Observation{
-		UUID: "1234-uuid",
-		Props: &[]oscalTypes.Property{
-			{
-				Name:  "assessment-rule-id",
-				Value: "rule-1",
-			},
-		},
-	}
-	tests := []struct {
-		observation     oscalTypes.Observation
-		observationUuid string
-		expected        string
-	}{
-		{
-			observation:     ob,
-			observationUuid: "1234-uuid",
-			expected:        "rule-1",
-		},
-		{
-			observation:     ob,
-			observationUuid: "wrong-uuid",
-			expected:        "",
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.observationUuid, func(t *testing.T) {
-			result := extractRuleId(test.observation, test.observationUuid)
-			require.Equal(t, test.expected, result)
-		})
-	}
-}
-
 func TestCreateTemplateValues(t *testing.T) {
 	catalog := oscalTypes.Catalog{
 		Metadata: oscalTypes.Metadata{
 			Title: "Catalog Title",
 		},
 	}
-	assessmentPlan := oscalTypes.AssessmentPlan{
-		LocalDefinitions: &oscalTypes.LocalDefinitions{
-			Components: &[]oscalTypes.SystemComponent{
-				{Title: "Component Title"},
-			},
-		},
-	}
-	assessmentResults := oscalTypes.AssessmentResults{}
 
 	test := struct {
 		catalog           oscalTypes.Catalog
@@ -170,46 +84,31 @@ func TestCreateTemplateValues(t *testing.T) {
 		assessmentPlan:    assessmentPlan,
 		assessmentResults: assessmentResults,
 		expected: &ResultsTemplateValues{
-			Catalog:           "Catalog Title",
-			Component:         "Component Title",
-			AssessmentResults: assessmentResults,
-		},
-	}
-
-	// Run test
-	result, err := CreateResultsValues(test.catalog, test.assessmentPlan, test.assessmentResults)
-	if err != nil {
-		t.Errorf("Error creating ResultsTemplateValues: %v", err)
-	}
-	require.Equal(t, test.expected, result)
-}
-
-func TestGenerateAssessmentResultsMd(t *testing.T) {
-	// Mock data for testing
-	assessmentResults := oscalTypes.AssessmentResults{
-		Results: []oscalTypes.Result{
-			{
-				Observations: &[]oscalTypes.Observation{
-					{
-						UUID: "observationuuid",
-						Props: &[]oscalTypes.Property{
-							{
-								Name:  "assessment-rule-id",
-								Value: "rule-value",
-							},
-						},
-						Subjects: &[]oscalTypes.SubjectReference{
-							{
-								SubjectUuid: "subject-1234",
-								Title:       "my component",
-								Props: &[]oscalTypes.Property{
-									{
-										Name:  "result",
-										Value: "fail",
-									},
-									{
-										Name:  "reason",
-										Value: "my reason",
+			Catalog: "Catalog Title",
+			Components: []tp.Component{
+				{
+					ComponentTitle: "Component Title",
+					Findings: []tp.Findings{
+						{
+							ControlID: "control-1",
+							Results: []tp.RuleResult{
+								{
+									RuleId: "rule-value",
+									Subjects: []oscalTypes.SubjectReference{
+										{
+											SubjectUuid: "subject-1234",
+											Title:       "my component",
+											Props: &[]oscalTypes.Property{
+												{
+													Name:  "result",
+													Value: "fail",
+												},
+												{
+													Name:  "reason",
+													Value: "my reason",
+												},
+											},
+										},
 									},
 								},
 							},
@@ -220,60 +119,10 @@ func TestGenerateAssessmentResultsMd(t *testing.T) {
 		},
 	}
 
-	templateValues := &ResultsTemplateValues{
-		Catalog:           "Catalog Title",
-		Component:         "Component Title",
-		AssessmentResults: assessmentResults,
-	}
-
-	// Read the expected markdown file before running the test
-	expectedmd, err := os.ReadFile("./testdata/assessment-results-without-findings.md")
-	if err != nil {
-		t.Fatalf("Failed to read file %s: %v", "../test/testdata/assessment-results-without-findings.md", err)
-	}
-
 	// Run test
-	assessmentResultsMd, err := templateValues.GenerateAssessmentResultsMd("assessment-results.md")
+	result, err := CreateResultsValues(test.catalog, test.assessmentPlan, test.assessmentResults, hclog.NewNullLogger())
 	if err != nil {
-		t.Errorf("Error generating markdown: %v", err)
+		t.Errorf("Error creating ResultsTemplateValues: %v", err)
 	}
-
-	// Compare the generated markdown with the expected markdown contents
-	if !bytes.Equal(expectedmd, assessmentResultsMd) {
-		t.Errorf("The generated markdown file is not equal to expected markdown")
-	}
-
-	// Check Findings could be rendered in markdown as expected
-	findings := &[]oscalTypes.Finding{
-		{
-			Target: oscalTypes.FindingTarget{
-				TargetId: "control-1_smt",
-			},
-			RelatedObservations: &[]oscalTypes.RelatedObservation{
-				{
-					ObservationUuid: "observationuuid",
-				},
-			},
-		},
-	}
-	assessmentResults.Results[0].Findings = findings
-	templateValues = &ResultsTemplateValues{
-		Catalog:           "Catalog Title",
-		Component:         "Component Title",
-		AssessmentResults: assessmentResults,
-	}
-
-	expectedmd, err = os.ReadFile("./testdata/assessment-results.md")
-	if err != nil {
-		t.Fatalf("Failed to read file %s: %v", "../test/testdata/assessment-results.md", err)
-	}
-
-	assessmentResultsMd, err = templateValues.GenerateAssessmentResultsMd("assessment-results.md")
-	if err != nil {
-		t.Errorf("Error generating markdown: %v", err)
-	}
-
-	if !bytes.Equal(expectedmd, assessmentResultsMd) {
-		t.Errorf("The generated markdown file is not equal to expected markdown")
-	}
+	require.Equal(t, test.expected, result)
 }

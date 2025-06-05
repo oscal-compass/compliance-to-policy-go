@@ -6,6 +6,7 @@
 package subcommands
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -29,16 +30,19 @@ func NewOSCAL2Posture(logger hclog.Logger) *cobra.Command {
 			if err := options.Complete(cmd); err != nil {
 				return err
 			}
+			if err := options.Validate(); err != nil {
+				return err
+			}
 			if err := validateOSCAL2Posture(options); err != nil {
 				return err
 			}
-			return runOSCAL2Posture(options)
+			return runOSCAL2Posture(cmd.Context(), options)
 		},
 	}
 	fs := command.Flags()
 	BindCommonFlags(fs)
 	fs.String(Catalog, "", "path to catalog.json")
-	fs.StringP("assessment-results", "a", "./assessment-results.json", "path to assessment-results.json")
+	fs.StringP("assessment-results", "r", "./assessment-results.json", "path to assessment-results.json")
 	fs.StringP("out", "o", "-", "path to output file. Use '-' for stdout. Default '-'.")
 	return command
 }
@@ -49,13 +53,10 @@ func validateOSCAL2Posture(options *Options) error {
 	if options.Catalog == "" {
 		errs = append(errs, &ConfigError{Option: Catalog})
 	}
-	if options.Definition == "" {
-		errs = append(errs, &ConfigError{Option: ComponentDefinition})
-	}
 	return errors.Join(errs...)
 }
 
-func runOSCAL2Posture(option *Options) error {
+func runOSCAL2Posture(ctx context.Context, option *Options) error {
 	schemaValidator := validation.NewSchemaValidator()
 	arFile, err := os.Open(option.AssessmentResults)
 	if err != nil {
@@ -77,18 +78,13 @@ func runOSCAL2Posture(option *Options) error {
 		return fmt.Errorf("error loading catalog: %w", err)
 	}
 
-	compDefFile, err := os.Open(option.Definition)
+	plan, _, err := createOrGetPlan(ctx, option)
 	if err != nil {
 		return err
 	}
-	defer compDefFile.Close()
-	compDef, err := models.NewComponentDefinition(compDefFile, schemaValidator)
-	if err != nil {
-		return fmt.Errorf("error loading component definition: %w", err)
-	}
 
-	r := framework.NewOscal2Posture(assessmentResults, catalog, compDef, option.logger)
-	data, err := r.Generate()
+	r := framework.NewPosture(assessmentResults, catalog, plan, option.logger)
+	data, err := r.Generate(option.Output)
 	if err != nil {
 		return err
 	}

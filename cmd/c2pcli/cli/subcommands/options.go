@@ -101,12 +101,12 @@ func (o *Options) Validate() error {
 func BindCommonFlags(fs *pflag.FlagSet) {
 	fs.StringP(ComponentDefinition, "d", "", "path to component-definition.json file. This option cannot be used with --assessment-plan.")
 	fs.StringP(ConfigPath, "c", "c2p-config.yaml", "path to the configuration for the C2P CLI.")
+	fs.StringP(AssessmentPlan, "a", "", "path to assessment-plan.json. This option cannot be used with --component-definition.")
+	fs.StringP(Name, "n", "", "short name of the control source for the implementation to be evaluated. Use with --component-definition.")
 }
 
 // BindPluginFlags binds flags for command that interact with the plugin manager.
 func BindPluginFlags(fs *pflag.FlagSet) {
 	BindCommonFlags(fs)
 	fs.StringP("plugin-dir", "p", "c2p-plugins", "path to plugin directory. Defaults to `c2p-plugins`.")
-	fs.StringP(Name, "n", "", "short name of the control source for the implementation to be evaluated. Use with --component-definition.")
-	fs.StringP(AssessmentPlan, "a", "", "path to assessment-plan.json. This option cannot be used with --component-definition.")
 }
