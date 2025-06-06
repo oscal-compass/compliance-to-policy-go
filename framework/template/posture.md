@@ -1,32 +1,45 @@
-## Catalog
-{{.CatalogTitle}}
+# Assessment Results Details
 
+# Catalog
+{{.Catalog}}
 {{- range $component := .Components}}
+
 ## Component: {{$component.ComponentTitle}}
+{{- if $component.Findings }}
+{{- range $finding := $component.Findings}}
 
-{{- range $controlResult := $component.ControlResults}}
-#### Result of control: {{$controlResult.ControlId}}
+-------------------------------------------------------
 
-{{- range $ruleResult := $controlResult.RuleResults}}
-{{ if gt (len $ruleResult.Subjects) 0 }}
+#### Result of control: {{$finding.ControlID}}
+{{ if $finding.Results }}
+{{- range $ruleResult := $finding.Results}}
 Rule ID: {{$ruleResult.RuleId}}
 <details><summary>Details</summary>
-{{- range $subject := $ruleResult.Subjects}}
+{{- range $subj := $ruleResult.Subjects}}
 
-- Subject UUID: {{$subject.UUID}}
-    - Title: {{$subject.Title}}
-    - Result: {{$subject.Result}}
+
+  - Subject UUID: {{$subj.SubjectUuid}}
+  - Title: {{$subj.Title}}
+{{- range $prop := $subj.Props}}
+{{- if eq $prop.Name "result"}}
+
+    - Result: {{$prop.Value}}
+{{- end}}
+{{- if eq $prop.Name "reason"}}
+
     - Reason:
       ```
-      {{ newline_with_indent $subject.Reason 6}}
+      {{ newline_with_indent $prop.Value 6}}
       ```
 {{- end}}
-</details>
-{{ else }}
-Rule ID: {{$ruleResult.RuleId}}
-  - No subjects found
-{{ end }}
 {{- end}}
----
+{{- end}}
+</details>
+{{- end}}
+{{- end}}
+{{- end}}
+{{- else}}
+
+No Findings.
 {{- end}}
 {{- end}}

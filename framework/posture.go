@@ -30,28 +30,28 @@ import (
 //go:embed template/*.md
 var embeddedResources embed.FS
 
-type Oscal2Posture struct {
+type Posture struct {
 	logger            hclog.Logger
 	assessmentResults *oscalTypes.AssessmentResults
 	catalog           *oscalTypes.Catalog
-	compDef           *oscalTypes.ComponentDefinition
+	assessmentPlan    *oscalTypes.AssessmentPlan
 	templateFile      *string
 }
 
-func NewOscal2Posture(assessmentResults *oscalTypes.AssessmentResults, catalog *oscalTypes.Catalog, compDef *oscalTypes.ComponentDefinition, logger hclog.Logger) *Oscal2Posture {
-	return &Oscal2Posture{
+func NewPosture(assessmentResults *oscalTypes.AssessmentResults, catalog *oscalTypes.Catalog, plan *oscalTypes.AssessmentPlan, logger hclog.Logger) *Posture {
+	return &Posture{
 		assessmentResults: assessmentResults,
 		catalog:           catalog,
-		compDef:           compDef,
+		assessmentPlan:    plan,
 		logger:            logger,
 	}
 }
 
-func (r *Oscal2Posture) SetTemplateFile(templateFile string) {
+func (r *Posture) SetTemplateFile(templateFile string) {
 	r.templateFile = &templateFile
 }
 
-func (r *Oscal2Posture) Generate() ([]byte, error) {
+func (r *Posture) Generate(mdfilepath string) ([]byte, error) {
 	var templateData []byte
 	var err error
 	if r.templateFile == nil {
@@ -63,6 +63,7 @@ func (r *Oscal2Posture) Generate() ([]byte, error) {
 		return nil, err
 	}
 
+	// Custom function to add indentation for newlines
 	funcmap := template.FuncMap{
 		"newline_with_indent": func(text string, indent int) string {
 			newText := strings.ReplaceAll(text, "\n", "\n"+strings.Repeat(" ", indent))
@@ -71,13 +72,13 @@ func (r *Oscal2Posture) Generate() ([]byte, error) {
 	}
 
 	templateString := string(templateData)
-	tmpl := template.New("report.md")
+	tmpl := template.New(mdfilepath)
 	tmpl.Funcs(funcmap)
 	tmpl, err = tmpl.Parse(templateString)
 	if err != nil {
 		return nil, err
 	}
-	templateValue, err := CreateComponentValues(r.catalog, r.compDef, r.assessmentResults, r.logger)
+	templateValue, err := CreateResultsValues(*r.catalog, *r.assessmentPlan, *r.assessmentResults, r.logger)
 	if err != nil {
 		return nil, err
 	}

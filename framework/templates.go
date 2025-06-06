@@ -6,11 +6,9 @@
 package framework
 
 import (
-	"bytes"
-	"errors"
 	"fmt"
+	"slices"
 	"strings"
-	"text/template"
 
 	oscalTypes "github.com/defenseunicorns/go-oscal/src/types/oscal-1-1-3"
 	"github.com/hashicorp/go-hclog"
@@ -21,162 +19,66 @@ import (
 
 // ResultsTemplateValues defines values for a plan-based posture report.
 type ResultsTemplateValues struct {
-	Catalog           string
-	Component         string
-	AssessmentResults oscalTypes.AssessmentResults
+	Catalog    string
+	Components []tp.Component
 }
 
 func CreateResultsValues(
 	catalog oscalTypes.Catalog,
 	assessmentPlan oscalTypes.AssessmentPlan,
 	assessmentResults oscalTypes.AssessmentResults,
+	logger hclog.Logger,
 ) (*ResultsTemplateValues, error) {
 	catalogTitle, err := getCatalogTitle(catalog)
 	if err != nil {
 		return nil, err
 	}
-	componentTitle, err := getComponentTitle(assessmentPlan)
-	if err != nil {
-		return nil, err
+
+	templateValues := &ResultsTemplateValues{
+		Catalog: catalogTitle,
 	}
 
-	return &ResultsTemplateValues{
-		Catalog:           catalogTitle,
-		Component:         componentTitle,
-		AssessmentResults: assessmentResults,
-	}, nil
-}
-
-func (p *ResultsTemplateValues) GenerateAssessmentResultsMd(mdfilepath string) ([]byte, error) {
-	// Read the template file
-	templateData, err := embeddedResources.ReadFile("template/results.md")
-	if err != nil {
-		return nil, err
+	if assessmentPlan.LocalDefinitions == nil || assessmentPlan.LocalDefinitions.Components == nil {
+		logger.Warn("assessment plan does not contain components")
+		return templateValues, nil
 	}
 
-	// Custom function to add indentation for newlines
-	funcmap := template.FuncMap{
-		"extractControlId": extractControlId,
-		"extractRuleId":    extractRuleId,
-		"newline_with_indent": func(text string, indent int) string {
-			return strings.ReplaceAll(text, "\n", "\n"+strings.Repeat(" ", indent))
-		},
-	}
+	findings := allFindings(assessmentResults, logger)
 
-	// Convert templateData to string
-	templateString := string(templateData)
-
-	// Create a new template and parse the string
-	tmpl, err := template.New(mdfilepath).Funcs(funcmap).Parse(templateString)
-	if err != nil {
-		return nil, err
-	}
-
-	// Generate the markdown content using the struct data
-	var buffer bytes.Buffer
-	err = tmpl.Execute(&buffer, p)
-	if err != nil {
-		return nil, err
-	}
-
-	// Return the generated markdown content as a byte slice
-	return buffer.Bytes(), nil
-}
-
-// ComponentTemplateValues defined values for a component-based posture report.
-type ComponentTemplateValues struct {
-	CatalogTitle string
-	Components   []tp.Component
-}
-
-func CreateComponentValues(
-	catalog *oscalTypes.Catalog,
-	compDef *oscalTypes.ComponentDefinition,
-	assessmentResults *oscalTypes.AssessmentResults,
-	logger hclog.Logger,
-) (ComponentTemplateValues, error) {
-
-	if catalog == nil {
-		return ComponentTemplateValues{}, errors.New("catalog cannot be nil")
-	}
-
-	catalogTitle, err := getCatalogTitle(*catalog)
-	if err != nil {
-		return ComponentTemplateValues{}, err
-	}
-	templateValue := ComponentTemplateValues{
-		CatalogTitle: catalogTitle,
-		Components:   []tp.Component{},
-	}
-
-	if assessmentResults == nil {
-		return templateValue, errors.New("assessment results cannot be nil")
-	}
-
-	// Process assessment results
-	subjectsByRule := findSubjects(*assessmentResults, logger)
-
-	if compDef.Components == nil {
-		return templateValue, nil
-	}
-
-	for _, componentObject := range *compDef.Components {
-		if componentObject.Type == "validation" {
+	// Attach these to components
+	for _, component := range *assessmentPlan.LocalDefinitions.Components {
+		tpComp := tp.Component{
+			ComponentTitle: component.Title,
+		}
+		if component.Props == nil {
 			continue
 		}
-		component := tp.Component{
-			ComponentTitle: componentObject.Title,
-			ControlResults: []tp.ControlResult{},
+
+		ruleIdsProps := extensions.FindAllProps(*component.Props, extensions.WithName(extensions.RuleIdProp))
+		var ruleSet []string
+		for _, ruleId := range ruleIdsProps {
+			ruleSet = append(ruleSet, ruleId.Value)
 		}
-		for _, cio := range *componentObject.ControlImplementations {
-			for _, co := range cio.ImplementedRequirements {
-				controlResult := tp.ControlResult{
-					ControlId:   co.ControlId,
-					RuleResults: []tp.RuleResult{},
-				}
 
-				if co.Props != nil {
-					ruleIdsProps := extensions.FindAllProps(*co.Props, extensions.WithName(extensions.RuleIdProp))
-					for _, ruleId := range ruleIdsProps {
-						subjects := []tp.Subject{}
-						rawSubjects, ok := subjectsByRule[ruleId.Value]
-						if !ok {
-							logger.Debug(fmt.Sprintf("no subjects found for rule %s", ruleId.Value))
-						}
-						for _, rawSubject := range rawSubjects {
-							var result, reason string
-							resultProp, resultFound := extensions.GetTrestleProp("result", *rawSubject.Props)
-							reasonProp, reasonFound := extensions.GetTrestleProp("reason", *rawSubject.Props)
-
-							if resultFound {
-								result = resultProp.Value
-								if reasonFound {
-									reason = reasonProp.Value
-								}
-							} else {
-								result = "Error"
-								reason = "No results found."
-							}
-							subject := tp.Subject{
-								Title:  rawSubject.Title,
-								UUID:   rawSubject.SubjectUuid,
-								Result: result,
-								Reason: reason,
-							}
-							subjects = append(subjects, subject)
-						}
-						controlResult.RuleResults = append(controlResult.RuleResults, tp.RuleResult{
-							RuleId:   ruleId.Value,
-							Subjects: subjects,
-						})
-					}
+		for _, finding := range findings {
+			tpFinding := tp.Findings{
+				ControlID: finding.ControlID,
+			}
+			for _, result := range finding.Results {
+				// Only add in-scope results to this instance of the finding
+				if slices.Contains(ruleSet, result.RuleId) {
+					tpFinding.Results = append(tpFinding.Results, result)
 				}
-				component.ControlResults = append(component.ControlResults, controlResult)
+			}
+
+			if len(tpFinding.Results) > 0 {
+				tpComp.Findings = append(tpComp.Findings, tpFinding)
 			}
 		}
-		templateValue.Components = append(templateValue.Components, component)
+		templateValues.Components = append(templateValues.Components, tpComp)
 	}
-	return templateValue, nil
+
+	return templateValues, nil
 }
 
 // Get the catalog title as the template.md catalog info
@@ -188,45 +90,15 @@ func getCatalogTitle(catalog oscalTypes.Catalog) (string, error) {
 	}
 }
 
-// Get the component title as the template.md component info
-// At that stage, it only supports the Components length is 1. When the
-// observation links to the component in assessment plan, it will be improved.
-func getComponentTitle(assessmentPlan oscalTypes.AssessmentPlan) (string, error) {
-	if assessmentPlan.LocalDefinitions != nil {
-		if len(*assessmentPlan.LocalDefinitions.Components) == 1 {
-			component := (*assessmentPlan.LocalDefinitions.Components)[0]
-			return component.Title, nil
-		}
-	}
-	return "", fmt.Errorf("error getting component title")
-}
-
 // Get controlId info from finding.Target.TargetId
 func extractControlId(targetId string) string {
 	controlId, _ := strings.CutSuffix(targetId, "_smt")
 	return controlId
 }
 
-// Get the controlId mapping Rules from result.Observations base on finding.RelatedObservations
-func extractRuleId(ob oscalTypes.Observation, observationUuid string) string {
-	// Check if the UUID matches
-	if ob.UUID == observationUuid {
-		// Check if Props is not nil
-		if ob.Props != nil {
-			// Loop through the Props slice to find the assessment-rule-id
-			for _, prop := range *ob.Props { // Dereference the pointer to access the slice
-				if prop.Name == "assessment-rule-id" {
-					return prop.Value // Return the value if the property is found
-				}
-			}
-		}
-	}
-	// Return empty string if not found or UUID doesn't match
-	return ""
-}
-
-func findSubjects(assessmentResults oscalTypes.AssessmentResults, logger hclog.Logger) map[string][]oscalTypes.SubjectReference {
-	subjectsByRule := make(map[string][]oscalTypes.SubjectReference)
+func allFindings(assessmentResults oscalTypes.AssessmentResults, logger hclog.Logger) []tp.Findings {
+	var findings []tp.Findings
+	observations := make(map[string]oscalTypes.Observation)
 	for _, ar := range assessmentResults.Results {
 		if ar.Observations == nil {
 			continue
@@ -236,11 +108,41 @@ func findSubjects(assessmentResults oscalTypes.AssessmentResults, logger hclog.L
 				logger.Debug(fmt.Sprintf("no subjects found for %s", ob.Title))
 				continue
 			}
-			prop, found := extensions.GetTrestleProp("assessment-rule-id", *ob.Props)
-			if found {
-				subjectsByRule[prop.Value] = *ob.Subjects
+			observations[ob.UUID] = ob
+		}
+
+		if ar.Findings != nil {
+			for _, finding := range *ar.Findings {
+				item := tp.Findings{
+					ControlID: extractControlId(finding.Target.TargetId),
+				}
+
+				if finding.RelatedObservations == nil {
+					continue
+				}
+
+				for _, relatedObs := range *finding.RelatedObservations {
+					ob, found := observations[relatedObs.ObservationUuid]
+					if !found {
+						logger.Debug(fmt.Sprintf("observation %v not found", relatedObs.ObservationUuid))
+						continue
+					}
+
+					// Observations with nil Props and Subjects are filtering out when
+					// observations are collected.
+					ruleId, found := extensions.GetTrestleProp(extensions.AssessmentRuleIdProp, *ob.Props)
+					if !found {
+						continue
+					}
+					ruleResult := tp.RuleResult{
+						RuleId:   ruleId.Value,
+						Subjects: *ob.Subjects,
+					}
+					item.Results = append(item.Results, ruleResult)
+				}
+				findings = append(findings, item)
 			}
 		}
 	}
-	return subjectsByRule
+	return findings
 }
