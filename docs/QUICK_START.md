@@ -85,5 +85,5 @@ Use "c2pcli [command] --help" for more information about a command.
    
 4. Generate a compliance posture markdown file with the `c2pcli`
    ```bash
-   c2pcli oscal2posture -c ./docs/c2p-config.yaml --assessment-results /tmp/assessment-results.json -o /tmp/compliance-posture.md
+   c2pcli oscal2posture -c docs/c2p-config.yaml --name nist_800_53 --assessment-results /tmp/assessment-results.json -o /tmp/compliance-posture.md
    ```
