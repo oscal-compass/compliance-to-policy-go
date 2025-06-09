@@ -128,7 +128,7 @@ func allFindings(assessmentResults oscalTypes.AssessmentResults, logger hclog.Lo
 						continue
 					}
 
-					// Observations with nil Props and Subjects are filtering out when
+					// Observations with nil Props and Subjects are filtered out when
 					// observations are collected.
 					ruleId, found := extensions.GetTrestleProp(extensions.AssessmentRuleIdProp, *ob.Props)
 					if !found {
