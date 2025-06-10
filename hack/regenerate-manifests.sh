@@ -1,15 +1,19 @@
+#!/bin/bash
 # Copyright 2025 The OSCAL Compass Authors
 # SPDX-License-Identifier: Apache-2.0
 
-
-#!/bin/bash
-
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+PLUGINS_DIR="${SCRIPT_DIR}/../c2p-plugins"
 
-cp -f "${SCRIPT_DIR}/../bin/kyverno-plugin" "${SCRIPT_DIR}/../bin/ocm-plugin" "${SCRIPT_DIR}/../c2p-plugins"
+if [ ! -d "${PLUGINS_DIR}" ]; then
+  echo "Creating plugins directory: ${PLUGINS_DIR}"
+  mkdir -p "${PLUGINS_DIR}"
+fi
 
-checksum=$(sha256sum "${SCRIPT_DIR}/../c2p-plugins/kyverno-plugin" | cut -d ' ' -f 1 )
-cat > "${SCRIPT_DIR}/../c2p-plugins/c2p-kyverno-manifest.json" << EOF
+cp -f "${SCRIPT_DIR}/../bin/kyverno-plugin" "${SCRIPT_DIR}/../bin/ocm-plugin" "${PLUGINS_DIR}"
+
+checksum=$(sha256sum "${PLUGINS_DIR}/kyverno-plugin" | cut -d ' ' -f 1 )
+cat > "${PLUGINS_DIR}/c2p-kyverno-manifest.json" << EOF
 {
   "metadata": {
     "id": "kyverno",
@@ -48,8 +52,8 @@ cat > "${SCRIPT_DIR}/../c2p-plugins/c2p-kyverno-manifest.json" << EOF
 EOF
 
 
-checksum=$(sha256sum "${SCRIPT_DIR}/../c2p-plugins/ocm-plugin" | cut -d ' ' -f 1 )
-cat > "${SCRIPT_DIR}/../c2p-plugins/c2p-ocm-manifest.json" << EOF
+checksum=$(sha256sum "${PLUGINS_DIR}/ocm-plugin" | cut -d ' ' -f 1 )
+cat > "${PLUGINS_DIR}/c2p-ocm-manifest.json" << EOF
 {
  "metadata": {
    "id": "ocm",
