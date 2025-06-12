@@ -189,7 +189,7 @@
             "name": "Rule_Id",
             "ns": "https://oscal-compass.github.io/compliance-trestle/schemas/oscal/cd/ocm",
             "value": "test_configuration_check",
-            "remarks": "rule_set_1"
+            "remarks": "rule_set_0"
           },
           {
             "name": "Check_Id",
