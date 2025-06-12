@@ -16,34 +16,23 @@ limitations under the License.
 
 package template
 
-type Subject struct {
-	// Name
-	Title string `json:"title,omitempty" yaml:"title,omitempty"`
-	// UUID
-	UUID string `json:"uuid,omitempty" yaml:"uuid,omitempty"`
-	// Result
-	Result string `json:"result,omitempty" yaml:"result,omitempty"`
-	// Reason
-	Reason string `json:"reason,omitempty" yaml:"reason,omitempty"`
-}
+import oscalTypes "github.com/defenseunicorns/go-oscal/src/types/oscal-1-1-3"
 
 type RuleResult struct {
 	// Rule ID
 	RuleId string `json:"ruleId,omitempty" yaml:"ruleId,omitempty"`
 	// Subjects
-	Subjects []Subject `json:"subjects,omitempty" yaml:"subjects,omitempty"`
+	Subjects []oscalTypes.SubjectReference `json:"subjects,omitempty" yaml:"subjects,omitempty"`
 }
 
-type ControlResult struct {
-	// Control ID
-	ControlId string `json:"controlId,omitempty" yaml:"controlId,omitempty"`
-	// Results per rule
-	RuleResults []RuleResult `json:"ruleResults,omitempty" yaml:"ruleResults,omitempty"`
+type Findings struct {
+	ControlID string       `json:"controlId,omitempty" yaml:"controlId,omitempty"`
+	Results   []RuleResult `json:"results,omitempty" yaml:"results,omitempty"`
 }
 
 type Component struct {
 	// Component title in component-definition
 	ComponentTitle string `json:"componentTitle,omitempty" yaml:"componentTitle,omitempty"`
 	// Results per control
-	ControlResults []ControlResult `json:"controlResults,omitempty" yaml:"controlResults,omitempty"`
+	Findings []Findings `json:"findings,omitempty" yaml:"findings,omitempty"`
 }
