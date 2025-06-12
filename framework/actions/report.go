@@ -55,11 +55,13 @@ func Report(ctx context.Context, inputContext *InputContext, planHref string, pl
 	rulesByControls := make(map[string][]string)
 	for _, act := range *plan.LocalDefinitions.Activities {
 		var controlSet []string
-		controls := act.RelatedControls.ControlSelections
-		for _, ctr := range controls {
-			for _, assess := range *ctr.IncludeControls {
-				targetId := fmt.Sprintf("%s_smt", assess.ControlId)
-				controlSet = append(controlSet, targetId)
+		if act.RelatedControls != nil {
+			controls := act.RelatedControls.ControlSelections
+			for _, ctr := range controls {
+				for _, assess := range *ctr.IncludeControls {
+					targetId := fmt.Sprintf("%s_smt", assess.ControlId)
+					controlSet = append(controlSet, targetId)
+				}
 			}
 		}
 		rulesByControls[act.Title] = controlSet
