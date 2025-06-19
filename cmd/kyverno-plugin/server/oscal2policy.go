@@ -22,17 +22,17 @@ import (
 	"github.com/hashicorp/go-hclog"
 	cp "github.com/otiai10/copy"
 
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/utils"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/policy"
 )
 
 type Oscal2Policy struct {
 	policiesDir string
-	tempDir     pkg.TempDirectory
+	tempDir     utils.TempDirectory
 	logger      hclog.Logger
 }
 
-func NewOscal2Policy(policiesDir string, tempDir pkg.TempDirectory) *Oscal2Policy {
+func NewOscal2Policy(policiesDir string, tempDir utils.TempDirectory) *Oscal2Policy {
 	return &Oscal2Policy{
 		policiesDir: policiesDir,
 		tempDir:     tempDir,
@@ -53,7 +53,7 @@ func (c *Oscal2Policy) Generate(pl policy.Policy) error {
 }
 
 func (c *Oscal2Policy) CopyAllTo(destDir string) error {
-	if _, err := pkg.MakeDir(destDir); err != nil {
+	if _, err := utils.MakeDir(destDir); err != nil {
 		return err
 	}
 	if err := cp.Copy(c.tempDir.GetTempDir(), destDir); err != nil {

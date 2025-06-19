@@ -1,8 +1,8 @@
-component-definition: ./pkg/testdata/ocm/component-definition.json
+component-definition: ./internal/testdata/ocm/component-definition.json
 plugins:
   ocm:
-    policy-dir: ./pkg/testdata/ocm/policies
-    policy-results-dir: ./pkg/testdata/ocm/policy-results
+    policy-dir: ./internal/testdata/ocm/policies
+    policy-results-dir: ./internal/testdata/ocm/policy-results
     temp-dir: /tmp/ocm
     policy-set-name: "Managed Kubernetes"
     namespace: "c2p"

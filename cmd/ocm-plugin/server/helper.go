@@ -20,8 +20,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	typepolr "sigs.k8s.io/wg-policy-prototypes/policy-report/pkg/api/wgpolicyk8s.io/v1beta1"
 
-	typeconfigpolicy "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/configurationpolicy"
-	typepolicy "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/policy"
+	typeconfigpolicy "github.com/oscal-compass/compliance-to-policy-go/v2/internal/types/configurationpolicy"
+	typepolicy "github.com/oscal-compass/compliance-to-policy-go/v2/internal/types/policy"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/policy"
 )
 

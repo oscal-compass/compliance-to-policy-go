@@ -21,10 +21,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/tables/resources"
-	. "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/internalcompliance"
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/policycomposition"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/tables/resources"
+	. "github.com/oscal-compass/compliance-to-policy-go/v2/internal/types/internalcompliance"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/types/policycomposition"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/utils"
 )
 
 type Decomposer struct {
@@ -43,24 +43,24 @@ func NewDecomposer(resourceTableFile io.Reader, outputDirPath string) (*Decompos
 }
 
 func (d *Decomposer) Decompose() (string, error) {
-	policyResourcesDir, err := pkg.MakeDir(d.outputDirPath + "/resources")
+	policyResourcesDir, err := utils.MakeDir(d.outputDirPath + "/resources")
 	if err != nil {
 		return policyResourcesDir, err
 	}
 	groupedByPolicy := d.resourceTable.GroupBy("policy")
-	filenameCreator := pkg.NewFilenameCreator("", &pkg.FilenameCreatorOption{
+	filenameCreator := utils.NewFilenameCreator("", &utils.FilenameCreatorOption{
 		UnlabelToZero: true,
 	})
 	for policy, table := range groupedByPolicy {
 		policyFilename := filenameCreator.Get(policy)
-		policyDir, err := pkg.MakeDir(policyResourcesDir + "/" + policyFilename)
+		policyDir, err := utils.MakeDir(policyResourcesDir + "/" + policyFilename)
 		if err != nil {
 			return policyResourcesDir, err
 		}
-		if err := pkg.CopyFile(table.List()[0].PolicyDir+"/kustomization.yaml", policyDir+"/kustomization.yaml"); err != nil {
+		if err := utils.CopyFile(table.List()[0].PolicyDir+"/kustomization.yaml", policyDir+"/kustomization.yaml"); err != nil {
 			return policyResourcesDir, err
 		}
-		if err := pkg.CopyFile(table.List()[0].PolicyDir+"/policy-generator.yaml", policyDir+"/policy-generator.yaml"); err != nil {
+		if err := utils.CopyFile(table.List()[0].PolicyDir+"/policy-generator.yaml", policyDir+"/policy-generator.yaml"); err != nil {
 			return policyResourcesDir, err
 		}
 		policyResourcesDir := policyDir
@@ -68,13 +68,13 @@ func (d *Decomposer) Decompose() (string, error) {
 		for _, table := range groupedByPolicyByCompliance {
 			groupedByConfigPolicy := table.GroupBy("config-policy")
 			for configPolicy, table := range groupedByConfigPolicy {
-				configPolicyDir, err := pkg.MakeDir(policyResourcesDir + "/" + configPolicy)
+				configPolicyDir, err := utils.MakeDir(policyResourcesDir + "/" + configPolicy)
 				if err != nil {
 					return policyResourcesDir, err
 				}
 				for _, row := range table.List() {
 					fname := filepath.Base(row.Source)
-					if err := pkg.CopyFile(row.Source, configPolicyDir+"/"+fname); err != nil {
+					if err := utils.CopyFile(row.Source, configPolicyDir+"/"+fname); err != nil {
 						return policyResourcesDir, err
 					}
 				}
@@ -148,14 +148,14 @@ func GroupByComplianceInHierarchy(resourceTable *resources.Table) []Compliance {
 }
 
 func (d *Decomposer) GroupByCompliance() error {
-	compliancesDir, err := pkg.MakeDir(d.outputDirPath + "/compliances")
+	compliancesDir, err := utils.MakeDir(d.outputDirPath + "/compliances")
 	if err != nil {
 		return err
 	}
 	complianceLists := GroupByComplianceInHierarchy(d.resourceTable)
 	for _, complianceList := range complianceLists {
 		path := compliancesDir + "/" + complianceList.Standard.Name + ".yaml"
-		_ = pkg.WriteObjToYamlFile(path, complianceList)
+		_ = utils.WriteObjToYamlFile(path, complianceList)
 	}
 	return nil
 }

@@ -18,16 +18,16 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/utils"
 )
 
 func TestOscal2Policy(t *testing.T) {
-	policyDir := pkg.PathFromPkgDirectory("./testdata/kyverno/policy-resources")
+	policyDir := utils.PathFromInternalDirectory("./testdata/kyverno/policy-resources")
 
-	tempDirPath := pkg.PathFromPkgDirectory("./testdata/_test")
+	tempDirPath := utils.PathFromInternalDirectory("./testdata/_test")
 	err := os.MkdirAll(tempDirPath, os.ModePerm)
 	assert.NoError(t, err, "Should not happen")
-	tempDir := pkg.NewTempDirectory(tempDirPath)
+	tempDir := utils.NewTempDirectory(tempDirPath)
 
 	policyExample := createPolicy(t)
 	o2p := NewOscal2Policy(policyDir, tempDir)
@@ -43,14 +43,14 @@ func TestConfigure(t *testing.T) {
 	err := plugin.Configure(configuration)
 	require.EqualError(t, err, "path \"not-exist\": stat not-exist: no such file or directory")
 
-	policyDir := pkg.PathFromPkgDirectory("./testdata/kyverno/policy-resources")
+	policyDir := utils.PathFromInternalDirectory("./testdata/kyverno/policy-resources")
 	configuration["policy-dir"] = policyDir
 	err = plugin.Configure(configuration)
 	require.NoError(t, err)
 }
 
 func createPolicy(t *testing.T) []extensions.RuleSet {
-	cdPath := pkg.PathFromPkgDirectory("./testdata/kyverno/component-definition.json")
+	cdPath := utils.PathFromInternalDirectory("./testdata/kyverno/component-definition.json")
 
 	file, err := os.Open(cdPath)
 	require.NoError(t, err)
