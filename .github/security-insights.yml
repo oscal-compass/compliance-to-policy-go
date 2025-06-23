@@ -2,7 +2,7 @@ header:
   schema-version: 2.0.0
   last-updated: '2025-06-18'
   last-reviewed: '2025-06-18'
-  url: https://github.com/oscal-compass/compliance-to-policy-go/blob/develop/.github/security-insights.yml
+  url: https://github.com/oscal-compass/compliance-to-policy-go/blob/main/.github/security-insights.yml
   project-si-source: https://raw.githubusercontent.com/oscal-compass/.github/refs/heads/main/.github/security-insights.yml
   comment: |
     This file contains only the repository information for the C2P-Go project.
