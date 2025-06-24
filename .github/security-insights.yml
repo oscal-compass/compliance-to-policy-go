@@ -1,0 +1,43 @@
+header:
+  schema-version: 2.0.0
+  last-updated: '2025-06-18'
+  last-reviewed: '2025-06-18'
+  url: https://github.com/oscal-compass/compliance-to-policy-go/blob/main/.github/security-insights.yml
+  project-si-source: https://raw.githubusercontent.com/oscal-compass/.github/refs/heads/main/.github/security-insights.yml
+  comment: |
+    This file contains only the repository information for the C2P-Go project.
+
+repository:
+  url: https://github.com/oscal-compass/compliance-to-policy-go
+  status: active
+  bug-fixes-only: false
+  accepts-change-request: true
+  accepts-automated-change-request: true
+  no-third-party-packages: false
+  # From the MAINTAINER.md file
+  core-team:
+  - name:        Takumi Yanagawa
+    primary:     true
+  - name:        Yuji Watanabe
+    primary:     true
+  - name:        Jennifer Power
+    primary:     true
+  - name:        George Vauter
+    primary:     true
+  documentation:
+    contributing-guide: https://github.com/oscal-compass/compliance-to-policy-go/blob/main/CONTRIBUTING.md
+    security-policy: https://github.com/oscal-compass/community/blob/main/SECURITY.md
+  license:
+    url: https://github.com/oscal-compass/compliance-to-policy-go/blob/main/LICENSE
+    expression: Apache-2.0
+  release:
+    changelog: https://github.com/oscal-compass/compliance-to-policy-go/blob/main/CHANGELOG.md
+    automated-pipeline: true
+    distribution-points:
+      - uri: https://github.com/oscal-compass/compliance-to-policy-go/releases
+        comment: GitHub Release Page
+  security:
+    assessments:
+      self:
+        comment: |
+          Self assessment is in progress.
