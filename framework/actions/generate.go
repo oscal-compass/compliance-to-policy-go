@@ -9,8 +9,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
 
 	"github.com/oscal-compass/oscal-sdk-go/settings"
+	"golang.org/x/sync/semaphore"
 
 	"github.com/oscal-compass/compliance-to-policy-go/v2/logging"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/plugin"
@@ -24,24 +26,53 @@ import (
 func GeneratePolicy(ctx context.Context, inputContext *InputContext, pluginSet map[plugin.ID]policy.Provider) error {
 	log := logging.GetLogger("generator")
 
-	for providerId, policyPlugin := range pluginSet {
-		componentTitle, err := inputContext.ProviderTitle(providerId)
-		if err != nil {
-			if errors.Is(err, ErrMissingProvider) {
-				log.Warn(fmt.Sprintf("skipping %s provider: missing validation component", providerId))
-				continue
-			}
-			return err
-		}
-		log.Debug(fmt.Sprintf("Generating policy for provider %s", providerId))
+	sem := semaphore.NewWeighted(inputContext.MaxConcurrentWeight)
+	var wg sync.WaitGroup
+	errorCh := make(chan error, len(pluginSet))
 
-		appliedRuleSet, err := settings.ApplyToComponent(ctx, componentTitle, inputContext.Store(), inputContext.Settings)
-		if err != nil {
-			return fmt.Errorf("failed to get rule sets for component %s: %w", componentTitle, err)
-		}
-		if err := policyPlugin.Generate(appliedRuleSet); err != nil {
-			return fmt.Errorf("plugin %s: %w", providerId, err)
-		}
+	for providerId, policyPlugin := range pluginSet {
+		wg.Add(1)
+
+		go func(providerId plugin.ID, plugin policy.Provider) {
+			defer wg.Done()
+
+			if err := sem.Acquire(ctx, 1); err != nil {
+				errorCh <- fmt.Errorf("%s failed to acquire semaphore: %w", providerId.String(), err)
+				return
+			}
+			defer sem.Release(1)
+
+			componentTitle, err := inputContext.ProviderTitle(providerId)
+			if err != nil {
+				if errors.Is(err, ErrMissingProvider) {
+					log.Warn(fmt.Sprintf("skipping %s provider: missing validation component", providerId))
+					return
+				}
+				errorCh <- err
+				return
+			}
+			log.Debug(fmt.Sprintf("Generating policy for provider %s", providerId))
+
+			appliedRuleSet, err := settings.ApplyToComponent(ctx, componentTitle, inputContext.Store(), inputContext.Settings)
+			if err != nil {
+				errorCh <- fmt.Errorf("failed to get rule sets for component %s: %w", componentTitle, err)
+				return
+			}
+			if err := policyPlugin.Generate(appliedRuleSet); err != nil {
+				errorCh <- fmt.Errorf("plugin %s: %w", providerId, err)
+				return
+			}
+		}(providerId, policyPlugin)
 	}
-	return nil
+
+	go func() {
+		wg.Wait()
+		close(errorCh)
+	}()
+
+	var errs []error
+	for err := range errorCh {
+		errs = append(errs, err)
+	}
+	return errors.Join(errs...)
 }
