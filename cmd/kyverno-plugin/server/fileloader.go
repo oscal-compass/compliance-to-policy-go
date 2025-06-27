@@ -26,7 +26,7 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/utils"
 )
 
 type PolicyResourceIndex struct {
@@ -65,7 +65,7 @@ func (fl *FileLoader) LoadFromDirectory(dir string) error {
 			return filepath.SkipDir
 		}
 		if !info.IsDir() && (strings.HasSuffix(info.Name(), ".yaml") || strings.HasSuffix(info.Name(), ".yml")) {
-			unstObjs, err := pkg.LoadYaml(path)
+			unstObjs, err := utils.LoadYaml(path)
 			if err == nil {
 				for _, unstObj := range unstObjs {
 					pri := fl.mapLoadedObject(unstObj, path)

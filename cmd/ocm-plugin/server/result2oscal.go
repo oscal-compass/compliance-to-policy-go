@@ -26,14 +26,14 @@ import (
 	"github.com/oscal-compass/oscal-sdk-go/extensions"
 	sigyaml "sigs.k8s.io/yaml"
 
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/utils"
 	provider "github.com/oscal-compass/compliance-to-policy-go/v2/policy"
 
 	"k8s.io/apimachinery/pkg/util/sets"
 
-	typeplacementdecision "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/placementdecision"
-	typepolicy "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/policy"
-	typeutils "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/utils"
+	typeplacementdecision "github.com/oscal-compass/compliance-to-policy-go/v2/internal/types/placementdecision"
+	typepolicy "github.com/oscal-compass/compliance-to-policy-go/v2/internal/types/policy"
+	typeutils "github.com/oscal-compass/compliance-to-policy-go/v2/internal/types/utils"
 )
 
 type ResultToOscal struct {
@@ -98,7 +98,7 @@ func (r *ResultToOscal) GenerateResults() (provider.PVPResult, error) {
 		r.placementDecisions = append(r.placementDecisions, &placementDecisionLost.Items[idx])
 	}
 
-	policySets := typeutils.FilterByAnnotation(r.policySets, pkg.ANNOTATION_COMPONENT_TITLE, r.policySetName)
+	policySets := typeutils.FilterByAnnotation(r.policySets, utils.ANNOTATION_COMPONENT_TITLE, r.policySetName)
 	clusterNameSets := sets.NewString()
 	var policySet *typepolicy.PolicySet
 	if len(policySets) > 0 {
@@ -239,7 +239,7 @@ func (r *ResultToOscal) GenerateReasonsFromRawPolicies(policy typepolicy.Policy)
 }
 
 func (r *ResultToOscal) loadData(path string, out interface{}) error {
-	if err := pkg.LoadYamlFileToK8sTypedObject(r.policyResultsDir+"/"+path, &out); err != nil {
+	if err := utils.LoadYamlFileToK8sTypedObject(r.policyResultsDir+"/"+path, &out); err != nil {
 		return err
 	}
 	return nil

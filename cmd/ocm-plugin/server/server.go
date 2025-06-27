@@ -13,8 +13,8 @@ import (
 	"github.com/go-viper/mapstructure/v2"
 	"github.com/hashicorp/go-hclog"
 
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/utils"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/logging"
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/policy"
 )
 
@@ -46,7 +46,7 @@ func (p *Plugin) Configure(m map[string]string) error {
 }
 
 func (p *Plugin) Generate(pl policy.Policy) error {
-	tmpdir := pkg.NewTempDirectory(p.config.TempDir)
+	tmpdir := utils.NewTempDirectory(p.config.TempDir)
 	composer := NewComposerByTempDirectory(p.config.PoliciesDir, tmpdir)
 	if err := composer.ComposeByPolicies(pl, p.config); err != nil {
 		return err

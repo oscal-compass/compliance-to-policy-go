@@ -29,9 +29,9 @@ import (
 	typekustomize "sigs.k8s.io/kustomize/api/types"
 	"sigs.k8s.io/kustomize/kyaml/resid"
 
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/policygenerator"
-	pgtype "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/policygenerator"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/policygenerator"
+	pgtype "github.com/oscal-compass/compliance-to-policy-go/v2/internal/types/policygenerator"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/utils"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/policy"
 )
 
@@ -39,14 +39,14 @@ var DummyNamespace string = "dummy-namespace-c2p"
 
 type Composer struct {
 	policiesDir string
-	tempDir     pkg.TempDirectory
+	tempDir     utils.TempDirectory
 }
 
 func NewComposer(policiesDir string, tempDir string) *Composer {
-	return NewComposerByTempDirectory(policiesDir, pkg.NewTempDirectory(tempDir))
+	return NewComposerByTempDirectory(policiesDir, utils.NewTempDirectory(tempDir))
 }
 
-func NewComposerByTempDirectory(policiesDir string, tempDir pkg.TempDirectory) *Composer {
+func NewComposerByTempDirectory(policiesDir string, tempDir utils.TempDirectory) *Composer {
 	return &Composer{
 		policiesDir: policiesDir,
 		tempDir:     tempDir,
@@ -89,12 +89,12 @@ func (c *Composer) Compose(pl policy.Policy, config Config) error {
 
 			policyGeneratorManifestPath := destDir + "/policy-generator.yaml"
 			var policyGeneratorManifest pgtype.PolicyGenerator
-			if err := pkg.LoadYamlFileToObject(policyGeneratorManifestPath, &policyGeneratorManifest); err != nil {
+			if err := utils.LoadYamlFileToObject(policyGeneratorManifestPath, &policyGeneratorManifest); err != nil {
 				return err
 			}
 			policyGeneratorManifest.PolicyDefaults.Namespace = config.Namespace
 			policyGeneratorManifest.PolicyDefaults.PolicyOptions.Placement.ClusterSelectors = config.clusterSelectors
-			if err := pkg.WriteObjToYamlFileByGoYaml(policyGeneratorManifestPath, policyGeneratorManifest); err != nil {
+			if err := utils.WriteObjToYamlFileByGoYaml(policyGeneratorManifestPath, policyGeneratorManifest); err != nil {
 				return err
 			}
 			// For policySet
@@ -130,7 +130,7 @@ func (c *Composer) Compose(pl policy.Policy, config Config) error {
 			Target: &typekustomize.Selector{
 				ResId: resid.FromString(fmt.Sprintf("PolicySet../%s.", policySetConfig.Name)),
 			},
-			Patch: fmt.Sprintf(`[{"op": "replace", "path": "/metadata/annotations/%s", "value": "%s"}]`, pkg.ANNOTATION_COMPONENT_TITLE, config.PolicySetName),
+			Patch: fmt.Sprintf(`[{"op": "replace", "path": "/metadata/annotations/%s", "value": "%s"}]`, utils.ANNOTATION_COMPONENT_TITLE, config.PolicySetName),
 		}
 		policySetPatches = append(policySetPatches, policySetPatch)
 	}
@@ -165,7 +165,7 @@ func (c *Composer) Compose(pl policy.Policy, config Config) error {
 	if policySetGeneratorManifest.PolicyDefaults.Namespace == "" {
 		policySetGeneratorManifest.PolicyDefaults.Namespace = DummyNamespace
 	}
-	if err := pkg.WriteObjToYamlFileByGoYaml(c.tempDir.GetTempDir()+"/policy-generator.yaml", policySetGeneratorManifest); err != nil {
+	if err := utils.WriteObjToYamlFileByGoYaml(c.tempDir.GetTempDir()+"/policy-generator.yaml", policySetGeneratorManifest); err != nil {
 		return err
 	}
 
@@ -181,7 +181,7 @@ func (c *Composer) Compose(pl policy.Policy, config Config) error {
 		},
 		Data: parameters,
 	}
-	if err := pkg.WriteObjToYamlFile(c.tempDir.GetTempDir()+"/parameters.yaml", parametersConfigmap); err != nil {
+	if err := utils.WriteObjToYamlFile(c.tempDir.GetTempDir()+"/parameters.yaml", parametersConfigmap); err != nil {
 		return err
 	}
 
@@ -190,14 +190,14 @@ func (c *Composer) Compose(pl policy.Policy, config Config) error {
 		Resources:  []string{"./parameters.yaml"},
 		Patches:    policySetPatches,
 	}
-	if err := pkg.WriteObjToYamlFile(c.tempDir.GetTempDir()+"/kustomization.yaml", kustomize); err != nil {
+	if err := utils.WriteObjToYamlFile(c.tempDir.GetTempDir()+"/kustomization.yaml", kustomize); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (c *Composer) CopyAllTo(destDir string) error {
-	if _, err := pkg.MakeDir(destDir); err != nil {
+	if _, err := utils.MakeDir(destDir); err != nil {
 		return err
 	}
 	if err := cp.Copy(c.tempDir.GetTempDir(), destDir); err != nil {

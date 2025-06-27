@@ -21,14 +21,14 @@ import (
 	"os"
 	"testing"
 
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/utils"
 )
 
 //go:embed testdata/*
 var static embed.FS
 
 func Test(t *testing.T) {
-	outputDir := pkg.ChdirFromPkgDirectory("./parser") + "/_test"
+	outputDir := utils.ChdirFromInternalDirectory("./parser") + "/_test"
 	if err := os.MkdirAll(outputDir, os.ModePerm); err != nil {
 		panic(err)
 	}
