@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/hashicorp/go-hclog"
 	"github.com/stretchr/testify/require"
 )
 
@@ -173,7 +174,7 @@ func TestManifest_ResolveOptions(t *testing.T) {
 
 	for _, c := range tests {
 		t.Run(c.name, func(t *testing.T) {
-			gotOptions, err := c.testManifest.ResolveOptions(c.selections)
+			gotOptions, err := c.testManifest.ResolveOptions(c.selections, hclog.NewNullLogger())
 			if c.wantError != "" {
 				require.EqualError(t, err, c.wantError)
 			} else {
