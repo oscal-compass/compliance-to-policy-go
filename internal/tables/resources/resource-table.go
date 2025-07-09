@@ -23,11 +23,12 @@ import (
 	"strings"
 
 	"github.com/olekukonko/tablewriter"
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
 	"go.uber.org/zap"
+
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/utils"
 )
 
-var logger *zap.Logger = pkg.GetLogger("resource-tables")
+var logger *zap.Logger = utils.GetLogger("resource-tables")
 
 type op int
 

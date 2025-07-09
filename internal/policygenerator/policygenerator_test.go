@@ -20,13 +20,14 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
 	"sigs.k8s.io/kustomize/api/krusty"
 	"sigs.k8s.io/kustomize/api/types"
+
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/utils"
 )
 
 func TestKustomize(t *testing.T) {
-	testDataDir := pkg.PathFromPkgDirectory("./policygenerator/testdata")
+	testDataDir := utils.PathFromInternalDirectory("./policygenerator/testdata")
 	pflagOpts := krusty.MakeDefaultOptions()
 	pflagOpts.PluginConfig = types.EnabledPluginConfig(types.BploUseStaticallyLinked)
 	tests := []struct {

@@ -21,12 +21,12 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/decomposer"
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/tables/resources"
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/internalcompliance"
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/oscal"
-	typecommon "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/oscal/common"
-	cd "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/oscal/componentdefinition"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/decomposer"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/tables/resources"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/types/internalcompliance"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/types/oscal"
+	typecommon "github.com/oscal-compass/compliance-to-policy-go/v2/internal/types/oscal/common"
+	cd "github.com/oscal-compass/compliance-to-policy-go/v2/internal/types/oscal/componentdefinition"
 )
 
 var standardFromPolicyCollectionToOscal map[string]string = map[string]string{

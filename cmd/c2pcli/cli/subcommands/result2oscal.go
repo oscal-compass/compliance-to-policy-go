@@ -27,7 +27,7 @@ import (
 
 	"github.com/oscal-compass/compliance-to-policy-go/v2/framework"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/framework/actions"
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/utils"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/plugin"
 )
 
@@ -112,7 +112,7 @@ func runResult2Policy(ctx context.Context, option *Options) error {
 	}
 
 	option.logger.Info(fmt.Sprintf("Writing assessment results to %s.", option.Output))
-	err = pkg.WriteObjToJsonFile(option.Output, oscalModels)
+	err = utils.WriteObjToJsonFile(option.Output, oscalModels)
 	if err != nil {
 		return err
 	}

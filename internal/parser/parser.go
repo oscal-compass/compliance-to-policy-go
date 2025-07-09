@@ -23,20 +23,21 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/policygenerator"
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/tables"
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/tables/resources"
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/configurationpolicy"
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/policy"
-	typepolicygenerator "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/policygenerator"
 	"go.uber.org/zap"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	utilyaml "k8s.io/apimachinery/pkg/util/yaml"
 	typekustomize "sigs.k8s.io/kustomize/api/types"
+
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/policygenerator"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/tables"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/tables/resources"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/types/configurationpolicy"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/types/policy"
+	typepolicygenerator "github.com/oscal-compass/compliance-to-policy-go/v2/internal/types/policygenerator"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/utils"
 )
 
-var logger *zap.Logger = pkg.GetLogger("parser")
+var logger *zap.Logger = utils.GetLogger("parser")
 
 type Collector struct {
 	outputDir     string
@@ -99,13 +100,13 @@ func (c *Collector) parseFile(target string, outputDir string, path string, file
 		return err
 	}
 	for _, pb := range placementBindings {
-		if err := pkg.WriteObjToYamlFile(placementDir+"/"+pb.GetName()+".yaml", pb.Object); err != nil {
+		if err := utils.WriteObjToYamlFile(placementDir+"/"+pb.GetName()+".yaml", pb.Object); err != nil {
 			logger.Sugar().Errorf("%v", err)
 			return err
 		}
 	}
 	for _, pr := range plaementRules {
-		if err := pkg.WriteObjToYamlFile(placementDir+"/"+pr.GetName()+".yaml", pr.Object); err != nil {
+		if err := utils.WriteObjToYamlFile(placementDir+"/"+pr.GetName()+".yaml", pr.Object); err != nil {
 			logger.Sugar().Errorf("%v", err)
 			return err
 		}
@@ -154,12 +155,12 @@ func (c *Collector) parseFile(target string, outputDir string, path string, file
 				PolicyOptions:              policyOptions,
 				ConfigurationPolicyOptions: configurationPolicyOptions,
 			}})
-		if err := pkg.WriteObjToYamlFileByGoYaml(policyDir+"/policy-generator.yaml", policyGenerator); err != nil {
+		if err := utils.WriteObjToYamlFileByGoYaml(policyDir+"/policy-generator.yaml", policyGenerator); err != nil {
 			logger.Sugar().Errorf("%v", err)
 			return err
 		}
 		kustomize := typekustomize.Kustomization{Generators: []string{"./policy-generator.yaml"}}
-		if err := pkg.WriteObjToYamlFile(policyDir+"/kustomization.yaml", kustomize); err != nil {
+		if err := utils.WriteObjToYamlFile(policyDir+"/kustomization.yaml", kustomize); err != nil {
 			return err
 		}
 	}
@@ -182,7 +183,7 @@ func (c *Collector) ParseFile(target string, outputTargetDir string, path string
 	if err := os.MkdirAll(outputDir, os.ModePerm); err != nil {
 		return err
 	}
-	if err := pkg.CopyFile(path, outputDir+"/policy.yaml"); err != nil {
+	if err := utils.CopyFile(path, outputDir+"/policy.yaml"); err != nil {
 		return err
 	}
 
@@ -221,7 +222,7 @@ func (c *Collector) parsePolicyTemplate(policyTemplate *policy.PolicyTemplate, b
 	if remediationAction == "" {
 		remediationAction = configurationpolicy.RemediationAction(basePolicy.Spec.RemediationAction)
 	}
-	filenameCreator := pkg.NewFilenameCreator(".yaml", nil)
+	filenameCreator := utils.NewFilenameCreator(".yaml", nil)
 	if configPolicy.Spec.ObjectTemplates == nil {
 		c.erroredTable.Add(row)
 		return manifests, err
@@ -245,7 +246,7 @@ func (c *Collector) parsePolicyTemplate(policyTemplate *policy.PolicyTemplate, b
 		fname := fmt.Sprintf(fnameFmt, rowc.Kind, rowc.Name)
 		fname = filenameCreator.Get(fname)
 		rowc.Source = configPolicyDir + "/" + fname
-		if err := pkg.WriteObjToYamlFile(rowc.Source, unst.Object); err != nil {
+		if err := utils.WriteObjToYamlFile(rowc.Source, unst.Object); err != nil {
 			logger.Sugar().Errorf("%v", err)
 			c.erroredTable.Add(rowc)
 			return manifests, err

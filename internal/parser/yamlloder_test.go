@@ -19,12 +19,13 @@ package parser
 import (
 	"testing"
 
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/placements"
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/policy"
 	"gopkg.in/yaml.v3"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	k8syaml "k8s.io/apimachinery/pkg/runtime/serializer/yaml"
 	utilyaml "k8s.io/apimachinery/pkg/util/yaml"
+
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/types/placements"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/types/policy"
 )
 
 func TestEmptyFileSystem(t *testing.T) {
