@@ -13,10 +13,16 @@ SHELL = /usr/bin/env bash -o pipefail
 GOOS ?= $(shell go env GOOS)
 GOARCH ?= $(shell go env GOARCH)
 GIT_TAG := $(shell git describe --tags --abbrev=0)
+GIT_COMMIT := $(shell git rev-parse --short HEAD)
+BUILD_DATE := $(shell date -u +'%Y-%m-%dT%H:%M:%SZ')
 VERSION_FROM_GIT_TAG := $(shell echo "$(GIT_TAG)" | sed 's/^go\///')
 DIRTY := $(shell [ -n "$(git status -s)" ] && echo '-snapshot')
 REPO_NAME := $(shell git remote get-url origin | sed -r 's/.*:(.*)\.git/\1/')
 VERSIONED_SUFFIX := $(if $(DIRTY),$(VERSION_FROM_GIT_TAG)_$(GOOS)_$(GOARCH),$(VERSION_FROM_GIT_TAG)_SNAPSHOT_$(GOOS)_$(GOARCH))
+
+GO_LD_EXTRAFLAGS := -X github.com/oscal-compass/compliance-to-policy-go/v2/cmd/c2pcli/cli/subcommands.version="$(GIT_TAG)" \
+                    -X github.com/oscal-compass/compliance-to-policy-go/v2/cmd/c2pcli/cli/subcommands.commit="$(GIT_COMMIT)" \
+                    -X github.com/oscal-compass/compliance-to-policy-go/v2/cmd/c2pcli/cli/subcommands.date="$(BUILD_DATE)"
 
 repo_name:
 	echo $(REPO_NAME)
@@ -101,3 +107,4 @@ $(KUSTOMIZE): $(LOCALBIN)
 generate-protobuf:
 	protoc api/proto/*.proto --go-grpc_out=. --go-grpc_opt=paths=source_relative --go_out=. --go_opt=paths=source_relative --proto_path=.
 .PHONY: generate-protobuf
+
