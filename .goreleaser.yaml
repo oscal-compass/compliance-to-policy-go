@@ -1,17 +1,100 @@
-# .goreleaser.yaml
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+# vim: set ts=2 sw=2 tw=0 fo=cnqoj
+
+version: 2
+
+project_name: compliance-to-policy-go
+
+before:
+  hooks:
+    - go mod tidy
+    - make build-plugins
+    - ./hack/regenerate-manifests.sh
+
 builds:
-- id: c2pcli
-  main: ./cmd/c2pcli
-  binary: c2pcli
-  goos:
-  - linux
-  - darwin
-  goarch:
-  - amd64
-  - arm64
-  ignore:
-  - goos: linux
-    goarch: arm64
+  - #
+    id: c2pcli
+    binary: c2pcli
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: linux
+        goarch: arm64
+    ldflags:
+      - "-X github.com/oscal-compass/compliance-to-policy-go/v2/cmd/c2pcli/cli/subcommands.version={{ .Version }}"
+      - "-X github.com/oscal-compass/compliance-to-policy-go/v2/cmd/c2pcli/cli/subcommands.commit={{ .Commit }}"
+      - "-X github.com/oscal-compass/compliance-to-policy-go/v2/cmd/c2pcli/cli/subcommands.date={{ .Date }}"
+    main: ./cmd/c2pcli/
+  - #
+    id: kyverno-plugin
+    binary: kyverno-plugin
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: linux
+        goarch: arm64
+    main: ./cmd/kyverno-plugin/
+  - #
+    id: ocm-plugin
+    binary: ocm-plugin
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: linux
+        goarch: arm64
+    main: ./cmd/ocm-plugin/
+
+archives:
+  - name_template: >-
+      {{ .ProjectName }}_
+      {{- .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    files:
+      - c2p-plugins/c2p-kyverno-manifest.json
+      - c2p-plugins/c2p-ocm-manifest.json
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+  groups:
+    - title: "New Features"
+      regexp: '^.*?feat(\(.+\))??!?:.+$'
+      order: 100
+    - title: "Security updates"
+      regexp: '^.*?sec(\(.+\))??!?:.+$'
+      order: 150
+    - title: "Bug fixes"
+      regexp: '^.*?(fix|refactor)(\(.+\))??!?:.+$'
+      order: 200
+    - title: "Documentation updates"
+      regexp: ^.*?docs?(\(.+\))??!?:.+$
+      order: 400
+    - title: Other work
+      order: 9999
 
 release:
   disable: false
