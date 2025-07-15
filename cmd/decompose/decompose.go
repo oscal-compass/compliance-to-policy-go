@@ -20,10 +20,11 @@ import (
 	"flag"
 	"os"
 
-	cmdparse "github.com/oscal-compass/compliance-to-policy-go/v2/cmd/parse/modules"
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/decomposer"
 	cp "github.com/otiai10/copy"
 	"go.uber.org/zap"
+
+	cmdparse "github.com/oscal-compass/compliance-to-policy-go/v2/cmd/parse/modules"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/decomposer"
 )
 
 func main() {

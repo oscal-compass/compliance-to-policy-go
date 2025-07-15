@@ -24,21 +24,22 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/tables/resources"
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/internalcompliance"
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/oscal"
-	cd "github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/oscal/componentdefinition"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/tables/resources"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/types/internalcompliance"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/types/oscal"
+	cd "github.com/oscal-compass/compliance-to-policy-go/v2/internal/types/oscal/componentdefinition"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/utils"
 )
 
 func init() {
-	if err := os.MkdirAll(pkg.PathFromPkgDirectory("./oscal/_test"), os.ModePerm); err != nil {
+	if err := os.MkdirAll(utils.PathFromInternalDirectory("./oscal/_test"), os.ModePerm); err != nil {
 		panic(err)
 	}
 }
 func TestOscalCD(t *testing.T) {
-	f, err := os.Open(pkg.PathFromPkgDirectory("./oscal/testdata/resources.csv"))
+	f, err := os.Open(utils.PathFromInternalDirectory("./oscal/testdata/resources.csv"))
 	if err != nil {
 		panic(err)
 	}
@@ -47,14 +48,14 @@ func TestOscalCD(t *testing.T) {
 	t.Log(compDef)
 
 	compDefRoot := cd.ComponentDefinitionRoot{ComponentDefinition: *compDef}
-	odir := pkg.PathFromPkgDirectory("./oscal/_test")
-	err = pkg.WriteObjToJsonFile(odir+"/component-definition.json", compDefRoot)
+	odir := utils.PathFromInternalDirectory("./oscal/_test")
+	err = utils.WriteObjToJsonFile(odir+"/component-definition.json", compDefRoot)
 	assert.NoError(t, err, "Should be no error")
 }
 
 func TestOscalCDWithProfile(t *testing.T) {
 	var compDefRoot cd.ComponentDefinitionRoot
-	err := pkg.LoadJsonFileToObject(pkg.PathFromPkgDirectory("./oscal/testdata/component-definition.json"), &compDefRoot)
+	err := utils.LoadJsonFileToObject(utils.PathFromInternalDirectory("./oscal/testdata/component-definition.json"), &compDefRoot)
 	assert.NoError(t, err, "Should be no error")
 
 	profileResources := map[string]string{
@@ -64,20 +65,20 @@ func TestOscalCDWithProfile(t *testing.T) {
 	}
 	for level, file := range profileResources {
 		var profileRoot oscal.ProfileRoot
-		err = pkg.LoadJsonFileToObject(pkg.PathFromPkgDirectory(file), &profileRoot)
+		err = utils.LoadJsonFileToObject(utils.PathFromInternalDirectory(file), &profileRoot)
 		assert.NoError(t, err, "Should be no error")
 
 		newCompDefRoot := cd.ComponentDefinitionRoot{
 			ComponentDefinition: IntersectProfileWithCD(compDefRoot.ComponentDefinition, profileRoot.Profile),
 		}
-		odir := pkg.PathFromPkgDirectory("./oscal/_test")
-		err = pkg.WriteObjToJsonFile(fmt.Sprintf("%s/component-definition.%s.json", odir, level), newCompDefRoot)
+		odir := utils.PathFromInternalDirectory("./oscal/_test")
+		err = utils.WriteObjToJsonFile(fmt.Sprintf("%s/component-definition.%s.json", odir, level), newCompDefRoot)
 		assert.NoError(t, err, "Should be no error")
 	}
 }
 
 func TestCD2InternalCompliance(t *testing.T) {
-	cdjson, err := os.ReadFile(pkg.PathFromPkgDirectory("./oscal/testdata/component-definition.json"))
+	cdjson, err := os.ReadFile(utils.PathFromInternalDirectory("./oscal/testdata/component-definition.json"))
 	if err != nil {
 		panic(err)
 	}
@@ -88,15 +89,15 @@ func TestCD2InternalCompliance(t *testing.T) {
 	}
 
 	intCompliance := makeInternalComplianceFromComponentDefinition(cdobj.ComponentDefinition)
-	if err := pkg.MakeDirAndWriteObjToYamlFile(
-		pkg.PathFromPkgDirectory("./oscal/testdata/_test"), "internal-compliance-from-cd.yaml", intCompliance,
+	if err := utils.MakeDirAndWriteObjToYamlFile(
+		utils.PathFromInternalDirectory("./oscal/testdata/_test"), "internal-compliance-from-cd.yaml", intCompliance,
 	); err != nil {
 		panic(err)
 	}
 }
 
 func TestTrestleCsv(t *testing.T) {
-	f, err := os.Open(pkg.PathFromPkgDirectory("./oscal/testdata/resources.csv"))
+	f, err := os.Open(utils.PathFromInternalDirectory("./oscal/testdata/resources.csv"))
 	if err != nil {
 		panic(err)
 	}
@@ -111,7 +112,7 @@ func TestTrestleCsv(t *testing.T) {
 	t.Log(trestlCsvRowsMap)
 
 	for standard, trestlCsvRows := range trestlCsvRowsMap {
-		odir := pkg.PathFromPkgDirectory("./oscal/_test")
+		odir := utils.PathFromInternalDirectory("./oscal/_test")
 		_standard := strings.Replace(standard, "/", "_", -1)
 		_standard = strings.Replace(_standard, " ", "_", -1)
 		csvFile, err := os.Create(fmt.Sprintf("%s/trestle.rule-mapping.%s.csv", odir, _standard))
@@ -158,21 +159,21 @@ func makeInternalComplianceFromComponentDefinition(cd cd.ComponentDefinition) in
 
 func TestOscalToIntCompliance(t *testing.T) {
 	catalogObj := oscal.CatalogRoot{}
-	if err := pkg.LoadJsonFileToObject(pkg.PathFromPkgDirectory("./oscal/testdata/NIST_SP-800-53_rev5_catalog.json"), &catalogObj); err != nil {
+	if err := utils.LoadJsonFileToObject(utils.PathFromInternalDirectory("./oscal/testdata/NIST_SP-800-53_rev5_catalog.json"), &catalogObj); err != nil {
 		panic(err)
 	}
 	profileObj := oscal.ProfileRoot{}
-	if err := pkg.LoadJsonFileToObject(pkg.PathFromPkgDirectory("./oscal/testdata/NIST_SP-800-53_rev5_HIGH-baseline_profile.json"), &profileObj); err != nil {
+	if err := utils.LoadJsonFileToObject(utils.PathFromInternalDirectory("./oscal/testdata/NIST_SP-800-53_rev5_HIGH-baseline_profile.json"), &profileObj); err != nil {
 		panic(err)
 	}
 	cdObj := cd.ComponentDefinitionRoot{}
-	if err := pkg.LoadJsonFileToObject(pkg.PathFromPkgDirectory("./oscal/testdata/component-definition.json"), &cdObj); err != nil {
+	if err := utils.LoadJsonFileToObject(utils.PathFromInternalDirectory("./oscal/testdata/component-definition.json"), &cdObj); err != nil {
 		panic(err)
 	}
 
 	intCompliance := MakeInternalCompliance(catalogObj.Catalog, profileObj.Profile, cdObj.ComponentDefinition)
-	if err := pkg.MakeDirAndWriteObjToYamlFile(
-		pkg.PathFromPkgDirectory("./oscal/testdata/_test"), "internal-compliance.yaml", intCompliance,
+	if err := utils.MakeDirAndWriteObjToYamlFile(
+		utils.PathFromInternalDirectory("./oscal/testdata/_test"), "internal-compliance.yaml", intCompliance,
 	); err != nil {
 		panic(err)
 	}
@@ -186,21 +187,21 @@ func TestOscalToIntOscalFormat(t *testing.T) {
 
 func oscalToIntOscalFormat(catalog string, profile string, resultFilename string) {
 	catalogObj := oscal.CatalogRoot{}
-	if err := pkg.LoadJsonFileToObject(pkg.PathFromPkgDirectory(catalog), &catalogObj); err != nil {
+	if err := utils.LoadJsonFileToObject(utils.PathFromInternalDirectory(catalog), &catalogObj); err != nil {
 		panic(err)
 	}
 	profileObj := oscal.ProfileRoot{}
-	if err := pkg.LoadJsonFileToObject(pkg.PathFromPkgDirectory(profile), &profileObj); err != nil {
+	if err := utils.LoadJsonFileToObject(utils.PathFromInternalDirectory(profile), &profileObj); err != nil {
 		panic(err)
 	}
 	cdObj := cd.ComponentDefinitionRoot{}
-	if err := pkg.LoadJsonFileToObject(pkg.PathFromPkgDirectory("./oscal/testdata/component-definition.json"), &cdObj); err != nil {
+	if err := utils.LoadJsonFileToObject(utils.PathFromInternalDirectory("./oscal/testdata/component-definition.json"), &cdObj); err != nil {
 		panic(err)
 	}
 
 	intOscalStandards := makeInternalOscalFormat(catalogObj.Catalog, profileObj.Profile)
-	if err := pkg.MakeDirAndWriteObjToYamlFile(
-		pkg.PathFromPkgDirectory("./oscal/testdata/_test"), resultFilename, intOscalStandards,
+	if err := utils.MakeDirAndWriteObjToYamlFile(
+		utils.PathFromInternalDirectory("./oscal/testdata/_test"), resultFilename, intOscalStandards,
 	); err != nil {
 		panic(err)
 	}

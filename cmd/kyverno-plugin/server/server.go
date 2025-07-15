@@ -12,8 +12,8 @@ import (
 	"github.com/go-viper/mapstructure/v2"
 	"github.com/hashicorp/go-hclog"
 
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/utils"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/logging"
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/policy"
 )
 
@@ -43,7 +43,7 @@ func (p *Plugin) Configure(m map[string]string) error {
 
 func (p *Plugin) Generate(pl policy.Policy) error {
 	logger.Debug(fmt.Sprintf("Using resources from %s", p.config.PoliciesDir))
-	tmpdir := pkg.NewTempDirectory(p.config.TempDir)
+	tmpdir := utils.NewTempDirectory(p.config.TempDir)
 	composer := NewOscal2Policy(p.config.PoliciesDir, tmpdir)
 	if err := composer.Generate(pl); err != nil {
 		return err

@@ -23,7 +23,7 @@ import (
 	kyvernov1 "github.com/kyverno/kyverno/api/kyverno/v1"
 	typepolr "sigs.k8s.io/wg-policy-prototypes/policy-report/pkg/api/wgpolicyk8s.io/v1beta1"
 
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/utils"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/policy"
 )
 
@@ -72,7 +72,7 @@ func (r *ResultToOscal) retrievePolicyReportResults(name string) []*typepolr.Pol
 }
 
 func (r *ResultToOscal) loadData(path string, out interface{}) error {
-	if err := pkg.LoadYamlFileToK8sTypedObject(r.policyResultsDir+"/"+path, &out); err != nil {
+	if err := utils.LoadYamlFileToK8sTypedObject(r.policyResultsDir+"/"+path, &out); err != nil {
 		return err
 	}
 	return nil

@@ -79,7 +79,7 @@ EOF
 #### Convert OSCAL to Kyverno Policy
 ```
 $ c2pcli oscal2policy -c docs/kyverno/c2p-config.yaml -n nist_800_53
-2023-10-31T07:23:56.291+0900    INFO    kyverno/c2pcr   kyverno/configparser.go:53      Component-definition is loaded from ./pkg/testdata/kyverno/component-definition.json
+2023-10-31T07:23:56.291+0900    INFO    kyverno/c2pcr   kyverno/configparser.go:53      Component-definition is loaded from ./internal/testdata/kyverno/component-definition.json
 
 $ tree /tmp/kyverno-policies 
 /tmp/kyverno-policies

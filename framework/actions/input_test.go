@@ -15,7 +15,7 @@ import (
 	"github.com/oscal-compass/oscal-sdk-go/validation"
 	"github.com/stretchr/testify/require"
 
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/utils"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/plugin"
 )
 
@@ -84,7 +84,7 @@ func TestGetPluginIDFromComponent(t *testing.T) {
 
 // inputContextHelper to support other testing in the package
 func inputContextHelper(t *testing.T) *InputContext {
-	testDataPath := pkg.PathFromPkgDirectory("./testdata/oscal/component-definition-test.json")
+	testDataPath := utils.PathFromInternalDirectory("./testdata/oscal/component-definition-test.json")
 	file, err := os.Open(testDataPath)
 	require.NoError(t, err)
 	definition, err := models.NewComponentDefinition(file, validation.NoopValidator{})

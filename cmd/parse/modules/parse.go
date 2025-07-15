@@ -24,10 +24,10 @@ import (
 	"go.uber.org/zap"
 	"gopkg.in/yaml.v3"
 
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/parser"
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/tables/resources"
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/policycomposition"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/parser"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/tables/resources"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/types/policycomposition"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/utils"
 )
 
 var TARGETS = []string{
@@ -73,7 +73,7 @@ func Parse(logger *zap.Logger, policyCollectionDir string, outputDir string) *Ou
 }
 
 func createPolicySourcesDir(c *parser.Collector) (string, error) {
-	sourcesDir, err := pkg.MakeDir(c.GetOutputDir() + "/_sources")
+	sourcesDir, err := utils.MakeDir(c.GetOutputDir() + "/_sources")
 	if err != nil {
 		return sourcesDir, err
 	}
@@ -85,17 +85,17 @@ func createPolicySourcesDir(c *parser.Collector) (string, error) {
 }
 
 func createPolicySources(sourcesDir string, resourcesTable *resources.Table) error {
-	filenameCreator := pkg.NewFilenameCreator("", &pkg.FilenameCreatorOption{
+	filenameCreator := utils.NewFilenameCreator("", &utils.FilenameCreatorOption{
 		UnlabelToZero: true,
 	})
 	groupedByPolicy := resourcesTable.GroupBy("policy")
 	for policy, table := range groupedByPolicy {
 		policyFilename := filenameCreator.Get(policy)
-		sourcesPolicyDir, err := pkg.MakeDir(sourcesDir + "/" + policyFilename)
+		sourcesPolicyDir, err := utils.MakeDir(sourcesDir + "/" + policyFilename)
 		if err != nil {
 			return err
 		}
-		if err := pkg.CopyFile(table.List()[0].PolicyDir+"/../../policy.yaml", sourcesPolicyDir+"/policy.yaml"); err != nil {
+		if err := utils.CopyFile(table.List()[0].PolicyDir+"/../../policy.yaml", sourcesPolicyDir+"/policy.yaml"); err != nil {
 			return err
 		}
 	}
@@ -150,7 +150,7 @@ func appendCompliance(c *parser.Collector) error {
 func indexer(c *parser.Collector) error {
 	resourcesDir := c.GetOutputDir() + "/resources"
 	groupedByApiVersion := c.GetResourceTable().GroupBy("api-version")
-	filenameCreator := pkg.NewFilenameCreator(".yaml", nil)
+	filenameCreator := utils.NewFilenameCreator(".yaml", nil)
 	for apiVersion, table := range groupedByApiVersion {
 		apiVersionDir := resourcesDir + "/" + apiVersion
 		if err := os.MkdirAll(apiVersionDir, os.ModePerm); err != nil {
@@ -170,7 +170,7 @@ func indexer(c *parser.Collector) error {
 				fnameFmt := "%s/%s.%s"
 				fname := fmt.Sprintf(fnameFmt, kindDir, row.Policy, name)
 				fname = filenameCreator.Get(fname)
-				if err := pkg.CopyFile(row.Source, fname); err != nil {
+				if err := utils.CopyFile(row.Source, fname); err != nil {
 					return err
 				}
 			}

@@ -24,14 +24,14 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/tables/resources"
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg/types/policycomposition"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/tables/resources"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/types/policycomposition"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/utils"
 )
 
 func main() {
 	var resourceTableFile, filter, format string
-	flag.StringVar(&resourceTableFile, "resource-table-file", pkg.PathFromPkgDirectory("../out/resources.csv"), "path to resource table file (csv)")
+	flag.StringVar(&resourceTableFile, "resource-table-file", utils.PathFromInternalDirectory("../out/resources.csv"), "path to resource table file (csv)")
 	flag.StringVar(&filter, "query-params", "", "query-param (e.g. --filter=\"source=xxx&category=yyy\"")
 	flag.StringVar(&format, "format", "table", "output format (e.g. available formats are table, yaml")
 	flag.Parse()

@@ -1,8 +1,8 @@
 compliance:
   name: Demo Compliance
   componentDefinition: # Path to OSCAL Component Definition file
-    url: ./pkg/testdata/kyverno/component-definition.json
+    url: ./internal/testdata/kyverno/component-definition.json
 policyResources: # Path to Policy Resources directory
-  url: ./pkg/testdata/kyverno/policy-resources
+  url: ./internal/testdata/kyverno/policy-resources
 policyResults: # Path to PVP Audit Results directory
-  url: ./pkg/testdata/kyverno/policy-reports
+  url: ./internal/testdata/kyverno/policy-reports
