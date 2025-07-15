@@ -96,6 +96,24 @@ changelog:
     - title: Other work
       order: 9999
 
+sboms:
+  - id: archive
+    artifacts: archive
+  - id: source
+    artifacts: source
+
+signs:
+  - cmd: cosign
+    certificate: "${artifact}.pem"
+    args:
+      - "sign-blob"
+      - "--output-certificate=${certificate}"
+      - "--output-signature=${signature}"
+      - "${artifact}"
+      - "--yes" # needed on cosign 2.0.0+
+    artifacts: checksum # only need to sign checksums
+    output: true
+
 release:
   disable: false
   skip_upload: false

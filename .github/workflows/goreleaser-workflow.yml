@@ -7,6 +7,12 @@ on:
     paths:
     - .github/workflows/goreleaser.yml
     - .goreleaser.yaml
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release (e.g., v1.0.0)'
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -28,13 +34,20 @@ jobs:
       with:
         go-version: v1.23
     - name: Set env
-      run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          echo "RELEASE_VERSION=${{ github.event.inputs.tag }}" >> $GITHUB_ENV
+        else
+          echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+        fi
+    - name: Create tag for manual dispatch
+      if: github.event_name == 'workflow_dispatch'
+      run: |
+        git tag ${{ github.event.inputs.tag }}
     - name: Delete non-semver tags
-      run: 'git tag -d $(git tag -l | grep -v "^v")'
-    - name: Set LDFLAGS
-      run: echo LDFLAGS="$(make ldflags)" >> $GITHUB_ENV
+      run: 'git tag -d $(git tag -l | grep -v "^v") || true'
     - name: Run GoReleaser on tag
-      if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+      if: github.event_name == 'push' && contains(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
       uses: goreleaser/goreleaser-action@v6
       with:
         distribution: goreleaser
@@ -44,7 +57,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Run GoReleaser on push without tag
       if: github.event_name == 'push' && !contains(github.ref, 'refs/tags/')
-      uses: goreleaser/goreleaser-action@v4
+      uses: goreleaser/goreleaser-action@v6
       with:
         distribution: goreleaser
         version: latest
