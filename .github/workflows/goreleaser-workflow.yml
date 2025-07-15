@@ -17,6 +17,7 @@ on:
 permissions:
   contents: write
   packages: write
+  id-token: write  # for keyless signing with cosign
  
 env:
   REGISTRY: ghcr.io
@@ -33,6 +34,10 @@ jobs:
     - uses: actions/setup-go@v5
       with:
         go-version: v1.23
+    - name: Install cosign
+      uses: sigstore/cosign-installer@v3.5.0
+    - name: Install syft
+      uses: anchore/sbom-action/download-syft@v0.15.10
     - name: Set env
       run: |
         if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
