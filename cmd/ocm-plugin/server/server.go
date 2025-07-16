@@ -6,6 +6,7 @@
 package server
 
 import (
+	"context"
 	"errors"
 	"os"
 	"strings"
@@ -38,14 +39,14 @@ func NewPlugin() *Plugin {
 	}
 }
 
-func (p *Plugin) Configure(m map[string]string) error {
+func (p *Plugin) Configure(_ context.Context, m map[string]string) error {
 	if err := mapstructure.Decode(m, &p.config); err != nil {
 		return errors.New("error decoding configuration")
 	}
 	return p.config.Validate()
 }
 
-func (p *Plugin) Generate(pl policy.Policy) error {
+func (p *Plugin) Generate(_ context.Context, pl policy.Policy) error {
 	tmpdir := utils.NewTempDirectory(p.config.TempDir)
 	composer := NewComposerByTempDirectory(p.config.PoliciesDir, tmpdir)
 	if err := composer.ComposeByPolicies(pl, p.config); err != nil {
@@ -79,7 +80,7 @@ func (p *Plugin) Generate(pl policy.Policy) error {
 	return nil
 }
 
-func (p *Plugin) GetResults(pl policy.Policy) (policy.PVPResult, error) {
+func (p *Plugin) GetResults(_ context.Context, pl policy.Policy) (policy.PVPResult, error) {
 	results := NewResultToOscal(pl, p.config.PolicyResultsDir, p.config.Namespace, p.config.PolicySetName)
 	return results.GenerateResults()
 }
