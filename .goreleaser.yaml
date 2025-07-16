@@ -63,8 +63,21 @@ builds:
     main: ./cmd/ocm-plugin/
 
 archives:
-  - name_template: >-
-      {{ .ProjectName }}_
+  - id: c2pcli
+    builds:
+      - c2pcli
+    name_template: >-
+      {{ .ProjectName }}-cli_
+      {{- .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+  - id: kyverno-plugin
+    builds:
+      - kyverno-plugin
+    name_template: >-
+      {{ .ProjectName }}-kyverno-plugin_
       {{- .Os }}_
       {{- if eq .Arch "amd64" }}x86_64
       {{- else if eq .Arch "386" }}i386
@@ -72,6 +85,17 @@ archives:
       {{- if .Arm }}v{{ .Arm }}{{ end }}
     files:
       - c2p-plugins/c2p-kyverno-manifest.json
+  - id: ocm-plugin
+    builds:
+      - ocm-plugin
+    name_template: >-
+      {{ .ProjectName }}-ocm-plugin_
+      {{- .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    files:
       - c2p-plugins/c2p-ocm-manifest.json
 
 changelog:
