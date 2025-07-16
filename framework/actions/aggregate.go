@@ -9,10 +9,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"sync"
 
 	"github.com/oscal-compass/oscal-sdk-go/settings"
-	"golang.org/x/sync/semaphore"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/oscal-compass/compliance-to-policy-go/v2/logging"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/plugin"
@@ -27,65 +26,53 @@ func AggregateResults(ctx context.Context, inputContext *InputContext, pluginSet
 	log := logging.GetLogger("aggregator")
 
 	var allResults []policy.PVPResult
-	sem := semaphore.NewWeighted(inputContext.MaxConcurrentWeight)
-	var wg sync.WaitGroup
-	errorCh := make(chan error, len(pluginSet))
 	resultChan := make(chan policy.PVPResult, len(pluginSet))
 
+	eg, egCtx := errgroup.WithContext(ctx)
+	eg.SetLimit(inputContext.MaxConcurrency)
 	for providerId, policyPlugin := range pluginSet {
-
-		wg.Add(1)
-
-		go func(providerId plugin.ID, plugin policy.Provider) {
-			defer wg.Done()
-
-			if err := sem.Acquire(ctx, 1); err != nil {
-				errorCh <- fmt.Errorf("%s failed to acquire semaphore: %w", providerId.String(), err)
-				return
-			}
-			defer sem.Release(1)
-
-			componentTitle, err := inputContext.ProviderTitle(providerId)
-			if err != nil {
-				if errors.Is(err, ErrMissingProvider) {
-					log.Warn(fmt.Sprintf("skipping %s provider: missing validation component", providerId))
-					return
+		func(providerId plugin.ID, plugin policy.Provider) {
+			eg.Go(func() error {
+				select {
+				case <-egCtx.Done():
+					return fmt.Errorf("%s skipped due to context cancellation/timeout: %w", providerId.String(), egCtx.Err())
+				default:
 				}
-				errorCh <- err
-				return
 
-			}
-			log.Debug(fmt.Sprintf("Aggregating results for provider %s", providerId))
+				componentTitle, err := inputContext.ProviderTitle(providerId)
+				if err != nil {
+					if errors.Is(err, ErrMissingProvider) {
+						log.Warn(fmt.Sprintf("skipping %s provider: missing validation component", providerId))
+						return nil
+					}
+					return err
+				}
+				log.Debug(fmt.Sprintf("Aggregating results for provider %s", providerId))
 
-			appliedRuleSet, err := settings.ApplyToComponent(ctx, componentTitle, inputContext.Store(), inputContext.Settings)
-			if err != nil {
-				errorCh <- fmt.Errorf("failed to get rule sets for component %s: %w", componentTitle, err)
-				return
-			}
+				appliedRuleSet, err := settings.ApplyToComponent(egCtx, componentTitle, inputContext.Store(), inputContext.Settings)
+				if err != nil {
+					return fmt.Errorf("failed to get rule sets for component %s: %w", componentTitle, err)
+				}
 
-			pluginResults, err := policyPlugin.GetResults(appliedRuleSet)
-			if err != nil {
-				errorCh <- fmt.Errorf("plugin %s: %w", providerId, err)
-				return
-			}
-			resultChan <- pluginResults
+				pluginResults, err := policyPlugin.GetResults(egCtx, appliedRuleSet)
+				if err != nil {
+					return err
+				}
+				resultChan <- pluginResults
+				return nil
+			})
 		}(providerId, policyPlugin)
 	}
 
+	var err error
 	go func() {
-		wg.Wait()
-		close(errorCh)
+		err = eg.Wait()
 		close(resultChan)
 	}()
-
-	var errs []error
-	for err := range errorCh {
-		errs = append(errs, err)
-	}
 
 	for result := range resultChan {
 		allResults = append(allResults, result)
 	}
 
-	return allResults, errors.Join(errs...)
+	return allResults, err
 }

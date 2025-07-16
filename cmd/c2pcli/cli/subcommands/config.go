@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	oscalTypes "github.com/defenseunicorns/go-oscal/src/types/oscal-1-1-3"
 	"github.com/oscal-compass/oscal-sdk-go/models"
@@ -22,6 +23,9 @@ import (
 	"github.com/oscal-compass/compliance-to-policy-go/v2/framework"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/framework/actions"
 )
+
+// Plugin running times might be highly variable this is maximum timeout value.
+var pluginTimeout = 5 * time.Minute
 
 // Config returns a populated C2PConfig for the CLI to use.
 func Config(option *Options) (*framework.C2PConfig, error) {

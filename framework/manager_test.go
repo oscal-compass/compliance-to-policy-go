@@ -6,6 +6,7 @@
 package framework
 
 import (
+	"context"
 	"sort"
 	"testing"
 
@@ -66,7 +67,7 @@ func TestPluginManager_Configure(t *testing.T) {
 	providerTestObj.
 		On("Configure", map[string]string{"option 2": "value", "option1": "override"}).
 		Return(nil)
-	err = pluginManager.configurePlugin(providerTestObj, manifest, pluginMap)
+	err = pluginManager.configurePlugin(context.Background(), providerTestObj, manifest, pluginMap)
 	require.NoError(t, err)
 	providerTestObj.AssertExpectations(t)
 }
@@ -76,12 +77,12 @@ type policyProvider struct {
 	mock.Mock
 }
 
-func (p *policyProvider) Configure(option map[string]string) error {
+func (p *policyProvider) Configure(_ context.Context, option map[string]string) error {
 	args := p.Called(option)
 	return args.Error(0)
 }
 
-func (p *policyProvider) Generate(policyRules policy.Policy) error {
+func (p *policyProvider) Generate(_ context.Context, policyRules policy.Policy) error {
 	sort.SliceStable(policyRules, func(i, j int) bool {
 		return policyRules[i].Rule.ID > policyRules[j].Rule.ID
 	})
@@ -89,7 +90,7 @@ func (p *policyProvider) Generate(policyRules policy.Policy) error {
 	return args.Error(0)
 }
 
-func (p *policyProvider) GetResults(policyRules policy.Policy) (policy.PVPResult, error) {
+func (p *policyProvider) GetResults(_ context.Context, policyRules policy.Policy) (policy.PVPResult, error) {
 	sort.SliceStable(policyRules, func(i, j int) bool {
 		return policyRules[i].Rule.ID > policyRules[j].Rule.ID
 	})

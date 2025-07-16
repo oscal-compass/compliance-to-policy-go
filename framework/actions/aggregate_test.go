@@ -7,9 +7,11 @@ package actions
 
 import (
 	"context"
+	"errors"
 	"os"
 	"sort"
 	"testing"
+	"time"
 
 	"github.com/oscal-compass/oscal-sdk-go/extensions"
 	"github.com/oscal-compass/oscal-sdk-go/models"
@@ -165,19 +167,60 @@ func TestAggregateResults_Multi(t *testing.T) {
 	providerTestObj.AssertExpectations(t)
 	providerTestObj2.AssertExpectations(t)
 	require.Len(t, gotResults, 2)
+
+	// Test with error
+	providerTestObj3 := new(policyProvider)
+	providerTestObj3.On("GetResults", policy.Policy{kyvernoRule}).Return(policy.PVPResult{}, errors.New("failed"))
+	pluginSet = map[plugin.ID]policy.Provider{
+		"ocm":     providerTestObj,
+		"kyverno": providerTestObj3,
+	}
+
+	gotResults, err = AggregateResults(context.Background(), inputContext, pluginSet)
+	require.EqualError(t, err, "failed")
+	providerTestObj.AssertExpectations(t)
+	providerTestObj3.AssertExpectations(t)
+	require.Len(t, gotResults, 1)
+
+	// Test with cancellation
+	done := make(chan struct{})
+	ctx, cancel := context.WithCancel(context.Background())
+
+	providerTestObj3.delay = 500 * time.Millisecond
+
+	go func() {
+		gotResults, err = AggregateResults(ctx, inputContext, pluginSet)
+		close(done)
+	}()
+
+	// Wait for a short period to allow some goroutines to start
+	time.Sleep(100 * time.Millisecond)
+
+	// Now, cancel.
+	cancel()
+
+	select {
+	case <-done:
+		require.EqualError(t, err, "context canceled")
+		require.Len(t, gotResults, 1)
+	case <-time.After(2 * time.Second):
+		t.Fatal("error: did not after cancellation signal within timeout")
+	}
+
 }
 
 // policyProvider is a mocked implementation of policy.Provider.
 type policyProvider struct {
 	mock.Mock
+	delay time.Duration
 }
 
-func (p *policyProvider) Configure(option map[string]string) error {
+func (p *policyProvider) Configure(_ context.Context, option map[string]string) error {
 	args := p.Called(option)
 	return args.Error(0)
 }
 
-func (p *policyProvider) Generate(policyRules policy.Policy) error {
+func (p *policyProvider) Generate(_ context.Context, policyRules policy.Policy) error {
 	sort.SliceStable(policyRules, func(i, j int) bool {
 		return policyRules[i].Rule.ID > policyRules[j].Rule.ID
 	})
@@ -185,10 +228,16 @@ func (p *policyProvider) Generate(policyRules policy.Policy) error {
 	return args.Error(0)
 }
 
-func (p *policyProvider) GetResults(policyRules policy.Policy) (policy.PVPResult, error) {
+func (p *policyProvider) GetResults(ctx context.Context, policyRules policy.Policy) (policy.PVPResult, error) {
 	sort.SliceStable(policyRules, func(i, j int) bool {
 		return policyRules[i].Rule.ID > policyRules[j].Rule.ID
 	})
 	args := p.Called(policyRules)
-	return args.Get(0).(policy.PVPResult), args.Error(1)
+
+	select {
+	case <-ctx.Done():
+		return policy.PVPResult{}, ctx.Err()
+	case <-time.After(p.delay): // Simulate completing work
+		return args.Get(0).(policy.PVPResult), args.Error(1)
+	}
 }

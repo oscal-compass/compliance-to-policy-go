@@ -41,7 +41,7 @@ func TestOscal2Policy(t *testing.T) {
 	plugin.config.TempDir = tempDir.GetTempDir()
 	plugin.config.OutputDir = tmpOutputDir
 	plugin.config.PolicyResultsDir = tmpOutputDir
-	require.NoError(t, plugin.Generate(testPolicy))
+	require.NoError(t, plugin.Generate(context.Background(), testPolicy))
 }
 
 func TestResult2Oscal(t *testing.T) {
@@ -154,17 +154,17 @@ func TestConfigure(t *testing.T) {
 	configuration := map[string]string{
 		"policy-dir": policyDir,
 	}
-	err := plugin.Configure(configuration)
+	err := plugin.Configure(context.Background(), configuration)
 	require.EqualError(t, err, "policy set name must be set")
 
 	configuration["policy-set-name"] = "set"
 
 	configuration["policy-dir"] = "not-exist"
-	err = plugin.Configure(configuration)
+	err = plugin.Configure(context.Background(), configuration)
 	require.EqualError(t, err, "path \"not-exist\": stat not-exist: no such file or directory")
 
 	configuration["policy-dir"] = policyDir
-	err = plugin.Configure(configuration)
+	err = plugin.Configure(context.Background(), configuration)
 	require.NoError(t, err)
 }
 
