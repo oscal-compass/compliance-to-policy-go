@@ -59,7 +59,7 @@ func runOSCAL2Policy(ctx context.Context, option *Options) error {
 		return err
 	}
 
-	inputContext, err := Context(plan)
+	inputContext, err := Context(option, plan)
 	if err != nil {
 		return err
 	}
@@ -83,7 +83,7 @@ func runOSCAL2Policy(ctx context.Context, option *Options) error {
 		return err
 	}
 
-	pluginCtx, cancel := context.WithTimeout(ctx, pluginTimeout)
+	pluginCtx, cancel := context.WithTimeout(ctx, maxTimeout(option))
 	defer cancel()
 
 	err = actions.GeneratePolicy(pluginCtx, inputContext, launchedPlugins)

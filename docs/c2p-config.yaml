@@ -13,3 +13,5 @@ plugins:
     policy-results-dir: ./internal/testdata/kyverno/policy-reports
     temp-dir: /tmp/kyverno
     output-dir: /tmp/outputs
+advanced:
+  max-plugin-timeout: 3

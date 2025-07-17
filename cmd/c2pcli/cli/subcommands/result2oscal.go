@@ -66,7 +66,7 @@ func runResult2Policy(ctx context.Context, option *Options) error {
 	if err != nil {
 		return err
 	}
-	inputContext, err := Context(plan)
+	inputContext, err := Context(option, plan)
 	if err != nil {
 		return err
 	}
@@ -90,7 +90,7 @@ func runResult2Policy(ctx context.Context, option *Options) error {
 		return err
 	}
 
-	pluginCtx, cancel := context.WithTimeout(ctx, pluginTimeout)
+	pluginCtx, cancel := context.WithTimeout(ctx, maxTimeout(option))
 	defer cancel()
 
 	results, err := actions.AggregateResults(pluginCtx, inputContext, launchedPlugins)
