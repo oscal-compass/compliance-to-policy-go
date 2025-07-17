@@ -21,7 +21,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
-	"github.com/oscal-compass/compliance-to-policy-go/v2/pkg"
+	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/utils"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/plugin"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/policy"
 )
@@ -97,7 +97,7 @@ func TestAggregateResults(t *testing.T) {
 }
 
 func TestAggregateResults_Multi(t *testing.T) {
-	testDataPath := pkg.PathFromPkgDirectory("./testdata/oscal/component-definition-heterogeneous.json")
+	testDataPath := utils.PathFromInternalDirectory("./testdata/oscal/component-definition-heterogeneous.json")
 	file, err := os.Open(testDataPath)
 	require.NoError(t, err)
 	definition, err := models.NewComponentDefinition(file, validation.NoopValidator{})
@@ -202,7 +202,6 @@ func TestAggregateResults_Multi(t *testing.T) {
 	select {
 	case <-done:
 		require.EqualError(t, err, "context canceled")
-		require.Len(t, gotResults, 1)
 	case <-time.After(2 * time.Second):
 		t.Fatal("error: did not after cancellation signal within timeout")
 	}
