@@ -24,9 +24,6 @@ import (
 	"github.com/oscal-compass/compliance-to-policy-go/v2/framework/actions"
 )
 
-// Plugin running times might be highly variable this is maximum timeout value.
-var pluginTimeout = 5 * time.Minute
-
 // Config returns a populated C2PConfig for the CLI to use.
 func Config(option *Options) (*framework.C2PConfig, error) {
 	c2pConfig := framework.DefaultConfig()
@@ -40,7 +37,7 @@ func Config(option *Options) (*framework.C2PConfig, error) {
 	return c2pConfig, nil
 }
 
-func Context(ap *oscalTypes.AssessmentPlan) (*actions.InputContext, error) {
+func Context(option *Options, ap *oscalTypes.AssessmentPlan) (*actions.InputContext, error) {
 	if ap.LocalDefinitions == nil || ap.LocalDefinitions.Activities == nil || ap.AssessmentAssets.Components == nil {
 		return nil, errors.New("error converting component definition to assessment plan")
 	}
@@ -58,6 +55,12 @@ func Context(ap *oscalTypes.AssessmentPlan) (*actions.InputContext, error) {
 
 	apSettings := settings.NewAssessmentActivitiesSettings(*ap.LocalDefinitions.Activities)
 	inputCtx.Settings = apSettings
+
+	// Set the max concurrency if set by the user
+	if option.AdvancedOptions.MaxConcurrency != 0 {
+		option.logger.Debug("Setting max concurrency", "max", option.AdvancedOptions.MaxPluginTimeout)
+		inputCtx.MaxConcurrency = option.AdvancedOptions.MaxConcurrency
+	}
 
 	return inputCtx, nil
 }
@@ -113,4 +116,15 @@ func loadPlan(path string) (*oscalTypes.AssessmentPlan, error) {
 		return nil, err
 	}
 	return plan, nil
+}
+
+func maxTimeout(options *Options) time.Duration {
+	// Plugin running times might be highly variable.
+	// This is default maximum timeout value.
+	pluginTimeout := 5
+	if options.AdvancedOptions.MaxPluginTimeout != 0 {
+		pluginTimeout = options.AdvancedOptions.MaxPluginTimeout
+	}
+	options.logger.Debug("Setting plugin timeout:", "minutes", pluginTimeout)
+	return time.Duration(pluginTimeout) * time.Minute
 }
