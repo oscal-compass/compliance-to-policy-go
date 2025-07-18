@@ -35,12 +35,15 @@ type InputContext struct {
 	rulesStore rules.Store
 	// Settings define adjustable rule settings parsed from framework-specific implementation
 	Settings settings.Settings
+	// action concurrency
+	MaxConcurrency int
 }
 
 // NewContext returns an InputContext for the given OSCAL Components.
 func NewContext(components []components.Component) (*InputContext, error) {
 	inputCtx := &InputContext{
 		requestedProviders: make(map[plugin.ID]string),
+		MaxConcurrency:     3,
 	}
 	for _, comp := range components {
 		if comp.Type() == pluginComponentType {

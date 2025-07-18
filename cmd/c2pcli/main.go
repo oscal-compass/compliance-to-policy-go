@@ -17,14 +17,20 @@ limitations under the License.
 package main
 
 import (
+	"context"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/oscal-compass/compliance-to-policy-go/v2/cmd/c2pcli/cli"
 )
 
 func main() {
 	command := cli.New()
-	err := command.Execute()
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer cancel()
+
+	err := command.ExecuteContext(ctx)
 	if err != nil {
 		os.Exit(1)
 	}
