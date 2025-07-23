@@ -19,6 +19,7 @@ package main
 import (
 	"flag"
 	"os"
+	"path/filepath"
 
 	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/parser"
 )
@@ -38,12 +39,14 @@ func main() {
 	flag.StringVar(&outputDir, "out", "./out", "output")
 	flag.Parse()
 
-	if err := os.Mkdir(outputDir, os.ModePerm); err != nil {
+	if err := os.Mkdir(outputDir, 0750); err != nil {
 		panic(err)
 	}
 
 	collector := parser.NewCollector(outputDir)
-	in, err := os.Open(policyPath)
+
+	cleanedPath := filepath.Clean(policyPath)
+	in, err := os.Open(cleanedPath)
 	if err != nil {
 		panic(err)
 	}

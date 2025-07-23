@@ -66,7 +66,7 @@ func (p *Plugin) Generate(pl policy.Policy) error {
 		}
 		fnamesTokens := []string{kind, namespace, name}
 		fname := strings.Join(fnamesTokens, ".") + ".yaml"
-		if err := os.WriteFile(p.config.OutputDir+"/"+fname, yamlByte, os.ModePerm); err != nil {
+		if err := os.WriteFile(p.config.OutputDir+"/"+fname, yamlByte, 0600); err != nil {
 			return err
 		}
 	}

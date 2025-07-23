@@ -21,6 +21,7 @@ import (
 	"flag"
 	"net/url"
 	"os"
+	"path/filepath"
 
 	"gopkg.in/yaml.v3"
 
@@ -41,7 +42,9 @@ func main() {
 		panic(err)
 	}
 	println(u)
-	f, err := os.Open(resourceTableFile)
+
+	cleanedPath := filepath.Clean(resourceTableFile)
+	f, err := os.Open(cleanedPath)
 	if err != nil {
 		panic(err)
 	}
@@ -99,7 +102,7 @@ func main() {
 			panic(err)
 		}
 		_ = count
-		writer.Flush()
+		_ = writer.Flush()
 	} else {
 		t.Filter(filterFunc).Print()
 	}

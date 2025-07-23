@@ -140,7 +140,7 @@ func appendCompliance(c *parser.Collector) error {
 		if err != nil {
 			return err
 		}
-		if err := os.WriteFile(policyDir+"/compliance.yaml", yamlData, os.ModePerm); err != nil {
+		if err := os.WriteFile(policyDir+"/compliance.yaml", yamlData, 0600); err != nil {
 			return err
 		}
 	}
@@ -153,13 +153,13 @@ func indexer(c *parser.Collector) error {
 	filenameCreator := utils.NewFilenameCreator(".yaml", nil)
 	for apiVersion, table := range groupedByApiVersion {
 		apiVersionDir := resourcesDir + "/" + apiVersion
-		if err := os.MkdirAll(apiVersionDir, os.ModePerm); err != nil {
+		if err := os.MkdirAll(apiVersionDir, 0750); err != nil {
 			return err
 		}
 		groupedByKind := table.GroupBy("kind")
 		for kind, table := range groupedByKind {
 			kindDir := apiVersionDir + "/" + kind
-			if err := os.MkdirAll(kindDir, os.ModePerm); err != nil {
+			if err := os.MkdirAll(kindDir, 0750); err != nil {
 				return err
 			}
 			for _, row := range table.List() {

@@ -36,11 +36,11 @@ func main() {
 	logger, _ := zap.NewDevelopment()
 
 	parsedResultsDir := outputDir + "/parsed"
-	if err := os.MkdirAll(parsedResultsDir, os.ModePerm); err != nil {
+	if err := os.MkdirAll(parsedResultsDir, 0750); err != nil {
 		panic(err)
 	}
 	decomposedResultsDir := outputDir + "/decomposed"
-	if err := os.MkdirAll(decomposedResultsDir, os.ModePerm); err != nil {
+	if err := os.MkdirAll(decomposedResultsDir, 0750); err != nil {
 		panic(err)
 	}
 

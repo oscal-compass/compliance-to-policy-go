@@ -93,7 +93,7 @@ func runOSCAL2Posture(ctx context.Context, option *Options) error {
 	if out == "-" {
 		fmt.Fprintln(os.Stdout, string(data))
 	} else {
-		return os.WriteFile(out, data, os.ModePerm)
+		return os.WriteFile(out, data, 0600)
 	}
 	return nil
 }

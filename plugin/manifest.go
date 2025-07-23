@@ -43,10 +43,10 @@ func (m *Manifest) ResolvePath(pluginDir string) error {
 	// Handle different path types (relative and absolute)
 	var cleanedPath string
 	if filepath.IsAbs(m.ExecutablePath) {
-		if !strings.HasPrefix(m.ExecutablePath, absPluginDir+string(os.PathSeparator)) {
+		cleanedPath = filepath.Clean(m.ExecutablePath)
+		if !strings.HasPrefix(cleanedPath, absPluginDir+string(os.PathSeparator)) {
 			return fmt.Errorf("absolute path %s is not under the plugin directory %s", m.ExecutablePath, absPluginDir)
 		}
-		cleanedPath = filepath.Clean(m.ExecutablePath)
 	} else {
 		cleanedPath = filepath.Clean(filepath.Join(absPluginDir, m.ExecutablePath))
 	}
