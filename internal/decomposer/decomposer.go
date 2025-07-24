@@ -33,7 +33,7 @@ type Decomposer struct {
 }
 
 func NewDecomposer(resourceTableFile io.Reader, outputDirPath string) (*Decomposer, error) {
-	if err := os.MkdirAll(outputDirPath, os.ModePerm); err != nil {
+	if err := os.MkdirAll(outputDirPath, 0750); err != nil {
 		return nil, err
 	}
 	return &Decomposer{

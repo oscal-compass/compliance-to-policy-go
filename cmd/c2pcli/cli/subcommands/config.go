@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	oscalTypes "github.com/defenseunicorns/go-oscal/src/types/oscal-1-1-3"
 	"github.com/oscal-compass/oscal-sdk-go/models"
@@ -81,7 +82,7 @@ func createOrGetPlan(ctx context.Context, option *Options) (*oscalTypes.Assessme
 }
 
 func loadCompDef(path string) (oscalTypes.ComponentDefinition, error) {
-	file, err := os.Open(path)
+	file, err := os.Open(filepath.Clean(path))
 	if err != nil {
 		return oscalTypes.ComponentDefinition{}, err
 	}
@@ -98,7 +99,7 @@ func loadCompDef(path string) (oscalTypes.ComponentDefinition, error) {
 }
 
 func loadPlan(path string) (*oscalTypes.AssessmentPlan, error) {
-	file, err := os.Open(path)
+	file, err := os.Open(filepath.Clean(path))
 	if err != nil {
 		return nil, err
 	}

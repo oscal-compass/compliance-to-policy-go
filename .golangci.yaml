@@ -10,19 +10,23 @@ linters:
     - durationcheck
     - errname
     - errorlint
-    - govet
+    - gosec
     - importas
-    - ineffassign
     - misspell
     - nilerr
-    - unconvert
     - nolintlint
+    - unconvert
   disable:
     # Revisit issues in the codebase with these linters
     # and re-enable
     - errcheck
     - staticcheck
     - unused
+  exclusions:
+    rules:
+      - path: _test\.go
+        linters:
+          - gosec
 
 formatters:
   enable:

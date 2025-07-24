@@ -42,7 +42,7 @@ func main() {
 
 	logger, _ := zap.NewDevelopment()
 
-	if err := os.Mkdir(outputDir, os.ModePerm); err != nil {
+	if err := os.Mkdir(outputDir, 0750); err != nil {
 		panic(err)
 	}
 

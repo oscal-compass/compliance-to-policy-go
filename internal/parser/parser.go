@@ -73,7 +73,7 @@ func (c *Collector) GetOutputDir() string {
 
 func (c *Collector) TraversalFunc(target string) func(path string, info os.FileInfo, err error) error {
 	outputTargetDir := c.outputDir + "/" + target
-	_ = os.MkdirAll(outputTargetDir, os.ModePerm)
+	_ = os.MkdirAll(outputTargetDir, 0750)
 	return func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -96,7 +96,7 @@ func (c *Collector) parseFile(target string, outputDir string, path string, file
 		return fmt.Errorf("No policies are found for %s.", target)
 	}
 	placementDir := outputDir + "/placements"
-	if err := os.MkdirAll(placementDir, os.ModePerm); err != nil {
+	if err := os.MkdirAll(placementDir, 0750); err != nil {
 		return err
 	}
 	for _, pb := range placementBindings {
@@ -178,9 +178,10 @@ func (c *Collector) parseFile(target string, outputDir string, path string, file
 
 func (c *Collector) ParseFile(target string, outputTargetDir string, path string, info os.FileInfo, _err error) error {
 	fname := info.Name()
+
 	outputDir := outputTargetDir + "/" + fname
 	outputDir = strings.ReplaceAll(outputDir, ".yaml", "")
-	if err := os.MkdirAll(outputDir, os.ModePerm); err != nil {
+	if err := os.MkdirAll(outputDir, 0750); err != nil {
 		return err
 	}
 	if err := utils.CopyFile(path, outputDir+"/policy.yaml"); err != nil {
@@ -189,7 +190,8 @@ func (c *Collector) ParseFile(target string, outputTargetDir string, path string
 
 	logger.Info(fmt.Sprintf("%s, %s", path, fname))
 
-	f, err := os.Open(path)
+	cleanedPath := filepath.Clean(path)
+	f, err := os.Open(cleanedPath)
 	if err != nil {
 		return err
 	}
@@ -215,7 +217,7 @@ func (c *Collector) parsePolicyTemplate(policyTemplate *policy.PolicyTemplate, b
 	}
 	row.ConfigPolicy = configPolicy.Name
 	configPolicyDir := row.PolicyDir + "/" + configPolicy.Name
-	if err := os.MkdirAll(configPolicyDir, os.ModePerm); err != nil {
+	if err := os.MkdirAll(configPolicyDir, 0750); err != nil {
 		return manifests, err
 	}
 	remediationAction := configPolicy.Spec.RemediationAction

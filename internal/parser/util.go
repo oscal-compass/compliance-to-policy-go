@@ -16,10 +16,14 @@ limitations under the License.
 
 package parser
 
-import "os"
+import (
+	"os"
+	"path/filepath"
+)
 
 func WriteToCSVs(c *Collector, outputDir string) (string, string) {
 	policyCsvPath := outputDir + "/policies.csv"
+	policyCsvPath = filepath.Clean(policyCsvPath)
 	of, err := os.Create(policyCsvPath)
 	if err != nil {
 		panic(err)
@@ -27,6 +31,8 @@ func WriteToCSVs(c *Collector, outputDir string) (string, string) {
 	c.GetTable().ToCsv(of)
 
 	resourcesCsvPath := outputDir + "/resources.csv"
+	resourcesCsvPath = filepath.Clean(resourcesCsvPath)
+
 	of, err = os.Create(resourcesCsvPath)
 	if err != nil {
 		panic(err)
