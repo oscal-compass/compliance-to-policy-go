@@ -59,7 +59,7 @@ func runOSCAL2Policy(ctx context.Context, option *Options) error {
 		return err
 	}
 
-	inputContext, err := Context(plan)
+	inputContext, err := Context(option, plan)
 	if err != nil {
 		return err
 	}
@@ -76,14 +76,17 @@ func runOSCAL2Policy(ctx context.Context, option *Options) error {
 	var configSelections framework.PluginConfig = func(pluginID plugin.ID) map[string]string {
 		return option.Plugins[pluginID.String()]
 	}
-	launchedPlugins, err := manager.LaunchPolicyPlugins(foundPlugins, configSelections)
+	launchedPlugins, err := manager.LaunchPolicyPlugins(ctx, foundPlugins, configSelections)
 	// Defer clean before returning an error to avoid unterminated processes
 	defer manager.Clean()
 	if err != nil {
 		return err
 	}
 
-	err = actions.GeneratePolicy(ctx, inputContext, launchedPlugins)
+	pluginCtx, cancel := context.WithTimeout(ctx, maxTimeout(option))
+	defer cancel()
+
+	err = actions.GeneratePolicy(pluginCtx, inputContext, launchedPlugins)
 	if err != nil {
 		return err
 	}
