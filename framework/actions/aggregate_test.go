@@ -18,6 +18,7 @@ import (
 	"github.com/oscal-compass/oscal-sdk-go/models/components"
 	"github.com/oscal-compass/oscal-sdk-go/settings"
 	"github.com/oscal-compass/oscal-sdk-go/validation"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
@@ -150,62 +151,70 @@ func TestAggregateResults_Multi(t *testing.T) {
 		},
 	}
 
-	// Create pluginSet
-	providerTestObj := new(policyProvider)
-	providerTestObj.On("GetResults", policy.Policy{ocmRule}).Return(wantResults, nil)
+	t.Run("Success", func(t *testing.T) {
+		providerTestObj := new(policyProvider)
+		providerTestObj.On("GetResults", policy.Policy{ocmRule}).Return(wantResults, nil)
+		providerTestObj2 := new(policyProvider)
+		providerTestObj2.On("GetResults", policy.Policy{kyvernoRule}).Return(wantResults, nil)
 
-	// Create pluginSet
-	providerTestObj2 := new(policyProvider)
-	providerTestObj2.On("GetResults", policy.Policy{kyvernoRule}).Return(wantResults, nil)
-	pluginSet := map[plugin.ID]policy.Provider{
-		"ocm":     providerTestObj,
-		"kyverno": providerTestObj2,
-	}
+		pluginSet := map[plugin.ID]policy.Provider{
+			"ocm":     providerTestObj,
+			"kyverno": providerTestObj2,
+		}
 
-	gotResults, err := AggregateResults(context.TODO(), inputContext, pluginSet)
-	require.NoError(t, err)
-	providerTestObj.AssertExpectations(t)
-	providerTestObj2.AssertExpectations(t)
-	require.Len(t, gotResults, 2)
+		gotResults, err := AggregateResults(context.TODO(), inputContext, pluginSet)
+		require.NoError(t, err)
+		require.Len(t, gotResults, 2)
+		providerTestObj.AssertExpectations(t)
+		providerTestObj2.AssertExpectations(t)
+	})
 
-	// Test with error
-	providerTestObj3 := new(policyProvider)
-	providerTestObj3.On("GetResults", policy.Policy{kyvernoRule}).Return(policy.PVPResult{}, errors.New("failed"))
-	pluginSet = map[plugin.ID]policy.Provider{
-		"ocm":     providerTestObj,
-		"kyverno": providerTestObj3,
-	}
+	t.Run("Failing Provider", func(t *testing.T) {
+		providerTestObj := new(policyProvider)
+		providerTestObj.On("GetResults", policy.Policy{ocmRule}).Return(wantResults, nil)
+		providerTestObj3 := new(policyProvider)
+		providerTestObj3.On("GetResults", policy.Policy{kyvernoRule}).Return(policy.PVPResult{}, errors.New("failed"))
 
-	gotResults, err = AggregateResults(context.Background(), inputContext, pluginSet)
-	require.EqualError(t, err, "failed")
-	providerTestObj.AssertExpectations(t)
-	providerTestObj3.AssertExpectations(t)
-	require.Len(t, gotResults, 1)
+		pluginSet := map[plugin.ID]policy.Provider{
+			"ocm":     providerTestObj,
+			"kyverno": providerTestObj3,
+		}
 
-	// Test with cancellation
-	done := make(chan struct{})
-	ctx, cancel := context.WithCancel(context.Background())
+		gotResults, err := AggregateResults(context.Background(), inputContext, pluginSet)
+		require.EqualError(t, err, "failed")
 
-	providerTestObj3.delay = 500 * time.Millisecond
+		// The number for could 0 or 1 because of randomness in the map key order.
+		assert.Contains(t, []int{0, 1}, len(gotResults))
 
-	go func() {
-		gotResults, err = AggregateResults(ctx, inputContext, pluginSet)
-		close(done)
-	}()
+		providerTestObj.AssertExpectations(t)
+		providerTestObj3.AssertExpectations(t)
+	})
 
-	// Wait for a short period to allow some goroutines to start
-	time.Sleep(100 * time.Millisecond)
+	t.Run("Cancellation Error", func(t *testing.T) {
+		providerTestObj := new(policyProvider)
+		// Mock a successful call that will be cancelled
+		providerTestObj.On("GetResults", policy.Policy{ocmRule}).Return(wantResults, nil)
+		providerTestObj3 := new(policyProvider)
+		// This mock will have a delay, ensuring it gets cancelled
+		providerTestObj3.On("GetResults", policy.Policy{kyvernoRule}).Return(policy.PVPResult{}, errors.New("should not happen"))
+		providerTestObj3.delay = 500 * time.Millisecond // Assuming your mock provider has a delay field
 
-	// Now, cancel.
-	cancel()
+		pluginSet := map[plugin.ID]policy.Provider{
+			"ocm":     providerTestObj,
+			"kyverno": providerTestObj3,
+		}
 
-	select {
-	case <-done:
-		require.EqualError(t, err, "context canceled")
-	case <-time.After(2 * time.Second):
-		t.Fatal("error: did not after cancellation signal within timeout")
-	}
+		ctx, cancel := context.WithCancel(context.Background())
 
+		// Cancel the context almost immediately
+		cancel()
+
+		_, err := AggregateResults(ctx, inputContext, pluginSet)
+
+		// The error should be a context error
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "context canceled")
+	})
 }
 
 // policyProvider is a mocked implementation of policy.Provider.

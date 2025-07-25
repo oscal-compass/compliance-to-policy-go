@@ -64,9 +64,8 @@ func AggregateResults(ctx context.Context, inputContext *InputContext, pluginSet
 		}(providerId, policyPlugin)
 	}
 
-	var err error
 	go func() {
-		err = eg.Wait()
+		_ = eg.Wait()
 		close(resultChan)
 	}()
 
@@ -74,5 +73,10 @@ func AggregateResults(ctx context.Context, inputContext *InputContext, pluginSet
 		allResults = append(allResults, result)
 	}
 
-	return allResults, err
+	// Calling Wait() again to avoid data races
+	if err := eg.Wait(); err != nil {
+		return allResults, err
+	}
+
+	return allResults, nil
 }
