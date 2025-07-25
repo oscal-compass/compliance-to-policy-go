@@ -1,0 +1,80 @@
+# Copyright 2025 The OSCAL Compass Authors
+# SPDX-License-Identifier: Apache-2.0
+---
+name: setup c2pcli
+description: 'Installs the c2pcli in the runner environment'
+author: 'OSCAL Compass Authors'
+branding:
+  icon: 'download'
+  color: 'green'
+
+inputs:
+  c2p-version:
+    description: 'Version of C2P to install.'
+    required: false
+    default: 'v2.0.0-alpha.1'
+  install-dir:
+    description: "Path to install the binary"
+    required: false
+    default: '$HOME/.compass'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup install directory
+      shell: bash
+      env:
+        INSTALL_DIR: ${{ inputs.install-dir }}
+      run: |
+        mkdir -p "${INSTALL_DIR}/bin"
+        echo "${INSTALL_DIR}/bin" >> $GITHUB_PATH
+
+    - name: Determine platform
+      id: platform
+      shell: bash
+      run: |
+        OS_SUFFIX=""
+        ARCH_SUFFIX=""
+
+        if [ "${{ runner.os }}" == "Linux" ]; then
+        OS_SUFFIX="linux"
+        elif [ "${{ runner.os }}" == "macOS" ]; then
+        OS_SUFFIX="darwin"
+        fi
+
+        if [ "${{ runner.arch }}" == "X64" ]; then
+        ARCH_SUFFIX="x86_64"
+        elif [ "${{ runner.arch }}" == "ARM64" ]; then
+        ARCH_SUFFIX="arm64"
+        fi
+
+        if [ -z "$OS_SUFFIX" ] || [ -z "$ARCH_SUFFIX" ]; then
+        echo "Unsupported platform for the c2pcli"
+        exit 1
+        fi
+
+        echo "file=compliance-to-policy-go-cli_${OS_SUFFIX}_${ARCH_SUFFIX}" >> $GITHUB_OUTPUT
+
+    - name: Download release artifact
+      env:
+        INSTALL_DIR: ${{ inputs.install-dir }}
+        FILENAME: ${{ steps.platform.outputs.file }}
+        GH_TOKEN: ${{ github.token }}
+        C2P_VERSION: ${{ inputs.c2p-version }}
+      run: |
+        echo "Searching for pattern $FILENAME.tar.gz"
+        
+        TEMP_DIR=$(mktemp -d)
+        gh release download "$C2P_VERSION" --repo oscal-compass/compliance-to-policy-go --pattern "$FILENAME.tar.gz" --dir "$TEMP_DIR" --clobber
+        
+        tar -xzf "$TEMP_DIR/$FILENAME.tar.gz" -C "$TEMP_DIR"
+        
+        mv "$TEMP_DIR/c2pcli" "$INSTALL_DIR/bin/c2pcli"
+        echo "Moved c2pcli to $INSTALL_DIR/bin/c2pcli"
+        
+        chmod +x "$INSTALL_DIR/bin/c2pcli"
+        rm -rf "$TEMP_DIR"
+      shell: bash
+
+    - shell: bash
+      run: c2pcli version

@@ -1,0 +1,22 @@
+name: Test Actions
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'main'
+    paths:
+      - 'actions/**'
+
+permissions: {}
+
+jobs:
+  install-c2p:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest ]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Install C2P
+        uses: ./actions/setup-c2pcli
