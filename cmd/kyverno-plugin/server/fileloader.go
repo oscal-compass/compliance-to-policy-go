@@ -55,7 +55,6 @@ func (fl *FileLoader) GetPolicyResourceIndice() []PolicyResourceIndex {
 }
 
 func (fl *FileLoader) LoadFromDirectory(dir string) error {
-	logger.Info("dddff")
 	re := regexp.MustCompile(`^[\.*]`)
 	callback := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
