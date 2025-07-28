@@ -53,7 +53,15 @@ type Options struct {
 	AssessmentResults string                       `yaml:"assessment-results" mapstructure:"assessment-results"`
 	Plugins           map[string]map[string]string `yaml:"plugins" mapstructure:"plugins"`
 	Output            string                       `yaml:"out" mapstructure:"out"`
+	AdvancedOptions   AdvancedOptions              `yaml:"advanced" mapstructure:"advanced"`
 	logger            hclog.Logger
+}
+
+type AdvancedOptions struct {
+	// MaxConcurrency defines the maximum number of goroutines for plugin operations
+	MaxConcurrency int `yaml:"max-concurrency" mapstructure:"max-concurrency"`
+	// MaxPluginTimeout is maximum time a plugin has to complete operations in minutes.
+	MaxPluginTimeout int `yaml:"max-plugin-timeout" mapstructure:"max-plugin-timeout"`
 }
 
 // NewOptions returns an initialized Options struct.

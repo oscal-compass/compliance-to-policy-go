@@ -40,12 +40,12 @@ func TestConfigure(t *testing.T) {
 	configuration := map[string]string{
 		"policy-dir": "not-exist",
 	}
-	err := plugin.Configure(configuration)
+	err := plugin.Configure(context.Background(), configuration)
 	require.EqualError(t, err, "path \"not-exist\": stat not-exist: no such file or directory")
 
 	policyDir := utils.PathFromInternalDirectory("./testdata/kyverno/policy-resources")
 	configuration["policy-dir"] = policyDir
-	err = plugin.Configure(configuration)
+	err = plugin.Configure(context.Background(), configuration)
 	require.NoError(t, err)
 }
 
