@@ -31,9 +31,9 @@ message Rule {
   // description is the human-readable documentation for the technical rule
   string description = 2;
   // check mapped to rule
-  repeated Check checks = 4;
+  repeated Check checks = 3;
   // parameters associated with rule
-  repeated  Parameter parameters = 5;
+  repeated  Parameter parameters = 4;
 }
 
 // result values

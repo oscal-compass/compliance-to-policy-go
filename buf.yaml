@@ -1,0 +1,20 @@
+version: v2
+
+modules:
+  - path: api/proto
+    lint:
+      except:
+        - PACKAGE_DIRECTORY_MATCH
+        - PACKAGE_VERSION_SUFFIX
+    breaking:
+      except:
+        - FILE_SAME_GO_PACKAGE
+lint:
+  use:
+    - STANDARD
+    - COMMENTS
+
+breaking:
+  use:
+    - FILE
+    - WIRE_JSON
