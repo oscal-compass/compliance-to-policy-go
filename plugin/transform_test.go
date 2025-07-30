@@ -41,23 +41,21 @@ var testPolicy = policy.Policy{
 	},
 }
 
-var testPolicyRequest = &proto.PolicyRequest{
-	Rule: []*proto.Rule{
-		{
-			Name:        "test-rule-1",
-			Description: "test rule 1",
-			Checks: []*proto.Check{
-				{
-					Name:        "test-check-1",
-					Description: "test check 1",
-				},
+var testPolicyRequest = []*proto.Rule{
+	{
+		Name:        "test-rule-1",
+		Description: "test rule 1",
+		Checks: []*proto.Check{
+			{
+				Name:        "test-check-1",
+				Description: "test check 1",
 			},
-			Parameters: []*proto.Parameter{
-				{
-					Name:          "test-param-1",
-					Description:   "test param 1",
-					SelectedValue: "test param value",
-				},
+		},
+		Parameters: []*proto.Parameter{
+			{
+				Name:          "test-param-1",
+				Description:   "test param 1",
+				SelectedValue: "test param value",
 			},
 		},
 	},

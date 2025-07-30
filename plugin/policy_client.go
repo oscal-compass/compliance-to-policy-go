@@ -16,7 +16,7 @@ import (
 var _ policy.Provider = (*pvpClient)(nil)
 
 type pvpClient struct {
-	client proto.PolicyEngineClient
+	client proto.PolicyEngineServiceClient
 }
 
 func (pvp *pvpClient) Configure(ctx context.Context, configuration map[string]string) error {
@@ -31,8 +31,11 @@ func (pvp *pvpClient) Configure(ctx context.Context, configuration map[string]st
 }
 
 func (pvp *pvpClient) Generate(ctx context.Context, p policy.Policy) error {
-	request := PolicyToProto(p)
-	_, err := pvp.client.Generate(ctx, request)
+	rules := PolicyToProto(p)
+	policyRequest := &proto.GenerateRequest{
+		Rule: rules,
+	}
+	_, err := pvp.client.Generate(ctx, policyRequest)
 	if err != nil {
 		return err
 	}
@@ -40,8 +43,11 @@ func (pvp *pvpClient) Generate(ctx context.Context, p policy.Policy) error {
 }
 
 func (pvp *pvpClient) GetResults(ctx context.Context, p policy.Policy) (policy.PVPResult, error) {
-	request := PolicyToProto(p)
-	resp, err := pvp.client.GetResults(ctx, request)
+	rules := PolicyToProto(p)
+	resultsRequest := &proto.GetResultsRequest{
+		Rule: rules,
+	}
+	resp, err := pvp.client.GetResults(ctx, resultsRequest)
 	if err != nil {
 		return policy.PVPResult{}, err
 	}

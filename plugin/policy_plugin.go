@@ -17,14 +17,14 @@ import (
 )
 
 // Plugin must return an RPC server for this plugin type.
-var _ proto.PolicyEngineServer = (*pvpService)(nil)
+var _ proto.PolicyEngineServiceServer = (*pvpService)(nil)
 
 type pvpService struct {
-	proto.UnimplementedPolicyEngineServer
+	proto.UnimplementedPolicyEngineServiceServer
 	Impl policy.Provider
 }
 
-func FromPVP(pe policy.Provider) proto.PolicyEngineServer {
+func FromPVP(pe policy.Provider) proto.PolicyEngineServiceServer {
 	return &pvpService{
 		Impl: pe,
 	}
@@ -39,9 +39,9 @@ func (p *pvpService) Configure(ctx context.Context, request *proto.ConfigureRequ
 	return &proto.ConfigureResponse{}, nil
 }
 
-func (p *pvpService) Generate(ctx context.Context, request *proto.PolicyRequest) (*proto.GenerateResponse, error) {
-	policy := NewPolicyFromProto(request)
-	if err := p.Impl.Generate(ctx, policy); err != nil {
+func (p *pvpService) Generate(ctx context.Context, request *proto.GenerateRequest) (*proto.GenerateResponse, error) {
+	rules := NewPolicyFromProto(request.Rule)
+	if err := p.Impl.Generate(ctx, rules); err != nil {
 		return &proto.GenerateResponse{}, status.Error(codes.Internal, err.Error())
 	}
 
@@ -49,11 +49,11 @@ func (p *pvpService) Generate(ctx context.Context, request *proto.PolicyRequest)
 	return &proto.GenerateResponse{}, nil
 }
 
-func (p *pvpService) GetResults(ctx context.Context, request *proto.PolicyRequest) (*proto.ResultsResponse, error) {
-	policy := NewPolicyFromProto(request)
-	result, err := p.Impl.GetResults(ctx, policy)
+func (p *pvpService) GetResults(ctx context.Context, request *proto.GetResultsRequest) (*proto.GetResultsResponse, error) {
+	rules := NewPolicyFromProto(request.Rule)
+	result, err := p.Impl.GetResults(ctx, rules)
 	if err != nil {
-		return &proto.ResultsResponse{}, status.Error(codes.Internal, err.Error())
+		return &proto.GetResultsResponse{}, status.Error(codes.Internal, err.Error())
 	}
-	return &proto.ResultsResponse{Result: ResultsToProto(result)}, nil
+	return &proto.GetResultsResponse{Result: ResultsToProto(result)}, nil
 }

@@ -48,10 +48,10 @@ type PVPPlugin struct {
 }
 
 func (p *PVPPlugin) GRPCServer(broker *plugin.GRPCBroker, s *grpc.Server) error {
-	proto.RegisterPolicyEngineServer(s, FromPVP(p.Impl))
+	proto.RegisterPolicyEngineServiceServer(s, FromPVP(p.Impl))
 	return nil
 }
 
 func (p *PVPPlugin) GRPCClient(ctx context.Context, broker *plugin.GRPCBroker, c *grpc.ClientConn) (interface{}, error) {
-	return &pvpClient{client: proto.NewPolicyEngineClient(c)}, nil
+	return &pvpClient{client: proto.NewPolicyEngineServiceClient(c)}, nil
 }
