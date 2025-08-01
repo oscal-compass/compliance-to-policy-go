@@ -96,7 +96,7 @@ func inputContextHelper(t *testing.T) *InputContext {
 		allComponents = append(allComponents, compAdapter)
 	}
 
-	inputContext, err := NewContext(allComponents)
+	inputContext, err := NewContextFromComponents(allComponents)
 	require.NoError(t, err)
 	return inputContext
 }

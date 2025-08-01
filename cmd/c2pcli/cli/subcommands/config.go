@@ -38,19 +38,31 @@ func Config(option *Options) (*framework.C2PConfig, error) {
 }
 
 func Context(option *Options, ap *oscalTypes.AssessmentPlan) (*actions.InputContext, error) {
-	if ap.LocalDefinitions == nil || ap.LocalDefinitions.Activities == nil || ap.AssessmentAssets.Components == nil {
-		return nil, errors.New("error converting component definition to assessment plan")
+	if ap.LocalDefinitions == nil || ap.LocalDefinitions.Components == nil || ap.AssessmentAssets.Components == nil {
+		return nil, fmt.Errorf("missing components in assessment plan %q", ap.Metadata.Title)
 	}
 
 	var allComponents []components.Component
+
+	// Add "validation" Components
 	for _, component := range *ap.AssessmentAssets.Components {
 		compAdapter := components.NewSystemComponentAdapter(component)
 		allComponents = append(allComponents, compAdapter)
 	}
 
-	inputCtx, err := actions.NewContext(allComponents)
+	// Add "target" Components
+	for _, component := range *ap.LocalDefinitions.Components {
+		compAdapter := components.NewSystemComponentAdapter(component)
+		allComponents = append(allComponents, compAdapter)
+	}
+
+	inputCtx, err := actions.NewContextFromComponents(allComponents)
 	if err != nil {
 		return nil, err
+	}
+
+	if ap.LocalDefinitions.Activities == nil {
+		return nil, fmt.Errorf("no activities found in assessment plan %q", ap.Metadata.Title)
 	}
 
 	apSettings := settings.NewAssessmentActivitiesSettings(*ap.LocalDefinitions.Activities)

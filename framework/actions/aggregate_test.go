@@ -110,7 +110,7 @@ func TestAggregateResults_Multi(t *testing.T) {
 		allComponents = append(allComponents, compAdapter)
 	}
 
-	inputContext, err := NewContext(allComponents)
+	inputContext, err := NewContextFromComponents(allComponents)
 	require.NoError(t, err)
 
 	testSettings := settings.NewSettings(map[string]struct{}{"test_configuration_check": {}, "allowed-base-images": {}}, nil)
