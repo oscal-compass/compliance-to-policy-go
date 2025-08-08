@@ -2,20 +2,24 @@ syntax = "proto3";
 
 package protocols;
 
+import "models.proto";
+
 option go_package = "github.com/oscal-compass/compliance-to-policy-go/v2/api/proto/";
 
-import "api/proto/models.proto";
-
 // PVP policy request
-message PolicyRequest {
+message GetResultsRequest {
   repeated protocols.Rule rule = 1;
 }
 
-// genereate PVP policy response
+message GenerateRequest {
+  repeated protocols.Rule rule = 1;
+}
+
+// generate PVP policy response
 message GenerateResponse {}
 
 // get PVP results response
-message ResultsResponse {
+message GetResultsResponse {
   protocols.PVPResult result = 1;
 }
 
@@ -26,8 +30,8 @@ message ConfigureRequest {
 message ConfigureResponse {}
 
 // get policy results from PVP
-service PolicyEngine {
-  rpc Generate(PolicyRequest) returns (GenerateResponse);
-  rpc GetResults(PolicyRequest) returns (ResultsResponse);
+service PolicyEngineService {
+  rpc Generate(GenerateRequest) returns (GenerateResponse);
+  rpc GetResults(GetResultsRequest) returns (GetResultsResponse);
   rpc Configure(ConfigureRequest) returns (ConfigureResponse);
 }

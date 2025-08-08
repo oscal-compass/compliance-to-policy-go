@@ -2,9 +2,9 @@ syntax = "proto3";
 
 package protocols;
 
-option go_package = "github.com/oscal-compass/compliance-to-policy-go/v2/api/proto/";
-
 import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/oscal-compass/compliance-to-policy-go/v2/api/proto/";
 
 // define a single rule parameter
 message Parameter {
@@ -31,9 +31,9 @@ message Rule {
   // description is the human-readable documentation for the technical rule
   string description = 2;
   // check mapped to rule
-  repeated Check checks = 4;
+  repeated Check checks = 3;
   // parameters associated with rule
-  repeated  Parameter parameters = 5;
+  repeated Parameter parameters = 4;
 }
 
 // result values
@@ -68,7 +68,7 @@ message Subject {
   // human-readable reason for result
   string reason = 6;
   // associated properties
-  repeated Property props = 7; 
+  repeated Property props = 7;
 }
 
 // define a single link to a local or remote resource
@@ -96,7 +96,7 @@ message ObservationByCheck {
   // references to related evidence
   repeated Link evidence_refs = 7;
   // associated properties
-  repeated Property props = 8; 
+  repeated Property props = 8;
 }
 
 // define a single PVP result

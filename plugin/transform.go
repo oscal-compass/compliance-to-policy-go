@@ -14,8 +14,8 @@ import (
 )
 
 // PolicyToProto transforms a plugin Policy to a protobuf PolicyRequest.
-func PolicyToProto(p policy.Policy) *proto.PolicyRequest {
-	policyRequest := &proto.PolicyRequest{}
+func PolicyToProto(p policy.Policy) []*proto.Rule {
+	var rules []*proto.Rule
 	for _, rs := range p {
 		var parameters []*proto.Parameter
 		for _, prm := range rs.Rule.Parameters {
@@ -41,16 +41,16 @@ func PolicyToProto(p policy.Policy) *proto.PolicyRequest {
 			Checks:      checks,
 			Parameters:  parameters,
 		}
-		policyRequest.Rule = append(policyRequest.Rule, ruleSet)
+		rules = append(rules, ruleSet)
 	}
-	return policyRequest
+	return rules
 }
 
 // NewPolicyFromProto transforms protobuf PolicyRequest into a plugin Policy.
-func NewPolicyFromProto(pb *proto.PolicyRequest) policy.Policy {
+func NewPolicyFromProto(rules []*proto.Rule) policy.Policy {
 	var p policy.Policy
 
-	for _, r := range pb.Rule {
+	for _, r := range rules {
 		var parameters []extensions.Parameter
 		for _, prm := range r.Parameters {
 			parameter := extensions.Parameter{

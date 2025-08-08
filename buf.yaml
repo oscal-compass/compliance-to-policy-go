@@ -1,0 +1,16 @@
+version: v2
+
+modules:
+  - path: api/proto
+    lint:
+      except:
+        - PACKAGE_DIRECTORY_MATCH
+        - PACKAGE_VERSION_SUFFIX
+lint:
+  use:
+    - STANDARD
+    - COMMENTS
+
+breaking:
+  use:
+    - FILE
