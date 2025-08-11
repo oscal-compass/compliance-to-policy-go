@@ -35,7 +35,7 @@ jobs:
       with:
         go-version: v1.23
     - name: Install cosign
-      uses: sigstore/cosign-installer@v3.5.0
+      uses: sigstore/cosign-installer@v3.9.2
     - name: Install syft
       uses: anchore/sbom-action/download-syft@v0.15.10
     - name: Set env
