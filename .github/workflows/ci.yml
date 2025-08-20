@@ -35,6 +35,6 @@ jobs:
         run: make build
       - name: Run unit tests
         run: make test
-      - uses: bufbuild/buf-action@c231a1aa9281e5db706c970f468f0744a37561fd # v1.2.0
+      - uses: bufbuild/buf-action@8f4a1456a0ab6a1eb80ba68e53832e6fcfacc16c # v1.3.0
         with:
           breaking: false
