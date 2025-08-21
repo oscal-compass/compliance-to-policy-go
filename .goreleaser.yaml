@@ -64,7 +64,7 @@ builds:
 
 archives:
   - id: c2pcli
-    builds:
+    ids:
       - c2pcli
     name_template: >-
       {{ .ProjectName }}-cli_
@@ -74,7 +74,7 @@ archives:
       {{- else }}{{ .Arch }}{{ end }}
       {{- if .Arm }}v{{ .Arm }}{{ end }}
   - id: kyverno-plugin
-    builds:
+    ids:
       - kyverno-plugin
     name_template: >-
       {{ .ProjectName }}-kyverno-plugin_
@@ -86,7 +86,7 @@ archives:
     files:
       - c2p-plugins/c2p-kyverno-manifest.json
   - id: ocm-plugin
-    builds:
+    ids:
       - ocm-plugin
     name_template: >-
       {{ .ProjectName }}-ocm-plugin_
