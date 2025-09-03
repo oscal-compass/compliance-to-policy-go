@@ -1,40 +1,50 @@
 # Assessment Results Details
 
-# Catalog
+## Catalog
+
 {{.Catalog}}
 {{- range $component := .Components}}
 
-## Component: {{$component.ComponentTitle}}
+### Component: {{$component.ComponentTitle}}
+
 {{- if $component.Findings }}
 {{- range $finding := $component.Findings}}
 
 -------------------------------------------------------
 
 #### Result of control: {{$finding.ControlID}}
+
 {{ if $finding.Results }}
 {{- range $ruleResult := $finding.Results}}
 Rule ID: {{$ruleResult.RuleId}}
-<details><summary>Details</summary>
+<details>
+<summary>Details</summary>
 {{- range $subj := $ruleResult.Subjects}}
 
-
-  - Subject UUID: {{$subj.SubjectUuid}}
-  - Title: {{$subj.Title}}
+- Subject UUID: {{$subj.SubjectUuid}}
+- Title: {{$subj.Title}}
 {{- range $prop := $subj.Props}}
 {{- if eq $prop.Name "result"}}
 
-    - Result: {{$prop.Value}}
+  - Result: {{$prop.Value}}
 {{- end}}
-{{- if eq $prop.Name "reason"}}
 
+{{- if eq $prop.Name "reason"}}
+    <details>
+    <summary>Reason</summary>
     - Reason:
+
       ```
+
       {{ newline_with_indent $prop.Value 6}}
       ```
+
+    </details>
+
 {{- end}}
 {{- end}}
 {{- end}}
-</details>
+  </details>
 {{- end}}
 {{- end}}
 {{- end}}
