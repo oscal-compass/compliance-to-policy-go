@@ -1,25 +1,34 @@
 # Assessment Results Details
 
-# Catalog
+## Catalog
+
 Catalog Title
 
-## Component: Component Title
+### Component: Component Title
 
 -------------------------------------------------------
 
 #### Result of control: control-1
 
+
 Rule ID: rule-value
-<details><summary>Details</summary>
 
+<details open>
 
-  - Subject UUID: subject-1234
-  - Title: my component
+<summary>Failed Rule Details</summary>
 
-    - Result: fail
+- Subject UUID: subject-1234
+- Title: my component
 
+  - **Result: fail**
+    <details open>
+    <summary>Failure Reason</summary>
     - Reason:
+
       ```
+
       my reason
       ```
-</details>
+
+    </details>
+  </details>
