@@ -5,5 +5,3 @@
 Catalog Title
 
 ### Component: Component Title
-
-No Findings.
