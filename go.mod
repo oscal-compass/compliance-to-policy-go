@@ -11,7 +11,7 @@ require (
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-hclog v1.6.3
-	github.com/hashicorp/go-plugin v1.6.3
+	github.com/hashicorp/go-plugin v1.7.0
 	github.com/kyverno/kyverno v1.14.2
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/oscal-compass/oscal-sdk-go v0.0.3
