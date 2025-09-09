@@ -13,8 +13,7 @@
 -------------------------------------------------------
 
 #### Result of control: {{$finding.ControlID}} ({{$component.ComponentTitle}})
-
-{{ if $finding.Results }}
+{{- if $finding.Results }}
 {{- $hasFailedRules := false }}
 {{- $hasPassedRules := false }}
 {{- $hasWaivedRules := false }}
@@ -89,7 +88,7 @@
     <details open>
     <summary>{{if $hasFailure}}Waiver Details{{else}}Reason for Unexpected Pass{{end}}</summary>
 
-    ```
+    ```text
     {{ newline_with_indent $prop.Value 4}}
     ```
 
@@ -141,7 +140,7 @@
     <details open>
     <summary>Failure Reason</summary>
 
-    ```
+    ```text
     {{ newline_with_indent $prop.Value 4}}
     ```
 
@@ -196,7 +195,7 @@
     <details>
     <summary>Details</summary>
 
-    ```
+    ```text
     {{ newline_with_indent $prop.Value 4}}
     ```
 

@@ -9,8 +9,6 @@ Catalog Title
 -------------------------------------------------------
 
 #### Result of control: control-1 (Component Title)
-
-
 <details open>
 <summary> Failed Rules</summary>
 <details open>
@@ -28,7 +26,7 @@ Catalog Title
     <details open>
     <summary>Failure Reason</summary>
 
-    ```
+    ```text
     my reason
     ```
 
@@ -43,8 +41,6 @@ Catalog Title
 -------------------------------------------------------
 
 #### Result of control: control-1 (Component Title 2)
-
-
 <details>
 <summary> Passed Rules</summary>
 
@@ -60,7 +56,7 @@ Catalog Title
     <details>
     <summary>Details</summary>
 
-    ```
+    ```text
     my reason
     ```
 
