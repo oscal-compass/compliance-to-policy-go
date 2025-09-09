@@ -12,7 +12,7 @@
 
 -------------------------------------------------------
 
-#### Result of control: {{$finding.ControlID}}
+#### Result of control: {{$finding.ControlID}} ({{$component.ComponentTitle}})
 
 {{ if $finding.Results }}
 {{- $hasFailedRules := false }}
@@ -45,53 +45,6 @@
 <details open>
 <summary> Failed Rules</summary>
 
-{{- if $hasFailedRules}}
-{{- range $ruleResult := $finding.Results}}
-{{- $hasFailure := false }}
-{{- $isWaived := false }}
-{{- range $subj := $ruleResult.Subjects}}
-{{- range $prop := $subj.Props}}
-{{- if and (eq $prop.Name "result") (eq $prop.Value "fail") }}
-{{- $hasFailure = true }}
-{{- end}}
-{{- if and (eq $prop.Name "waived") (eq $prop.Value "true") }}
-{{- $isWaived = true }}
-{{- end}}
-{{- end}}
-{{- end}}
-{{- if and $hasFailure (not $isWaived)}}
-
-**Rule ID:** {{$ruleResult.RuleId}}
-
-<details open>
-<summary>Failed Rule Details</summary>
-{{- range $subj := $ruleResult.Subjects}}
-
-- **Subject UUID:** {{$subj.SubjectUuid}}
-- **Title:** {{$subj.Title}}
-{{- range $prop := $subj.Props}}
-{{- if eq $prop.Name "result"}}
-
-  - **Result: {{$prop.Value}}**
-{{- end}}
-
-{{- if eq $prop.Name "reason"}}
-    <details open>
-    <summary>Failure Reason</summary>
-
-    ```
-    {{ newline_with_indent $prop.Value 4}}
-    ```
-
-    </details>
-{{- end}}
-{{- end}}
-{{- end}}
-</details>
-{{- end}}
-{{- end}}
-{{- end}}
-
 {{- if $hasWaivedRules}}
 <details open>
 <summary> Waived Rules</summary>
@@ -116,6 +69,7 @@
 
 <details open>
 <summary>Waived Rule Details</summary>
+
 {{- range $subj := $ruleResult.Subjects}}
 
 - **Subject UUID:** {{$subj.SubjectUuid}}
@@ -127,12 +81,65 @@
 {{- end}}
 
 {{- if eq $prop.Name "waived"}}
-  - **Waived: {{$prop.Value}}**
+
+- **Waived: {{$prop.Value}}**
 {{- end}}
 
 {{- if eq $prop.Name "reason"}}
     <details open>
     <summary>{{if $hasFailure}}Waiver Details{{else}}Reason for Unexpected Pass{{end}}</summary>
+
+    ```
+    {{ newline_with_indent $prop.Value 4}}
+    ```
+
+    </details>
+{{- end}}
+{{- end}}
+{{- end}}
+</details>
+{{- end}}
+{{- end}}
+</details>
+{{- end}}
+
+{{- if $hasFailedRules}}
+<details open>
+<summary> Failed Rules</summary>
+
+{{- range $ruleResult := $finding.Results}}
+{{- $hasFailure := false }}
+{{- $isWaived := false }}
+{{- range $subj := $ruleResult.Subjects}}
+{{- range $prop := $subj.Props}}
+{{- if and (eq $prop.Name "result") (eq $prop.Value "fail") }}
+{{- $hasFailure = true }}
+{{- end}}
+{{- if and (eq $prop.Name "waived") (eq $prop.Value "true") }}
+{{- $isWaived = true }}
+{{- end}}
+{{- end}}
+{{- end}}
+{{- if and $hasFailure (not $isWaived)}}
+
+**Rule ID:** {{$ruleResult.RuleId}}
+
+<details open>
+<summary>Failed Rule Details</summary>
+
+{{- range $subj := $ruleResult.Subjects}}
+
+- **Subject UUID:** {{$subj.SubjectUuid}}
+- **Title:** {{$subj.Title}}
+{{- range $prop := $subj.Props}}
+{{- if eq $prop.Name "result"}}
+
+  - **Result: {{$prop.Value}}**
+{{- end}}
+
+{{- if eq $prop.Name "reason"}}
+    <details open>
+    <summary>Failure Reason</summary>
 
     ```
     {{ newline_with_indent $prop.Value 4}}
@@ -174,6 +181,7 @@
 
 <details>
 <summary>Passed Rule Details</summary>
+
 {{- range $subj := $ruleResult.Subjects}}
 
 - **Subject UUID:** {{$subj.SubjectUuid}}

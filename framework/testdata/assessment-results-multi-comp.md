@@ -8,9 +8,11 @@ Catalog Title
 
 -------------------------------------------------------
 
-#### Result of control: control-1
+#### Result of control: control-1 (Component Title)
 
 
+<details open>
+<summary> Failed Rules</summary>
 <details open>
 <summary> Failed Rules</summary>
 
@@ -32,6 +34,7 @@ Catalog Title
 
     </details>
 </details>
+</details>
 
 </details>
 
@@ -39,7 +42,7 @@ Catalog Title
 
 -------------------------------------------------------
 
-#### Result of control: control-1
+#### Result of control: control-1 (Component Title 2)
 
 
 <details>
