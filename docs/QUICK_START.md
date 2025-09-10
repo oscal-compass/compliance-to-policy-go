@@ -84,7 +84,20 @@ Use "c2pcli [command] --help" for more information about a command.
    cat /tmp/assessment-results.json
    ```
    
-4. Generate a compliance posture markdown file with the `c2pcli`
+4. Generate a compliance posture Markdown file with the `c2pcli`
    ```bash
    c2pcli oscal2posture -c docs/c2p-config.yaml --name nist_800_53 --assessment-results /tmp/assessment-results.json -o /tmp/compliance-posture.md
+   cat /tmp/compliance-posture.md
    ```
+
+    **Note on waived rules**
+    
+    The `compliance-posture.md` will contain the resulting rules defined which pass, fail, or are waived. The `waived` property is set to true when the rule is expected to fail due to any known exception related to the evaluated environment. In the case of a waived rule passing, it will be listed in `Passed Rules` section.
+
+    ```json
+    {
+       "name": "waived",
+       "ns": "https://oscal-compass.github.io/compliance-trestle/schemas/oscal",
+       "value": "true"
+      }
+    ```
