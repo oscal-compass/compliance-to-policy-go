@@ -1,8 +1,7 @@
 # Assessment Results Details
 
-# Catalog
+## Catalog
+
 Catalog Title
 
-## Component: Component Title
-
-No Findings.
+### Component: Component Title
