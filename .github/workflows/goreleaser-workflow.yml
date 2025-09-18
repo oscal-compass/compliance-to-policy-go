@@ -33,7 +33,7 @@ jobs:
         fetch-depth: 0
     - uses: actions/setup-go@v6
       with:
-        go-version: v1.23
+        go-version: v1.24
     - name: Install cosign
       uses: sigstore/cosign-installer@v3.9.2
     - name: Install syft
