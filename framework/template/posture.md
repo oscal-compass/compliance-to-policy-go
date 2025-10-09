@@ -13,6 +13,7 @@
 -------------------------------------------------------
 
 #### Result of control: {{$finding.ControlID}} ({{$component.ComponentTitle}})
+
 {{- if $finding.Results }}
 {{- $hasFailedRules := false }}
 {{- $hasPassedRules := false }}
@@ -45,8 +46,9 @@
 <summary> Failed Rules</summary>
 
 {{- if $hasWaivedRules}}
+
 <details open>
-<summary> Waived Rules</summary>
+<summary>Waived Rules</summary>
 
 {{- range $ruleResult := $finding.Results}}
 {{- $hasFailure := false }}
@@ -103,9 +105,6 @@
 {{- end}}
 
 {{- if $hasFailedRules}}
-<details open>
-<summary> Failed Rules</summary>
-
 {{- range $ruleResult := $finding.Results}}
 {{- $hasFailure := false }}
 {{- $isWaived := false }}
@@ -151,7 +150,6 @@
 </details>
 {{- end}}
 {{- end}}
-</details>
 {{- end}}
 
 </details>
@@ -208,10 +206,8 @@
 {{- end}}
 </details>
 {{- end}}
-{{- end}}
-{{- else}}
 
-No Findings.
+{{- end}}
 {{- end}}
 {{- end}}
 {{- end}}
