@@ -83,6 +83,11 @@ var (
 							Value: "rule-value",
 							Ns:    extensions.TrestleNameSpace,
 						},
+						{
+							Name:  extensions.RuleIdProp,
+							Value: "rule-needs-review",
+							Ns:    extensions.TrestleNameSpace,
+						},
 					},
 				},
 			},
@@ -99,6 +104,9 @@ var (
 						RelatedObservations: &[]oscalTypes.RelatedObservation{
 							{
 								ObservationUuid: "observationuuid",
+							},
+							{
+								ObservationUuid: "observationuuid-review",
 							},
 						},
 					},
@@ -130,6 +138,32 @@ var (
 							},
 						},
 					},
+					{
+						UUID: "observationuuid-review",
+						Props: &[]oscalTypes.Property{
+							{
+								Name:  "assessment-rule-id",
+								Value: "rule-needs-review",
+								Ns:    extensions.TrestleNameSpace,
+							},
+						},
+						Subjects: &[]oscalTypes.SubjectReference{
+							{
+								SubjectUuid: "subject-5678",
+								Title:       "configuration component",
+								Props: &[]oscalTypes.Property{
+									{
+										Name:  "result",
+										Value: "requires-remediation",
+									},
+									{
+										Name:  "reason",
+										Value: "Configuration partially compliant but requires remediation",
+									},
+								},
+							},
+						},
+					},
 				},
 			},
 		},
@@ -156,6 +190,11 @@ var (
 							Value: "rule-value-2",
 							Ns:    extensions.TrestleNameSpace,
 						},
+						{
+							Name:  extensions.RuleIdProp,
+							Value: "rule-error-state",
+							Ns:    extensions.TrestleNameSpace,
+						},
 					},
 				},
 			},
@@ -175,6 +214,9 @@ var (
 							},
 							{
 								ObservationUuid: "observationuuid2",
+							},
+							{
+								ObservationUuid: "observationuuid-error",
 							},
 						},
 					},
@@ -227,6 +269,32 @@ var (
 									{
 										Name:  "reason",
 										Value: "my reason",
+									},
+								},
+							},
+						},
+					},
+					{
+						UUID: "observationuuid-error",
+						Props: &[]oscalTypes.Property{
+							{
+								Name:  "assessment-rule-id",
+								Value: "rule-error-state",
+								Ns:    extensions.TrestleNameSpace,
+							},
+						},
+						Subjects: &[]oscalTypes.SubjectReference{
+							{
+								SubjectUuid: "subject-9999",
+								Title:       "network component",
+								Props: &[]oscalTypes.Property{
+									{
+										Name:  "result",
+										Value: "error",
+									},
+									{
+										Name:  "reason",
+										Value: "Network connectivity issue during evaluation",
 									},
 								},
 							},

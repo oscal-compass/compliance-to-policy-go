@@ -38,6 +38,28 @@ Catalog Title
 -------------------------------------------------------
 
 #### Result of control: control-1 (Component Title 2)
+<details open>
+<summary> Rules in Need of Review</summary>
+
+**Rule ID:** rule-error-state
+
+<details>
+<summary>Rule Details</summary>
+
+- **Subject UUID:** subject-9999
+- **Title:** network component
+
+  - **Result: error**
+    <details>
+    <summary>Details</summary>
+
+    ```text
+    Network connectivity issue during evaluation
+    ```
+
+    </details>
+</details>
+</details>
 <details>
 <summary> Passed Rules</summary>
 
@@ -55,6 +77,25 @@ Catalog Title
 
     ```text
     my reason
+    ```
+
+    </details>
+</details>
+
+**Rule ID:** rule-error-state
+
+<details>
+<summary>Passed Rule Details</summary>
+
+- **Subject UUID:** subject-9999
+- **Title:** network component
+
+  - **Result: error**
+    <details>
+    <summary>Details</summary>
+
+    ```text
+    Network connectivity issue during evaluation
     ```
 
     </details>
