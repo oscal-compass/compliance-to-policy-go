@@ -111,6 +111,25 @@ func TestCreateTemplateValues(t *testing.T) {
 										},
 									},
 								},
+								{
+									RuleId: "rule-needs-review",
+									Subjects: []oscalTypes.SubjectReference{
+										{
+											SubjectUuid: "subject-5678",
+											Title:       "configuration component",
+											Props: &[]oscalTypes.Property{
+												{
+													Name:  "result",
+													Value: "requires-remediation",
+												},
+												{
+													Name:  "reason",
+													Value: "Configuration partially compliant but requires remediation",
+												},
+											},
+										},
+									},
+								},
 							},
 						},
 					},
