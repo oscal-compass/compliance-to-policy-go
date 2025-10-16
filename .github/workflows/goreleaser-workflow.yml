@@ -37,7 +37,7 @@ jobs:
     - name: Install cosign
       uses: sigstore/cosign-installer@v3.9.2
     - name: Install syft
-      uses: anchore/sbom-action/download-syft@v0.15.10
+      uses: anchore/sbom-action/download-syft@v0.20.7
     - name: Set env
       run: |
         if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
