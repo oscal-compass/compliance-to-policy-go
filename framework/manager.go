@@ -11,6 +11,7 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 
+	"github.com/oscal-compass/compliance-to-policy-go/v2/logging"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/plugin"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/policy"
 )
@@ -40,6 +41,8 @@ func NewPluginManager(cfg *C2PConfig) (*PluginManager, error) {
 	if err := cfg.Validate(); err != nil {
 		return nil, err
 	}
+
+	logging.SetLogger(cfg.Logger)
 
 	return &PluginManager{
 		pluginDir:         cfg.PluginDir,

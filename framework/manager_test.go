@@ -6,13 +6,16 @@
 package framework
 
 import (
+	"bytes"
 	"context"
 	"sort"
 	"testing"
 
+	"github.com/hashicorp/go-hclog"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
+	"github.com/oscal-compass/compliance-to-policy-go/v2/logging"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/plugin"
 	"github.com/oscal-compass/compliance-to-policy-go/v2/policy"
 )
@@ -96,4 +99,28 @@ func (p *policyProvider) GetResults(_ context.Context, policyRules policy.Policy
 	})
 	args := p.Called(policyRules)
 	return args.Get(0).(policy.PVPResult), args.Error(1)
+}
+
+func TestNewPluginManager_ConfiguresGlobalLogger(t *testing.T) {
+	var buf bytes.Buffer
+	customLogger := hclog.New(&hclog.LoggerOptions{
+		Name:   "test-logger",
+		Output: &buf,
+		Level:  hclog.Debug,
+	})
+
+	cfg := &C2PConfig{
+		PluginDir:         ".",
+		PluginManifestDir: ".",
+		Logger:            customLogger,
+	}
+
+	_, err := NewPluginManager(cfg)
+	require.NoError(t, err)
+
+	log := logging.GetLogger("test-component")
+	log.Debug("test message")
+
+	require.Contains(t, buf.String(), "test message")
+	require.Contains(t, buf.String(), "test-logger.test-component")
 }
