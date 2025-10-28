@@ -13,6 +13,7 @@ import (
 
 	oscalTypes "github.com/defenseunicorns/go-oscal/src/types/oscal-1-1-3"
 	"github.com/hashicorp/go-hclog"
+	"github.com/oscal-compass/oscal-sdk-go/extensions"
 	"github.com/oscal-compass/oscal-sdk-go/models"
 	"github.com/oscal-compass/oscal-sdk-go/models/components"
 	"github.com/oscal-compass/oscal-sdk-go/transformers"
@@ -77,7 +78,7 @@ func TestReport(t *testing.T) {
 	relatedObs := *findings[0].RelatedObservations
 
 	// require that the observation is properly linked to the finding
-	require.Len(t, relatedObs, 1)
+	require.Len(t, relatedObs, 2)
 	observationUUID := relatedObs[0].ObservationUuid
 
 	var found bool
@@ -129,6 +130,128 @@ func TestToOscalObservation(t *testing.T) {
 		} else if v.Name == "reason" {
 			require.Equal(t, v.Value, pvpResults[0].ObservationsByCheck[0].Subjects[0].Reason)
 		}
+	}
+}
+
+func TestShouldGenerateFinding(t *testing.T) {
+	tests := []struct {
+		name        string
+		observation oscalTypes.Observation
+		ruleId      string
+		result      bool
+	}{
+		{
+			name:   "Success/NewFinding",
+			ruleId: "example",
+			observation: oscalTypes.Observation{
+				Props: &[]oscalTypes.Property{
+					{
+						Name:  extensions.AssessmentRuleIdProp,
+						Value: "example",
+						Ns:    extensions.TrestleNameSpace,
+					},
+					{
+						Name:  extensions.AssessmentCheckIdProp,
+						Value: "",
+						Ns:    extensions.TrestleNameSpace,
+					},
+				},
+			},
+			result: true,
+		},
+		{
+			name:   "Success/Waived",
+			ruleId: "example",
+			observation: oscalTypes.Observation{
+				Props: &[]oscalTypes.Property{
+					{
+						Name:  extensions.AssessmentRuleIdProp,
+						Value: "example",
+						Ns:    extensions.TrestleNameSpace,
+					},
+					{
+						Name:  extensions.AssessmentCheckIdProp,
+						Value: "",
+						Ns:    extensions.TrestleNameSpace,
+					},
+					{
+						Name:  extensions.WaivedRulesProperty,
+						Value: "true",
+						Ns:    extensions.TrestleNameSpace,
+					},
+				},
+			},
+			result: false,
+		},
+		{
+			name:   "Success/WithStatus",
+			ruleId: "example",
+			observation: oscalTypes.Observation{
+				Props: &[]oscalTypes.Property{
+					{
+						Name:  extensions.AssessmentRuleIdProp,
+						Value: "example",
+						Ns:    extensions.TrestleNameSpace,
+					},
+					{
+						Name:  extensions.AssessmentCheckIdProp,
+						Value: "",
+						Ns:    extensions.TrestleNameSpace,
+					},
+				},
+				Subjects: &[]oscalTypes.SubjectReference{
+					{
+						Props: &[]oscalTypes.Property{
+							{
+								Name:  "result",
+								Value: policy.ResultFail.String(),
+								Ns:    extensions.TrestleNameSpace,
+							},
+						},
+					},
+				},
+			},
+			result: true,
+		},
+		{
+			name:   "Success/WaivedWithStatus",
+			ruleId: "example",
+			observation: oscalTypes.Observation{
+				Props: &[]oscalTypes.Property{
+					{
+						Name:  extensions.AssessmentRuleIdProp,
+						Value: "example",
+						Ns:    extensions.TrestleNameSpace,
+					},
+					{
+						Name:  extensions.AssessmentCheckIdProp,
+						Value: "",
+						Ns:    extensions.TrestleNameSpace,
+					},
+				},
+				Subjects: &[]oscalTypes.SubjectReference{
+					{
+						Props: &[]oscalTypes.Property{
+							{
+								Name:  "result",
+								Value: policy.ResultFail.String(),
+								Ns:    extensions.TrestleNameSpace,
+							},
+							{
+								Name:  extensions.WaivedRulesProperty,
+								Value: "true",
+								Ns:    extensions.TrestleNameSpace,
+							},
+						},
+					},
+				},
+			},
+			result: false,
+		},
+	}
+
+	for _, c := range tests {
+		require.Equal(t, c.result, shouldGenerateFindings(c.observation, c.ruleId))
 	}
 }
 
