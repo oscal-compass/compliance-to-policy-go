@@ -104,8 +104,10 @@ func allFindings(assessmentResults oscalTypes.AssessmentResults, logger hclog.Lo
 			continue
 		}
 		for _, ob := range *ar.Observations {
-			if ob.Props == nil || ob.Subjects == nil {
-				logger.Debug(fmt.Sprintf("no subjects found for %s", ob.Title))
+			// Only filter out observations without props (required for rule ID)
+			// Observations without subjects represent "missing results" and should be included
+			if ob.Props == nil {
+				logger.Debug(fmt.Sprintf("no props found for %s", ob.Title))
 				continue
 			}
 			observations[ob.UUID] = ob
@@ -134,9 +136,16 @@ func allFindings(assessmentResults oscalTypes.AssessmentResults, logger hclog.Lo
 					if !found {
 						continue
 					}
+
+					// Handle case where observation exists but has no subjects
+					var subjects []oscalTypes.SubjectReference
+					if ob.Subjects != nil {
+						subjects = *ob.Subjects
+					}
+
 					ruleResult := tp.RuleResult{
 						RuleId:   ruleId.Value,
-						Subjects: *ob.Subjects,
+						Subjects: subjects,
 					}
 					item.Results = append(item.Results, ruleResult)
 				}

@@ -36,6 +36,7 @@ type Posture struct {
 	catalog           *oscalTypes.Catalog
 	assessmentPlan    *oscalTypes.AssessmentPlan
 	templateFile      *string
+	useTableTemplate  bool
 }
 
 func NewPosture(assessmentResults *oscalTypes.AssessmentResults, catalog *oscalTypes.Catalog, plan *oscalTypes.AssessmentPlan, logger hclog.Logger) *Posture {
@@ -51,11 +52,19 @@ func (r *Posture) SetTemplateFile(templateFile string) {
 	r.templateFile = &templateFile
 }
 
+func (r *Posture) SetUseTableTemplate(useTable bool) {
+	r.useTableTemplate = useTable
+}
+
 func (r *Posture) Generate(mdfilepath string) ([]byte, error) {
 	var templateData []byte
 	var err error
 	if r.templateFile == nil {
-		templateData, err = embeddedResources.ReadFile("template/posture.md")
+		if r.useTableTemplate {
+			templateData, err = embeddedResources.ReadFile("template/posture-table.md")
+		} else {
+			templateData, err = embeddedResources.ReadFile("template/posture.md")
+		}
 	} else {
 		templateData, err = os.ReadFile(*r.templateFile)
 	}
