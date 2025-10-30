@@ -18,6 +18,7 @@ import (
 	"github.com/oscal-compass/oscal-sdk-go/models/components"
 	"github.com/oscal-compass/oscal-sdk-go/transformers"
 	"github.com/oscal-compass/oscal-sdk-go/validation"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/utils"
@@ -210,7 +211,7 @@ func TestShouldGenerateFinding(t *testing.T) {
 			result: true,
 		},
 		{
-			name: "Success/WaivedWithStatus",
+			name: "Success/WaivedSubject",
 			observation: oscalTypes.Observation{
 				Props: &[]oscalTypes.Property{
 					{
@@ -233,7 +234,7 @@ func TestShouldGenerateFinding(t *testing.T) {
 								Ns:    extensions.TrestleNameSpace,
 							},
 							{
-								Name:  extensions.WaivedRulesProperty,
+								Name:  "waived",
 								Value: "true",
 								Ns:    extensions.TrestleNameSpace,
 							},
@@ -243,10 +244,57 @@ func TestShouldGenerateFinding(t *testing.T) {
 			},
 			result: false,
 		},
+		{
+			name: "Success/MixedWaivedAndFailed",
+			observation: oscalTypes.Observation{
+				Props: &[]oscalTypes.Property{
+					{
+						Name:  extensions.AssessmentRuleIdProp,
+						Value: "example",
+						Ns:    extensions.TrestleNameSpace,
+					},
+					{
+						Name:  extensions.AssessmentCheckIdProp,
+						Value: "",
+						Ns:    extensions.TrestleNameSpace,
+					},
+				},
+				Subjects: &[]oscalTypes.SubjectReference{
+					{
+						Props: &[]oscalTypes.Property{
+							{
+								Name:  "result",
+								Value: policy.ResultFail.String(),
+								Ns:    extensions.TrestleNameSpace,
+							},
+							{
+								Name:  "waived",
+								Value: "true",
+								Ns:    extensions.TrestleNameSpace,
+							},
+						},
+					},
+					{
+						Props: &[]oscalTypes.Property{
+							{
+								Name:  "result",
+								Value: policy.ResultFail.String(),
+								Ns:    extensions.TrestleNameSpace,
+							},
+						},
+					},
+				},
+			},
+			result: true,
+		},
 	}
 
 	for _, c := range tests {
-		require.Equal(t, c.result, shouldGenerateFindings(c.observation))
+		t.Run(c.name, func(t *testing.T) {
+			obs := c.observation
+			result := shouldGenerateFindings(obs)
+			assert.Equal(t, c.result, result, "shouldGenerateFindings should return %v", c.result)
+		})
 	}
 }
 

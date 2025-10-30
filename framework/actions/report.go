@@ -213,7 +213,6 @@ func generateInventoryItem(subject *oscalTypes.SubjectReference) oscalTypes.Inve
 
 // Generate an OSCAL Resource from a given Subject reference
 func generateResource(subject *oscalTypes.SubjectReference) oscalTypes.Resource {
-
 	resource := oscalTypes.Resource{
 		UUID:  subject.SubjectUuid,
 		Title: subject.Title,
@@ -222,28 +221,30 @@ func generateResource(subject *oscalTypes.SubjectReference) oscalTypes.Resource 
 }
 
 // shouldGenerateFindings determines if findings should be generated for an observation
-// This function handles both observations with subjects and those without subjects,
-// and supports waive rules to prevent finding generation when appropriate.
+// - Observations without subjects generate findings unless waived at observation level
+// - Observations with subjects only generate findings if they have non-waived subjects with failures
+// - Waived subjects are skipped (matching template logic where waived subjects don't count as failures)
 func shouldGenerateFindings(obs oscalTypes.Observation) bool {
-	if obs.Subjects == nil {
-		// For observations without subjects, check if the observation itself is waived
-		// A finding is not needed for a waived rule
-		if obs.Props != nil {
-			waived, found := extensions.GetTrestleProp(extensions.WaivedRulesProperty, *obs.Props)
-			if found && waived.Value == "true" {
-				return false
-			}
+	// Check if observation-level waived (for observations without subjects)
+	if obs.Props != nil {
+		waived, found := extensions.GetTrestleProp(extensions.WaivedRulesProperty, *obs.Props)
+		if found && waived.Value == "true" {
+			return false
 		}
+	}
 
+	if obs.Subjects == nil {
 		// Generate findings by default for observations without subjects
 		// This handles the case where an activity was in scope but no results were received
 		return true
 	}
 
 	for _, subject := range *obs.Subjects {
-		waived, found := extensions.GetTrestleProp(extensions.WaivedRulesProperty, *subject.Props)
-		if found && waived.Value == "true" {
-			continue
+		if subject.Props != nil {
+			waived, found := extensions.GetTrestleProp(extensions.WaivedRulesProperty, *subject.Props)
+			if found && waived.Value == "true" {
+				continue
+			}
 		}
 
 		result, found := extensions.GetTrestleProp("result", *subject.Props)
