@@ -14,7 +14,7 @@ require (
 	github.com/hashicorp/go-plugin v1.7.0
 	github.com/kyverno/kyverno v1.14.2
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/oscal-compass/oscal-sdk-go v0.0.3
+	github.com/oscal-compass/oscal-sdk-go v0.0.9
 	github.com/otiai10/copy v1.14.1
 	github.com/spf13/cobra v1.10.1
 	github.com/spf13/pflag v1.0.9
@@ -303,5 +303,3 @@ require (
 	sigs.k8s.io/release-utils v0.11.1 // indirect
 	sigs.k8s.io/structured-merge-diff/v6 v6.3.0 // indirect
 )
-
-replace github.com/oscal-compass/oscal-sdk-go => github.com/jpower432/oscal-sdk-go v0.0.0-20251028210033-5ad580ad5923

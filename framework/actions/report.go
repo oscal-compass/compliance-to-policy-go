@@ -140,7 +140,7 @@ func Report(ctx context.Context, inputContext *InputContext, planHref string, pl
 		}
 
 		// Check if findings should be generated for this observation
-		if shouldGenerateFindings(obs, rule.Value) {
+		if shouldGenerateFindings(obs) {
 			oscalFindings, err = generateFindings(oscalFindings, obs, targets)
 			if err != nil {
 				return nil, fmt.Errorf("failed to create finding for check: %w", err)
@@ -224,7 +224,7 @@ func generateResource(subject *oscalTypes.SubjectReference) oscalTypes.Resource 
 // shouldGenerateFindings determines if findings should be generated for an observation
 // This function handles both observations with subjects and those without subjects,
 // and supports waive rules to prevent finding generation when appropriate.
-func shouldGenerateFindings(obs oscalTypes.Observation, ruleValue string) bool {
+func shouldGenerateFindings(obs oscalTypes.Observation) bool {
 	if obs.Subjects == nil {
 		// For observations without subjects, check if the observation itself is waived
 		// A finding is not needed for a waived rule

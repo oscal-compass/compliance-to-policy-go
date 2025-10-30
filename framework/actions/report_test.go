@@ -137,12 +137,10 @@ func TestShouldGenerateFinding(t *testing.T) {
 	tests := []struct {
 		name        string
 		observation oscalTypes.Observation
-		ruleId      string
 		result      bool
 	}{
 		{
-			name:   "Success/NewFinding",
-			ruleId: "example",
+			name: "Success/NewFinding",
 			observation: oscalTypes.Observation{
 				Props: &[]oscalTypes.Property{
 					{
@@ -160,8 +158,7 @@ func TestShouldGenerateFinding(t *testing.T) {
 			result: true,
 		},
 		{
-			name:   "Success/Waived",
-			ruleId: "example",
+			name: "Success/Waived",
 			observation: oscalTypes.Observation{
 				Props: &[]oscalTypes.Property{
 					{
@@ -184,8 +181,7 @@ func TestShouldGenerateFinding(t *testing.T) {
 			result: false,
 		},
 		{
-			name:   "Success/WithStatus",
-			ruleId: "example",
+			name: "Success/WithStatus",
 			observation: oscalTypes.Observation{
 				Props: &[]oscalTypes.Property{
 					{
@@ -214,8 +210,7 @@ func TestShouldGenerateFinding(t *testing.T) {
 			result: true,
 		},
 		{
-			name:   "Success/WaivedWithStatus",
-			ruleId: "example",
+			name: "Success/WaivedWithStatus",
 			observation: oscalTypes.Observation{
 				Props: &[]oscalTypes.Property{
 					{
@@ -251,7 +246,7 @@ func TestShouldGenerateFinding(t *testing.T) {
 	}
 
 	for _, c := range tests {
-		require.Equal(t, c.result, shouldGenerateFindings(c.observation, c.ruleId))
+		require.Equal(t, c.result, shouldGenerateFindings(c.observation))
 	}
 }
 
