@@ -127,8 +127,6 @@ func Report(ctx context.Context, inputContext *InputContext, planHref string, pl
 	// Create findings after initial observations are added to ensure only observations
 	// in-scope of the plan are checked for failure.
 	for _, obs := range *assessmentResults.Results[0].Observations {
-		// TODO: Empty props indicates that an activity was in scope that results were not received for.
-		// We should generate a finding here.
 		if obs.Props == nil {
 			continue
 		}
@@ -141,22 +139,13 @@ func Report(ctx context.Context, inputContext *InputContext, planHref string, pl
 			continue
 		}
 
-		// if the observation subject result prop is not "pass" then create relevant findings
-		if obs.Subjects != nil {
-			for _, subject := range *obs.Subjects {
-				result, found := extensions.GetTrestleProp("result", *subject.Props)
-				if !found {
-					continue
-				}
-				if result.Value != policy.ResultPass.String() {
-					oscalFindings, err = generateFindings(oscalFindings, obs, targets)
-					if err != nil {
-						return nil, fmt.Errorf("failed to create finding for check: %w", err)
-					}
-					log.Info(fmt.Sprintf("generated finding for rule %s for subject %s", rule.Value, subject.Title))
-					break
-				}
+		// Check if findings should be generated for this observation
+		if shouldGenerateFindings(obs) {
+			oscalFindings, err = generateFindings(oscalFindings, obs, targets)
+			if err != nil {
+				return nil, fmt.Errorf("failed to create finding for check: %w", err)
 			}
+			log.Info(fmt.Sprintf("generated finding for rule %s", rule.Value))
 		}
 	}
 
@@ -224,12 +213,46 @@ func generateInventoryItem(subject *oscalTypes.SubjectReference) oscalTypes.Inve
 
 // Generate an OSCAL Resource from a given Subject reference
 func generateResource(subject *oscalTypes.SubjectReference) oscalTypes.Resource {
-
 	resource := oscalTypes.Resource{
 		UUID:  subject.SubjectUuid,
 		Title: subject.Title,
 	}
 	return resource
+}
+
+// shouldGenerateFindings determines if findings should be generated for an observation
+// - Observations without subjects generate findings unless waived at observation level
+// - Observations with subjects only generate findings if they have non-waived subjects with failures
+// - Waived subjects are skipped (matching template logic where waived subjects don't count as failures)
+func shouldGenerateFindings(obs oscalTypes.Observation) bool {
+	// Check if observation-level waived (for observations without subjects)
+	if obs.Props != nil {
+		waived, found := extensions.GetTrestleProp(extensions.WaivedRulesProperty, *obs.Props)
+		if found && waived.Value == "true" {
+			return false
+		}
+	}
+
+	if obs.Subjects == nil {
+		// Generate findings by default for observations without subjects
+		// This handles the case where an activity was in scope but no results were received
+		return true
+	}
+
+	for _, subject := range *obs.Subjects {
+		if subject.Props != nil {
+			waived, found := extensions.GetTrestleProp(extensions.WaivedRulesProperty, *subject.Props)
+			if found && waived.Value == "true" {
+				continue
+			}
+		}
+
+		result, found := extensions.GetTrestleProp("result", *subject.Props)
+		if found && result.Value != policy.ResultPass.String() {
+			return true
+		}
+	}
+	return false
 }
 
 // getFindingForTarget returns an existing finding that matches the targetId if one exists in findings

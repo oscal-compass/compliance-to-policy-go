@@ -44,6 +44,7 @@ func NewOSCAL2Posture(logger hclog.Logger) *cobra.Command {
 	fs.String(Catalog, "", "path to catalog.json")
 	fs.StringP("assessment-results", "r", "./assessment-results.json", "path to assessment-results.json")
 	fs.StringP("out", "o", "-", "path to output file. Use '-' for stdout. Default '-'.")
+	fs.Bool("table", false, "output results in table format")
 	return command
 }
 
@@ -84,6 +85,9 @@ func runOSCAL2Posture(ctx context.Context, option *Options) error {
 	}
 
 	r := framework.NewPosture(assessmentResults, catalog, plan, option.logger)
+	if option.Table {
+		r.SetUseTableTemplate(true)
+	}
 	data, err := r.Generate(option.Output)
 	if err != nil {
 		return err

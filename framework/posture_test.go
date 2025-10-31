@@ -68,6 +68,21 @@ func TestGenerate(t *testing.T) {
 		t.Errorf("Error generating markdown: %v", err)
 	}
 	require.Equal(t, expectedmd, assessmentResultsMd)
+
+	// Test table template
+	posturemdTable := NewPosture(&assessmentResults, &oscalTypes.Catalog{Metadata: oscalTypes.Metadata{
+		Title: "Catalog Title",
+	}}, &assessmentPlan, hclog.NewNullLogger())
+	posturemdTable.SetUseTableTemplate(true)
+
+	expectedmd, err = os.ReadFile("./testdata/assessment-results-table.md")
+	if err != nil {
+		t.Fatalf("Failed to read file %s: %v", "./testdata/assessment-results-table.md", err)
+	}
+
+	assessmentResultsMd, err = posturemdTable.Generate("assessment-results-table.md")
+	require.NoError(t, err)
+	require.Equal(t, expectedmd, assessmentResultsMd)
 }
 
 // Mock data for testing

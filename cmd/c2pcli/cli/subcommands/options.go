@@ -53,6 +53,7 @@ type Options struct {
 	AssessmentResults string                       `yaml:"assessment-results" mapstructure:"assessment-results"`
 	Plugins           map[string]map[string]string `yaml:"plugins" mapstructure:"plugins"`
 	Output            string                       `yaml:"out" mapstructure:"out"`
+	Table             bool                         `yaml:"table" mapstructure:"table"`
 	AdvancedOptions   AdvancedOptions              `yaml:"advanced" mapstructure:"advanced"`
 	logger            hclog.Logger
 }

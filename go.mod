@@ -14,7 +14,7 @@ require (
 	github.com/hashicorp/go-plugin v1.7.0
 	github.com/kyverno/kyverno v1.14.2
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/oscal-compass/oscal-sdk-go v0.0.3
+	github.com/oscal-compass/oscal-sdk-go v0.0.9
 	github.com/otiai10/copy v1.14.1
 	github.com/spf13/cobra v1.10.1
 	github.com/spf13/pflag v1.0.9
