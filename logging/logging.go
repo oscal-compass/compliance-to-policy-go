@@ -29,6 +29,12 @@ func defaultLogger() hclog.Logger {
 	})
 }
 
+// SetLogger configures the global logger.
+// Should be called at application startup before using GetLogger.
+func SetLogger(l hclog.Logger) {
+	logger = l
+}
+
 // GetLogger returns a named hcl.Logger.
 func GetLogger(name string) hclog.Logger {
 	return logger.Named(name)
