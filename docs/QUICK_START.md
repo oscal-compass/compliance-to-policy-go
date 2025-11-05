@@ -15,6 +15,7 @@ Available Commands:
   oscal2policy  Transform OSCAL to policy artifacts.
   oscal2posture Generate Compliance Posture from OSCAL artifacts.
   result2oscal  Transform policy result artifacts to OSCAL Assessment Results.
+  tools         Utility tools for OSCAL transformations
   version       Display version
 
 Flags:
@@ -101,3 +102,21 @@ Use "c2pcli [command] --help" for more information about a command.
        "value": "true"
       }
     ```
+
+## Utility Tools
+
+The `tools` command provides utility functions for working with OSCAL artifacts.
+
+### Create an Assessment Plan from a Component Definition
+
+The `cd2ap` tool converts an OSCAL Component Definition to an Assessment Plan:
+
+```bash
+c2pcli tools cd2ap -d docs/component-definition.json -n nist_800_53 -o /tmp/assessment-plan.json
+cat /tmp/assessment-plan.json
+```
+
+**Parameters:**
+- `-d, --component-definition`: Path to the component-definition.json file (required)
+- `-n, --name`: Short name of the control source for the implementation to be evaluated (required)
+- `-o, --out`: Path to output OSCAL Assessment Plan (default: "./assessment-plan.json")

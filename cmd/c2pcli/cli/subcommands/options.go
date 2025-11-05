@@ -87,9 +87,9 @@ func (o *Options) Complete(cmd *cobra.Command) error {
 		if err := viper.ReadInConfig(); err != nil {
 			return err
 		}
-		return viper.Unmarshal(o)
 	}
-	return nil
+	// Always unmarshal from viper to get flag values (and config file values if loaded)
+	return viper.Unmarshal(o)
 }
 
 // Validate the completed Options struct
