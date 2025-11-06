@@ -112,7 +112,7 @@ The `tools` command provides utility functions for working with OSCAL artifacts.
 The `cd2ap` tool converts an OSCAL Component Definition to an Assessment Plan:
 
 ```bash
-c2pcli tools cd2ap -d docs/component-definition.json -n nist_800_53 -o /tmp/assessment-plan.json
+c2pcli tools cd2ap -d ./internal/testdata/oscal/component-definition-heterogeneous.json -n nist_800_53 -o /tmp/assessment-plan.json
 cat /tmp/assessment-plan.json
 ```
 
