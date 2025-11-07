@@ -83,7 +83,7 @@
 {{- $statusText = "Passed" }}
 {{- end}}
 {{- else }}
-{{- $statusEmoji = "🟡" 
+{{- $statusEmoji = "🟡" }}
 {{- $statusText = "Missing Results" }}
 {{- $missingRulesList = "All rules" }}
 {{- end}}
