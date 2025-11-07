@@ -82,7 +82,7 @@ func TestGenerate(t *testing.T) {
 
 	assessmentResultsMd, err = posturemdTable.Generate("assessment-results-table.md")
 	require.NoError(t, err)
-	require.Equal(t, expectedmd, assessmentResultsMd)
+	require.Equal(t, string(expectedmd), string(assessmentResultsMd))
 }
 
 // Mock data for testing
