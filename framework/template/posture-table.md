@@ -6,28 +6,34 @@
 
 ### Component: {{$component.ComponentTitle}}
 
-| Control ID | Status | Failed Rules | Missing Rules |
-|------------|--------|--------------|---------------|
+| Control ID | Status | Failed Rules | Missing Rules | Passed Rules |
+|------------|--------|--------------|---------------|--------------|
 {{- range $finding := $component.Findings}}
 {{- $statusEmoji := "🟡" }}
 {{- $statusText := "Missing Results" }}
 {{- $failedRulesList := "" }}
 {{- $missingRulesList := "" }}
+{{- $passedRulesList := "" }}
 {{- $hasAnyResults := false }}
 {{- if and $finding.Results (gt (len $finding.Results) 0) }}
 {{- $firstFailed := true }}
 {{- $firstMissing := true }}
+{{- $firstPassed := true }}
 {{- range $ruleResult := $finding.Results}}
 {{- $ruleFailed := false }}
+{{- $rulePassed := false }}
 {{- $hasSubjects := false }}
 {{- if and $ruleResult.Subjects (gt (len $ruleResult.Subjects) 0) }}
 {{- $hasSubjects = true }}
 {{- $hasAnyResults = true }}
 {{- range $subj := $ruleResult.Subjects}}
 {{- $subjFailed := false }}
+{{- $subjPassed := false }}
 {{- $subjIsWaived := false }}
 {{- range $prop := $subj.Props}}
-{{- if and (eq $prop.Name "result") (eq $prop.Value "fail") }}
+{{- if and (eq $prop.Name "result") (eq $prop.Value "pass") }}
+{{- $subjPassed = true }}
+{{- else if and (eq $prop.Name "result") (ne $prop.Value "pass") }}
 {{- $subjFailed = true }}
 {{- end}}
 {{- if and (eq $prop.Name "waived") (eq $prop.Value "true") }}
@@ -37,6 +43,9 @@
 {{- if and $subjFailed (not $subjIsWaived) }}
 {{- $ruleFailed = true }}
 {{- end}}
+{{- if and $subjPassed (not $subjIsWaived) }}
+{{- $rulePassed = true }}
+{{- end}}
 {{- end}}
 {{- if $ruleFailed }}
 {{- if $firstFailed }}
@@ -44,6 +53,13 @@
 {{- $firstFailed = false }}
 {{- else }}
 {{- $failedRulesList = printf "%s, %s" $failedRulesList $ruleResult.RuleId }}
+{{- end}}
+{{- else if and $hasSubjects $rulePassed }}
+{{- if $firstPassed }}
+{{- $passedRulesList = $ruleResult.RuleId }}
+{{- $firstPassed = false }}
+{{- else }}
+{{- $passedRulesList = printf "%s, %s" $passedRulesList $ruleResult.RuleId }}
 {{- end}}
 {{- end}}
 {{- end}}
@@ -62,15 +78,15 @@
 {{- else if ne $missingRulesList "" }}
 {{- $statusEmoji = "🟡" }}
 {{- $statusText = "Missing Results" }}
-{{- else if $hasAnyResults }}
+{{- else if ne $passedRulesList "" }}
 {{- $statusEmoji = "🟢" }}
 {{- $statusText = "Passed" }}
 {{- end}}
 {{- else }}
-{{- $statusEmoji = "🟡" }}
+{{- $statusEmoji = "🟡" 
 {{- $statusText = "Missing Results" }}
 {{- $missingRulesList = "All rules" }}
 {{- end}}
-| {{$finding.ControlID}} | {{$statusEmoji}} {{$statusText}} | {{if ne $failedRulesList ""}}{{$failedRulesList}}{{else}}-{{end}} | {{if ne $missingRulesList ""}}{{$missingRulesList}}{{else}}-{{end}} |
+| {{$finding.ControlID}} | {{$statusEmoji}} {{$statusText}} | {{if ne $failedRulesList ""}}{{$failedRulesList}}{{else}}-{{end}} | {{if ne $missingRulesList ""}}{{$missingRulesList}}{{else}}-{{end}} | {{if ne $passedRulesList ""}}{{$passedRulesList}}{{else}}-{{end}} |
 {{- end}}
 {{- end}}
