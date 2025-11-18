@@ -39,7 +39,7 @@ jobs:
       with:
           cosign-release: 'v2.6.1'
     - name: Install syft
-      uses: anchore/sbom-action/download-syft@v0.20.8
+      uses: anchore/sbom-action/download-syft@v0.20.10
     - name: Set env
       run: |
         if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
