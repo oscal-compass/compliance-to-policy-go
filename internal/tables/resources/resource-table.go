@@ -23,6 +23,8 @@ import (
 	"strings"
 
 	"github.com/olekukonko/tablewriter"
+	"github.com/olekukonko/tablewriter/renderer"
+	"github.com/olekukonko/tablewriter/tw"
 	"go.uber.org/zap"
 
 	"github.com/oscal-compass/compliance-to-policy-go/v2/internal/utils"
@@ -220,7 +222,7 @@ func (table *Table) ToCsv(writer io.Writer) {
 	wr.Flush()
 }
 
-func (table *Table) Print() {
+func (table *Table) Print() error {
 	data := [][]string{}
 	for _, row := range table.rows {
 		dataRow := []string{}
@@ -229,9 +231,17 @@ func (table *Table) Print() {
 		}
 		data = append(data, dataRow)
 	}
-	tw := tablewriter.NewWriter(os.Stdout)
-	tw.SetHeader(columns)
-	tw.SetBorder(false)
-	tw.AppendBulk(data)
-	tw.Render()
+	tab := tablewriter.NewTable(os.Stdout,
+		tablewriter.WithRenderer(renderer.NewBlueprint(tw.Rendition{
+			Borders: tw.BorderNone,
+		})),
+	)
+	tab.Header(columns)
+	for _, row := range data {
+		err := tab.Append(row)
+		if err != nil {
+			return err
+		}
+	}
+	return tab.Render()
 }
