@@ -1,6 +1,6 @@
 module github.com/oscal-compass/compliance-to-policy-go/v2
 
-go 1.24.6
+go 1.24.9
 
 require (
 	github.com/defenseunicorns/go-oscal v0.7.0
@@ -10,7 +10,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-hclog v1.6.3
 	github.com/hashicorp/go-plugin v1.7.0
-	github.com/kyverno/kyverno v1.15.2
+	github.com/kyverno/kyverno v1.15.3
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/oscal-compass/oscal-sdk-go v0.0.9
 	github.com/otiai10/copy v1.14.1
