@@ -19,6 +19,7 @@ package main
 import (
 	"bufio"
 	"flag"
+	"fmt"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -67,7 +68,11 @@ func main() {
 	t := resources.FromCsv(f)
 	filtered := t.Filter(filterFunc)
 	if format == "table" {
-		filtered.Print()
+		err = filtered.Print()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error printing table: %v\n", err)
+			os.Exit(1)
+		}
 	} else if format == "yaml" {
 		resources := []policycomposition.Resource{}
 		rows := filtered.List()
@@ -104,6 +109,10 @@ func main() {
 		_ = count
 		_ = writer.Flush()
 	} else {
-		t.Filter(filterFunc).Print()
+		err = t.Filter(filterFunc).Print()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error printing table: %v\n", err)
+			os.Exit(1)
+		}
 	}
 }

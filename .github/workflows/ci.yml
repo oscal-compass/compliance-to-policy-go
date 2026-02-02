@@ -25,12 +25,13 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@e7fa5ac41e1cf5b7d48e45e42232ce7ada589601 # v9.1.0
         with:
-          version: v2.1
-      - name: Install Prerequisites
+          version: v2.8
+      - name: Install Kustomize
+        uses: imranismail/setup-kustomize@v2
+      - name: Install Policy Generator
         run: |
-          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
           GOBIN=${HOME}/.config/kustomize/plugin/policy.open-cluster-management.io/v1/policygenerator \
-          go install open-cluster-management.io/policy-generator-plugin/cmd/PolicyGenerator@latest
+          go install open-cluster-management.io/policy-generator-plugin/cmd/PolicyGenerator@v1.17.1
       - name: Build
         run: make build
       - name: Run unit tests

@@ -6,9 +6,9 @@ policyDefaults:
   namespace: my-policies
   # Put each object in its own ConfigurationPolicy in the Policy
   consolidateManifests: false
-  # Use the name of an existing placement rule
+  # Use the name of an existing placement
   placement:
-    placementRuleName: placement-red-hat-cloud
+    placementName: placement-red-hat-cloud
 policies:
 - name: myapp
   manifests:
