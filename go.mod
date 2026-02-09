@@ -10,7 +10,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-hclog v1.6.3
 	github.com/hashicorp/go-plugin v1.7.0
-	github.com/kyverno/kyverno v1.16.2
+	github.com/kyverno/kyverno v1.16.3
 	github.com/olekukonko/tablewriter v1.1.3
 	github.com/oscal-compass/oscal-sdk-go v0.0.9
 	github.com/otiai10/copy v1.14.1
