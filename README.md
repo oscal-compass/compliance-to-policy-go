@@ -1,5 +1,6 @@
 # compliance-to-policy-go
 
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/oscal-compass/compliance-to-policy-go/badge)](https://scorecard.dev/viewer/?uri=github.com/oscal-compass/compliance-to-policy-go)
 
 # <img alt="Logo" width="50px" src="https://raw.githubusercontent.com/oscal-compass/compliance-to-policy-go/main/assets/compliance-to-policy-800x800.PNG" style="vertical-align: middle;" /> Compliance-to-Policy (also known as `C2P`)
 
