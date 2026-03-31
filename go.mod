@@ -4,7 +4,7 @@ go 1.25.5
 
 require (
 	github.com/defenseunicorns/go-oscal v0.7.0
-	github.com/go-git/go-git/v5 v5.16.4
+	github.com/go-git/go-git/v5 v5.16.5
 	github.com/go-viper/mapstructure/v2 v2.5.0
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
