@@ -27,7 +27,7 @@ jobs:
         with:
           version: v2.8
       - name: Install Kustomize
-        uses: imranismail/setup-kustomize@v2
+        uses: imranismail/setup-kustomize@v3
       - name: Install Policy Generator
         run: |
           GOBIN=${HOME}/.config/kustomize/plugin/policy.open-cluster-management.io/v1/policygenerator \
